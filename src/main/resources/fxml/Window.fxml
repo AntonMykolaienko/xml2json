@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="600.0" prefHeight="190.0" prefWidth="600.0" snapToPixel="false" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fs.xml2json.controller.WindowController">
+    <stylesheets>
+        <URL value="@/styles/window.css" />
+    </stylesheets>
+   <children>
+      <HBox layoutX="18.0" layoutY="14.0">
+         <children>
+            <Label layoutX="14.0" layoutY="21.0" prefHeight="25.0" prefWidth="96.0" text="Source file:" />
+            <TextField fx:id="inputPath" layoutX="117.0" layoutY="21.0" prefHeight="25.0" prefWidth="374.0" />
+            <Button fx:id="inputBrowseBtn" mnemonicParsing="false" onAction="#openBrowseDialogInput" prefHeight="25.0" prefWidth="96.0" text="Browse" />
+         </children>
+      </HBox>
+      <HBox layoutX="17.0" layoutY="47.0">
+         <children>
+            <Label layoutX="14.0" layoutY="59.0" prefHeight="25.0" prefWidth="96.0" text="Output file:" />
+            <TextField fx:id="outputPath" layoutX="117.0" layoutY="59.0" prefHeight="25.0" prefWidth="374.0" />
+            <Button fx:id="outputBrowseBtn" mnemonicParsing="false" onAction="#openBrowseDialogOutput" prefHeight="25.0" prefWidth="96.0" text="Browse" />
+         </children>
+      </HBox>
+      <HBox layoutX="18.0" layoutY="78.0">
+         <children>
+            <ProgressBar fx:id="progressBar" blendMode="DARKEN" layoutX="14.0" layoutY="97.0" prefHeight="18.0" prefWidth="532.0" progress="0.0" />
+            <Label fx:id="progressValue" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="558.0" layoutY="98.0" prefHeight="17.0" prefWidth="34.0" text="0%" />
+         </children>
+      </HBox>
+      <Button fx:id="startBtn" layoutX="235.0" layoutY="140.0" mnemonicParsing="false" onAction="#startConvertation" prefHeight="34.0" prefWidth="132.0" text="Start convert" />
+      <Label fx:id="message" alignment="CENTER" layoutX="14.0" layoutY="106.0" prefHeight="34.0" prefWidth="566.0" />
+   </children>
+</AnchorPane>
