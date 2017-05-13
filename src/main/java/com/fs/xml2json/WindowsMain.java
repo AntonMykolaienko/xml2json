@@ -31,9 +31,10 @@ public class WindowsMain extends Application {
             
             primaryStage.setMaxHeight(230);
             primaryStage.setMinHeight(230);
-//            primaryStage.setMinWidth(600);
+            
+            primaryStage.setMinWidth(600);
 
-            primaryStage.getIcons().add(new Image("favicon2.png"));
+            primaryStage.getIcons().add(new Image("favicon.png"));
 
             primaryStage.show();
         } catch (IOException ex) {
