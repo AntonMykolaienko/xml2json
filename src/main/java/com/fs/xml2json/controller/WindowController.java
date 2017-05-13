@@ -301,17 +301,19 @@ public class WindowController implements Initializable {
 //                    updateProgress(i + 1, 10);
 //                }
                 
-                Platform.runLater(() -> {
-                    startBtn.setDisable(false);
-                    startBtn.setText(Config.START_BUTTON__START);
-                    
-                    inputPath.setDisable(false);
-                    inputBrowseBtn.setDisable(false);
-                    outputPath.setDisable(false);
-                    outputBrowseBtn.setDisable(false);
-                    
-                    //message.setText("Finished");
-                });
+                if (!isCancelled()) {
+                    Platform.runLater(() -> {
+                        startBtn.setDisable(false);
+                        startBtn.setText(Config.START_BUTTON__START);
+
+                        inputPath.setDisable(false);
+                        inputBrowseBtn.setDisable(false);
+                        outputPath.setDisable(false);
+                        outputBrowseBtn.setDisable(false);
+
+                        message.setText("Finished");
+                    });
+                }
                 
                 return true;
             }
