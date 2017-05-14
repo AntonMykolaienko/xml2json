@@ -1,11 +1,14 @@
+---
 language: java
 
 cache:
   directories:
-- $HOME/.m2
+	- $HOME/.m2
 
-script: mvn clean test -B
+script: 
+	- jdk_switcher use oraclejdk8
+	- mvn clean test -B
 
 jdk:
-- openjdk8
+	- openjdk8
 
