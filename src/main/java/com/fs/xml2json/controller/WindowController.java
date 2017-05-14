@@ -193,6 +193,12 @@ public class WindowController extends AbstractController implements Initializabl
         }
     }
 
+    /**
+     * Creates fullpath for destination file based on source file (Replaces extension to opposite).
+     * 
+     * @param inputFile file to convert
+     * @return full path for destination file
+     */
     private String createOutputFilePath(File inputFile) {
         String fileNameWithoutExtension = inputFile.getName().substring(0, inputFile.getName().lastIndexOf("."));
 
