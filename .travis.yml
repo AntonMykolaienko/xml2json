@@ -4,6 +4,12 @@ language: java
 cache:
  directories:
   - $HOME/.m2
+  
+env:
+ - JDK=oraclejdk8
+
+before_script:
+ - jdk_switcher use $JDK
 
 jdk:
  - oraclejdk8
