@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
 <?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import java.net.*?>
@@ -12,52 +14,78 @@
     <stylesheets>
         <URL value="@/styles/window.css" />
     </stylesheets>
-   <children>
-      <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-         <children>
-            <AnchorPane minHeight="30.0" minWidth="500.0" prefHeight="30.0" prefWidth="200.0">
-               <children>
-                  <Label prefHeight="25.0" prefWidth="132.0" text="Source file:" />
-                  <TextField fx:id="inputPath" layoutX="116.0" prefHeight="25.0" prefWidth="359.0" AnchorPane.leftAnchor="116.0" AnchorPane.rightAnchor="105.0" />
-                  <Button fx:id="inputBrowseBtn" layoutX="493.0" mnemonicParsing="false" onAction="#openBrowseDialogInput" prefHeight="25.0" prefWidth="96.0" text="Browse" AnchorPane.rightAnchor="0.0" />
-               </children>
-               <VBox.margin>
-                  <Insets left="10.0" right="10.0" top="10.0" />
-               </VBox.margin>
-            </AnchorPane>
-            <AnchorPane minHeight="30.0" minWidth="500.0" prefHeight="30.0" prefWidth="200.0">
-               <children>
-                  <Label prefHeight="25.0" prefWidth="132.0" text="Output file:" />
-                  <TextField fx:id="outputPath" layoutX="116.0" minWidth="500.0" prefHeight="25.0" prefWidth="384.0" AnchorPane.leftAnchor="116.0" AnchorPane.rightAnchor="105.0" />
-                  <Button fx:id="outputBrowseBtn" layoutX="484.0" mnemonicParsing="false" onAction="#openBrowseDialogOutput" prefHeight="25.0" prefWidth="96.0" text="Browse" AnchorPane.rightAnchor="0.0" />
-               </children>
-               <VBox.margin>
-                  <Insets left="10.0" right="10.0" />
-               </VBox.margin>
-            </AnchorPane>
-            <AnchorPane prefHeight="30.0" prefWidth="200.0">
-               <children>
-                  <ProgressBar fx:id="progressBar" blendMode="DARKEN" minWidth="500.0" prefHeight="18.0" prefWidth="556.0" progress="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="45.0">
-                     <padding>
+    <children>
+        <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <children>
+                <AnchorPane minHeight="30.0" minWidth="500.0" prefHeight="30.0" prefWidth="200.0">
+                    <children>
+                        <Label prefHeight="25.0" prefWidth="132.0" text="Source file:" />
+                        <TextField fx:id="inputPath" layoutX="116.0" prefHeight="25.0" prefWidth="359.0" AnchorPane.leftAnchor="116.0" AnchorPane.rightAnchor="105.0" />
+                        <Button fx:id="inputBrowseBtn" layoutX="493.0" mnemonicParsing="false" onAction="#openBrowseDialogInput" prefHeight="25.0" prefWidth="96.0" text="Browse" AnchorPane.rightAnchor="0.0" />
+                    </children>
+                    <VBox.margin>
+                        <Insets left="10.0" right="10.0" top="10.0" />
+                    </VBox.margin>
+                </AnchorPane>
+                <AnchorPane minHeight="30.0" minWidth="500.0" prefHeight="30.0" prefWidth="200.0">
+                    <children>
+                        <Label prefHeight="25.0" prefWidth="132.0" text="Output file:" />
+                        <TextField fx:id="outputPath" layoutX="116.0" minWidth="500.0" prefHeight="25.0" prefWidth="384.0" AnchorPane.leftAnchor="116.0" AnchorPane.rightAnchor="105.0" />
+                        <Button fx:id="outputBrowseBtn" layoutX="484.0" mnemonicParsing="false" onAction="#openBrowseDialogOutput" prefHeight="25.0" prefWidth="96.0" text="Browse" AnchorPane.rightAnchor="0.0" />
+                    </children>
+                    <VBox.margin>
                         <Insets left="10.0" right="10.0" />
-                     </padding>
-                  </ProgressBar>
-                  <Label fx:id="progressValue" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="556.0" layoutY="1.0" prefHeight="17.0" prefWidth="34.0" text="0%" AnchorPane.rightAnchor="10.0" />
-               </children>
-            </AnchorPane>
-            <AnchorPane minWidth="500.0" prefWidth="500.0">
-               <children>
-                  <Button fx:id="startBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="234.0" layoutY="69.0" maxHeight="34.0" maxWidth="132.0" minHeight="34.0" minWidth="132.0" mnemonicParsing="false" onAction="#startConvertation" prefHeight="34.0" prefWidth="132.0" text="Start convert" AnchorPane.topAnchor="58.0" />
-                  <Label fx:id="message" alignment="CENTER" layoutY="48.0" prefHeight="18.0" prefWidth="600.0" AnchorPane.bottomAnchor="47.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="37.0" />
-               </children>
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
-               <padding>
-                  <Insets bottom="10.0" />
-               </padding>
-            </AnchorPane>
-         </children>
-      </VBox>
-   </children>
+                    </VBox.margin>
+                </AnchorPane>
+                <AnchorPane prefHeight="30.0" prefWidth="200.0">
+                    <children>
+                        <ProgressBar fx:id="progressBar" blendMode="DARKEN" minWidth="500.0" prefHeight="18.0" prefWidth="556.0" progress="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="45.0">
+                            <padding>
+                                <Insets left="10.0" right="10.0" />
+                            </padding>
+                        </ProgressBar>
+                        <Label fx:id="progressValue" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="556.0" layoutY="1.0" prefHeight="17.0" prefWidth="34.0" text="0%" AnchorPane.rightAnchor="10.0" />
+                    </children>
+                </AnchorPane>
+                <AnchorPane minWidth="500.0" prefHeight="50.0" prefWidth="500.0">
+                    <children>
+                        <Label fx:id="message" alignment="CENTER" layoutY="7.0" minWidth="500.0" prefHeight="18.0" prefWidth="500.0" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="10.0" />
+                        <HBox alignment="BOTTOM_CENTER" layoutY="40.0" prefHeight="44.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                            <children>
+                                <Button fx:id="startBtn" alignment="CENTER" contentDisplay="CENTER" maxHeight="34.0" maxWidth="132.0" minHeight="19.0" minWidth="132.0" mnemonicParsing="false" onAction="#startConvertation" prefHeight="30.0" prefWidth="132.0" text="Start convert" textAlignment="CENTER" />
+                            </children>
+                        </HBox>
+                    </children>
+                    <VBox.margin>
+                        <Insets />
+                    </VBox.margin>
+                    <opaqueInsets>
+                        <Insets />
+                    </opaqueInsets>
+                </AnchorPane>
+                <AnchorPane maxHeight="10.0" minHeight="10.0" minWidth="500.0" prefHeight="10.0" prefWidth="500.0">
+                    <children>
+                        <HBox layoutX="10.0" layoutY="-11.0" minWidth="500.0" prefHeight="20.0" prefWidth="500.0" AnchorPane.bottomAnchor="-12.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                            <children>
+                                <Label fx:id="version" contentDisplay="CENTER" prefHeight="23.0" styleClass="footer" text="Label" />
+                                <Hyperlink fx:id="donate" alignment="CENTER" styleClass="hyperlink-donate" text="Hyperlink" />
+                            </children>
+                            <opaqueInsets>
+                                <Insets />
+                            </opaqueInsets>
+                            <padding>
+                                <Insets top="10.0" />
+                            </padding>
+                        </HBox>
+                    </children>
+                    <opaqueInsets>
+                        <Insets />
+                    </opaqueInsets>
+                    <padding>
+                        <Insets left="10.0" right="10.0" />
+                    </padding>
+                </AnchorPane>
+            </children>
+        </VBox>
+    </children>
 </AnchorPane>

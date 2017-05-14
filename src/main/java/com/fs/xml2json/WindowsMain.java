@@ -1,6 +1,7 @@
 
 package com.fs.xml2json;
 
+import com.fs.xml2json.controller.HostServicesProvider;
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -24,6 +25,7 @@ public class WindowsMain extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
+            HostServicesProvider.INSTANCE.init(getHostServices());
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/Window.fxml"));
             Scene scene = new Scene(root);
             primaryStage.setTitle("Xml <-> Json Converter");

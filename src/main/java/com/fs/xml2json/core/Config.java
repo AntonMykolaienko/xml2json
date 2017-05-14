@@ -26,4 +26,6 @@ public class Config {
      * File name where all application configs will be stored.
      */
     public static final String APPLICATION_STORAGE_FILE_NAME = "config.txt";
+    
+    public static final String DONATE_LINK = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=33R3LMBMX3R96";
 }

@@ -67,8 +67,11 @@
                 <configuration>
                     <archive>
                         <index>true</index>
+                        <addMavenDescriptor>false</addMavenDescriptor>
                         <manifest>
                             <addClasspath>true</addClasspath>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                         <manifestEntries>
                             <Main-class>com.fs.xml2json.WindowsMain</Main-class>
@@ -89,6 +92,16 @@
                     <nativeOutputDir>${project.build.directory}/os/distribution</nativeOutputDir>
                     <nativeReleaseVersion>${project.version}</nativeReleaseVersion>
                     <appName>${project.name}</appName>
+                    
+                    <manifestAttributes>
+                        <Specification-Title>${project.name}</Specification-Title>
+                        <Specification-Version>${project.version}</Specification-Version>
+                        <Specification-Vendor>${project.organization.name}</Specification-Vendor>
+                        <Implementation-Title>${project.name}</Implementation-Title>
+                        <Implementation-Version>${project.version}</Implementation-Version>
+                        <Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
+                        <Implementation-Vendor>${project.organization.name</Implementation-Vendor>
+                    </manifestAttributes>
                     
                     <jvmArgs>
                         <argument>-Xmx512m</argument>

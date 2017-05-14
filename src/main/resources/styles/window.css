@@ -3,5 +3,20 @@
  */
 
 .mainFxmlClass {
+}
 
+.hyperlink-donate, .hyperlink-donate:visited {
+    -fx-border-width: 0;
+    -fx-background-color: transparent;
+    -fx-font-family: 'Roboto';
+    -fx-text-fill: #0096cc;
+    -fx-font-size: 12px;
+    -fx-font-style: italic;
+}
+
+.footer {
+    -fx-background-color: transparent;
+    -fx-font-family: 'Roboto';
+    -fx-text-fill: gray;
+    -fx-font-size: 12px;
 }
