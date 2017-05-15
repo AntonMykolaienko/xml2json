@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Static utils
+ * Static utils.
  *
  * @author Anton
  * @since 1.1.0
@@ -57,6 +57,11 @@ public class Utils {
     }
     
     
+    /**
+     * Saves files directory to Application config file.
+     * 
+     * @param path path to last opened file
+     */
     public static void saveLastPath(File path) {
         String usersDir = System.getProperty("user.home");
         File appDir = new File(usersDir, Config.APPLICATION_FOLDER_NAME);

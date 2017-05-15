@@ -19,8 +19,8 @@
             <children>
                 <AnchorPane minHeight="30.0" minWidth="500.0" prefHeight="30.0" prefWidth="200.0">
                     <children>
-                        <Label prefHeight="25.0" prefWidth="132.0" text="Source file:" />
-                        <TextField fx:id="inputPath" layoutX="116.0" prefHeight="25.0" prefWidth="359.0" AnchorPane.leftAnchor="116.0" AnchorPane.rightAnchor="105.0" />
+                        <Label prefHeight="25.0" prefWidth="80.0" text="Source file:" />
+                        <TextField fx:id="inputPath" layoutX="77.0" prefHeight="25.0" prefWidth="398.0" AnchorPane.leftAnchor="77.0" AnchorPane.rightAnchor="105.0" />
                         <Button fx:id="inputBrowseBtn" layoutX="493.0" mnemonicParsing="false" onAction="#openBrowseDialogInput" prefHeight="25.0" prefWidth="96.0" text="Browse" AnchorPane.rightAnchor="0.0" />
                     </children>
                     <VBox.margin>
@@ -29,8 +29,8 @@
                 </AnchorPane>
                 <AnchorPane minHeight="30.0" minWidth="500.0" prefHeight="30.0" prefWidth="200.0">
                     <children>
-                        <Label prefHeight="25.0" prefWidth="132.0" text="Output file:" />
-                        <TextField fx:id="outputPath" layoutX="116.0" minWidth="500.0" prefHeight="25.0" prefWidth="384.0" AnchorPane.leftAnchor="116.0" AnchorPane.rightAnchor="105.0" />
+                        <Label prefHeight="25.0" prefWidth="80.0" text="Output file:" />
+                        <TextField fx:id="outputPath" layoutX="77.0" minWidth="398.0" prefHeight="25.0" prefWidth="398.0" AnchorPane.leftAnchor="77.0" AnchorPane.rightAnchor="105.0" />
                         <Button fx:id="outputBrowseBtn" layoutX="484.0" mnemonicParsing="false" onAction="#openBrowseDialogOutput" prefHeight="25.0" prefWidth="96.0" text="Browse" AnchorPane.rightAnchor="0.0" />
                     </children>
                     <VBox.margin>
