@@ -5,7 +5,7 @@ cache:
  directories:
   - $HOME/.m2
 
-dist: trusty
+#dist: trusty
  
 before_script:
  - jdk_switcher use oraclejdk8
@@ -13,4 +13,4 @@ before_script:
 jdk:
  - oraclejdk8
 
-script: mvn clean test -B
+script: mvn clean package
