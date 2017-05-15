@@ -4,8 +4,6 @@ import com.fs.xml2json.core.Config;
 import com.fs.xml2json.io.WrappedInputStream;
 import com.fs.xml2json.type.FileTypeEnum;
 import com.fs.xml2json.util.Utils;
-import com.sun.deploy.uitoolkit.impl.fx.HostServicesFactory;
-import com.sun.javafx.application.HostServicesDelegate;
 import com.sun.javafx.stage.StageHelper;
 import de.odysseus.staxon.json.JsonXMLConfig;
 import de.odysseus.staxon.json.JsonXMLConfigBuilder;
@@ -26,11 +24,11 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -48,7 +46,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Stage;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
@@ -104,15 +101,13 @@ public class WindowController extends AbstractController implements Initializabl
     @FXML
     Label version;
 
-    private Task convertTask = null;
+//    private Task convertTask = null;
+    private Service service = null;
     private String path;
     private FileTypeEnum inputFileType;
     private final DoubleProperty processedBytes = new SimpleDoubleProperty(0);
     private final AtomicBoolean inProgress = new AtomicBoolean(false);
 
-
-    
-    
     /**
      * Initializes the controller class.
      *
@@ -133,10 +128,6 @@ public class WindowController extends AbstractController implements Initializabl
             HostServicesProvider.INSTANCE.getHostServices().showDocument(Config.DONATE_LINK);
         });
     }
-
-
-    
-    
 
     public void openBrowseDialogInput(ActionEvent event) {
         reset();
@@ -194,8 +185,9 @@ public class WindowController extends AbstractController implements Initializabl
     }
 
     /**
-     * Creates fullpath for destination file based on source file (Replaces extension to opposite).
-     * 
+     * Creates fullpath for destination file based on source file (Replaces
+     * extension to opposite).
+     *
      * @param inputFile file to convert
      * @return full path for destination file
      */
@@ -226,9 +218,13 @@ public class WindowController extends AbstractController implements Initializabl
             progressBar.progressProperty().unbind();
 
             // cancel converting task
-            if (null != convertTask) {
-                convertTask.cancel();
-                convertTask = null;
+//            if (null != convertTask) {
+//                convertTask.cancel();
+//                convertTask = null;
+//            }
+            if (null != service) {
+                service.cancel();
+                service = null;
             }
 
             inProgress.set(false);
@@ -254,7 +250,6 @@ public class WindowController extends AbstractController implements Initializabl
         // show errors
         if (hasErrors) {
             Alert alert = new Alert(AlertType.ERROR, errorMessage, ButtonType.OK);
-            //alert.initOwner((Stage) inputPath.getScene().getWindow());  
             alert.initOwner(StageHelper.getStages().get(0));
 
             DialogPane dialogPane = alert.getDialogPane();
@@ -271,8 +266,8 @@ public class WindowController extends AbstractController implements Initializabl
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
             dialog.getDialogPane().setContentText("File '" + outputPath.getText() + "' already exists, overwrite?");
-            dialog.getDialogPane().setMinWidth(600);
-            dialog.initOwner((Stage) outputPath.getScene().getWindow());
+            //dialog.getDialogPane().setMinWidth(600);
+            dialog.initOwner(StageHelper.getStages().get(0));
             dialog.setTitle("File already exists");
             dialog.showAndWait();
 
@@ -285,9 +280,6 @@ public class WindowController extends AbstractController implements Initializabl
             }
         }
 
-        // disable button
-        //startBtn.setText("Working");
-        //startBtn.setDisable(true);
         startBtn.setText(Config.START_BUTTON__CANCEL);
         startBtn.setDisable(false);
 
@@ -298,55 +290,54 @@ public class WindowController extends AbstractController implements Initializabl
         progressBar.progressProperty().bind(processedBytes);
         reset();
         inProgress.set(true);
-//        Platform.runLater(() -> {
-//            
-//            // start convertation
-//            //convertFile();
-//            while (processedBytes.get() < 1.0) {
-//                try {
-//                    Thread.sleep(1000);
-//                } catch (InterruptedException ex) {
-//                    
+        
+        
+        service = new ConvertService();
+        service.setOnFailed(faultEvent -> {
+            inProgress.set(false);
+            logger.error(faultEvent.getEventType().toString());
+            Platform.runLater(() -> {
+                enableOrDisableButtonsAndInputs(false);
+
+                message.setText("Finished with exception");
+            });
+        });
+        service.setOnCancelled(cancelEvent -> {
+        });
+        service.setOnSucceeded(successEvent -> {
+            Platform.runLater(() -> {
+                startBtn.setDisable(false);
+                startBtn.setText(Config.START_BUTTON__START);
+
+                enableOrDisableButtonsAndInputs(false);
+
+                message.setText("Finished");
+            });
+        });
+        service.start();
+
+//        convertTask = new Task() {
+//            @Override
+//            protected Object call() throws Exception {
+//                // start convertation
+//                convertFile();
+//
+//                if (!isCancelled()) {
+//                    Platform.runLater(() -> {
+//                        startBtn.setDisable(false);
+//                        startBtn.setText(Config.START_BUTTON__START);
+//
+//                        enableOrDisableButtonsAndInputs(false);
+//
+//                        message.setText("Finished");
+//                    });
 //                }
-//                processedBytes.set(processedBytes.get()+0.1);
+//
+//                return true;
 //            }
-//            
-//            startBtn.setDisable(false);
-//            startBtn.setText("Start convert");
-//        });
-
-        convertTask = new Task() {
-            @Override
-            protected Object call() throws Exception {
-                // start convertation
-                convertFile();
-//                for (int i = 0; i < 10; i++) {
-//                    try {
-//                        Thread.sleep(100);
-//                    } catch (InterruptedException e) {
-//                        Thread.interrupted();
-//                        break;
-//                    }
-//                    System.out.println(i + 1);
-//                    updateProgress(i + 1, 10);
-//                }
-
-                if (!isCancelled()) {
-                    Platform.runLater(() -> {
-                        startBtn.setDisable(false);
-                        startBtn.setText(Config.START_BUTTON__START);
-
-                        enableOrDisableButtonsAndInputs(false);
-
-                        message.setText("Finished");
-                    });
-                }
-
-                return true;
-            }
-        };
-
-        new Thread(convertTask, "ConvertingThread").start();
+//        };
+//
+//        new Thread(convertTask, "ConvertingThread").start();
     }
 
     private boolean isXml(TextField txtField) {
@@ -500,5 +491,33 @@ public class WindowController extends AbstractController implements Initializabl
 
     private void reset() {
         message.setText("");
+    }
+
+    private class ConvertService extends Service {
+
+        @Override
+        protected Task createTask() {
+            return new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    // start convertation
+                    convertFile();
+
+                    if (!isCancelled()) {
+                        Platform.runLater(() -> {
+                            startBtn.setDisable(false);
+                            startBtn.setText(Config.START_BUTTON__START);
+
+                            enableOrDisableButtonsAndInputs(false);
+
+                            message.setText("Finished");
+                        });
+                    }
+
+                    return true;
+                }
+            };
+        }
+        
     }
 }
