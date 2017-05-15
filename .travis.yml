@@ -5,10 +5,11 @@ cache:
  directories:
   - $HOME/.m2
 
-#dist: trusty
+#use this distrib for actual java version
+dist: trusty
  
-before_script:
- - jdk_switcher use oraclejdk8
+#before_script:
+# - jdk_switcher use oraclejdk8
 
 jdk:
  - oraclejdk8
