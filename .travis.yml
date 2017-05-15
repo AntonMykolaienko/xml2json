@@ -7,6 +7,15 @@ cache:
 
 #use this distrib for actual java version
 dist: trusty
+
+ matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+    - os: osx
+    - os: windows
+  
  
 #before_script:
 # - jdk_switcher use oraclejdk8
