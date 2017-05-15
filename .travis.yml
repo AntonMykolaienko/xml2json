@@ -6,15 +6,15 @@ cache:
   - $HOME/.m2
 
 #use this distrib for actual java version
-dist: trusty
+#dist: trusty
 
- matrix:
-  include:
-    - os: linux
-      dist: trusty
-      sudo: required
-    - os: osx
-    - os: windows
+matrix:
+ include:
+  - os: linux
+    dist: trusty
+    sudo: required
+  - os: osx
+  - os: windows
   
  
 #before_script:
