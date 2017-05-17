@@ -3,7 +3,7 @@ package com.fs.xml2json.controller;
 import com.fs.xml2json.core.Config;
 import com.fs.xml2json.io.WrappedInputStream;
 import com.fs.xml2json.type.FileTypeEnum;
-import com.fs.xml2json.util.Utils;
+import com.fs.xml2json.util.ConfigUtils;
 import com.sun.javafx.stage.StageHelper;
 import de.odysseus.staxon.json.JsonXMLConfig;
 import de.odysseus.staxon.json.JsonXMLConfigBuilder;
@@ -33,7 +33,6 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.HPos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -141,7 +140,7 @@ public class WindowController extends AbstractController implements Initializabl
         if (null != path) {
             fileChooser.setInitialDirectory(new File(path));
         } else {
-            path = Utils.readLastPath();
+            path = ConfigUtils.readLastPath();
             if (null != path) {
                 fileChooser.setInitialDirectory(new File(path));
             }
@@ -157,7 +156,7 @@ public class WindowController extends AbstractController implements Initializabl
             outputPath.setText(createOutputFilePath(selectedFile));
 
             inputFileType = FileTypeEnum.parseByFileName(selectedFile.getName());
-            Utils.saveLastPath(selectedFile);
+            ConfigUtils.saveLastPath(selectedFile);
         }
     }
 
@@ -167,7 +166,7 @@ public class WindowController extends AbstractController implements Initializabl
         if (null != path) {
             fileChooser.setInitialDirectory(new File(path));
         } else {
-            path = Utils.readLastPath();
+            path = ConfigUtils.readLastPath();
             if (null != path) {
                 fileChooser.setInitialDirectory(new File(path));
             }
@@ -186,7 +185,7 @@ public class WindowController extends AbstractController implements Initializabl
         File selectedFile = fileChooser.showOpenDialog(null);
         if (null != selectedFile) {
             outputPath.setText(selectedFile.getAbsolutePath());
-            Utils.saveLastPath(selectedFile);
+            ConfigUtils.saveLastPath(selectedFile);
         }
     }
 
@@ -266,19 +265,19 @@ public class WindowController extends AbstractController implements Initializabl
             textFlow.getChildren().addAll(text);
 
             alert.getDialogPane().setContent(textFlow);
-            alert.getDialogPane().setMinHeight(50);
-            alert.getDialogPane().setMinWidth(200);
+            alert.getDialogPane().setMinHeight(100);
+            alert.getDialogPane().setMinWidth(300);
 
             DialogPane dialogPane = alert.getDialogPane();
             dialogPane.setHeader(new GridPane());
             dialogPane.setGraphic(null);
             dialogPane.setCenterShape(true);
-            alert.showAndWait();
             
-            double mainWindowWidth = alert.getOwner().getWidth();
-            //alert.setX((mainWindowWidth - alert.getDialogPane().getWidth()) / 2);
-            alert.setX(0);
-            alert.setY(0);
+            //alert.setX(alert.getOwner().getX() + (alert.getOwner().getWidth() - alert.getWidth())/2);
+            alert.setX(alert.getOwner().getX() + (alert.getOwner().getWidth() - alert.getDialogPane().getWidth())/2);
+            alert.setY(alert.getOwner().getY() + 50);
+            
+            alert.showAndWait();
 
             return;
         }
