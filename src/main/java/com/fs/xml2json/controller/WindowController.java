@@ -23,6 +23,7 @@ import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.ResourceBundle;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
@@ -79,6 +80,7 @@ public class WindowController extends AbstractController implements Initializabl
 
     private static final Logger logger = LoggerFactory.getLogger(WindowController.class);
 
+    
     @FXML
     Button inputBrowseBtn;
     @FXML
@@ -112,6 +114,7 @@ public class WindowController extends AbstractController implements Initializabl
     private final DoubleProperty processedBytes = new SimpleDoubleProperty(0);
     private final AtomicBoolean inProgress = new AtomicBoolean(false);
     private final AtomicBoolean isFailed = new AtomicBoolean(false);
+    private final AtomicBoolean isCanceled = new AtomicBoolean(false);
 
     /**
      * Initializes the controller class.
@@ -132,6 +135,8 @@ public class WindowController extends AbstractController implements Initializabl
         donate.setOnAction((ActionEvent e) -> {
             HostServicesProvider.INSTANCE.getHostServices().showDocument(Config.DONATE_LINK);
         });
+        
+        // TODO: check updates
     }
 
     public void openBrowseDialogInput(ActionEvent event) {
@@ -145,7 +150,7 @@ public class WindowController extends AbstractController implements Initializabl
                 fileChooser.setInitialDirectory(new File(path));
             }
         }
-
+        
         fileChooser.getExtensionFilters().addAll(EXTENSION_XML_OR_JSON);
         File selectedFile = fileChooser.showOpenDialog(null);
 
@@ -161,7 +166,7 @@ public class WindowController extends AbstractController implements Initializabl
     }
 
     public void openBrowseDialogOutput(ActionEvent event) {
-        reset();
+        reset();        
         FileChooser fileChooser = new FileChooser();
         if (null != path) {
             fileChooser.setInitialDirectory(new File(path));
@@ -209,8 +214,9 @@ public class WindowController extends AbstractController implements Initializabl
     }
 
     public void startConvertation(ActionEvent event) {
-        if (inProgress.get()) {
+        if (inProgress.get()) { // handle cancel event
             Platform.runLater(() -> {
+                isCanceled.compareAndSet(false, true);
                 startBtn.setDisable(false);
                 startBtn.setText(Config.START_BUTTON__START);
 
@@ -219,12 +225,12 @@ public class WindowController extends AbstractController implements Initializabl
                 message.setText("Canceled");
             });
 
-            processedBytes.set(0);
-            progressBar.progressProperty().unbind();
+            //processedBytes.set(0);
+            //progressBar.progressProperty().unbind();
 
             // cancel converting task
             if (null != convertTask) {
-                convertTask.cancel();
+                //convertTask.cancel();
                 convertTask = null;
             }
 //            if (null != service) {
@@ -233,6 +239,7 @@ public class WindowController extends AbstractController implements Initializabl
 //            }
 
             inProgress.set(false);
+            isCanceled.compareAndSet(true, false);
 
             return;
         }
@@ -273,7 +280,6 @@ public class WindowController extends AbstractController implements Initializabl
             dialogPane.setGraphic(null);
             dialogPane.setCenterShape(true);
             
-            //alert.setX(alert.getOwner().getX() + (alert.getOwner().getWidth() - alert.getWidth())/2);
             alert.setX(alert.getOwner().getX() + (alert.getOwner().getWidth() - alert.getDialogPane().getWidth())/2);
             alert.setY(alert.getOwner().getY() + 50);
             
@@ -283,7 +289,7 @@ public class WindowController extends AbstractController implements Initializabl
         }
 
         File output = new File(outputPath.getText());
-        if (output.exists()) {
+        if (output.exists()) {            
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
             
@@ -294,7 +300,6 @@ public class WindowController extends AbstractController implements Initializabl
             textFlow.getChildren().addAll(text);
             
             dialog.getDialogPane().setContent(textFlow);
-            //dialog.getDialogPane().setMinWidth(600);
             dialog.initOwner(StageHelper.getStages().get(0));
             dialog.setTitle("File already exists");
             dialog.showAndWait();
@@ -309,6 +314,8 @@ public class WindowController extends AbstractController implements Initializabl
         }
 
         isFailed.compareAndSet(true, false);
+        isCanceled.compareAndSet(true, false);
+        inProgress.set(true);
         startBtn.setText(Config.START_BUTTON__CANCEL);
         startBtn.setDisable(false);
 
@@ -318,7 +325,7 @@ public class WindowController extends AbstractController implements Initializabl
         progressBar.progressProperty().unbind();
         progressBar.progressProperty().bind(processedBytes);
         reset();
-        inProgress.set(true);
+        
         
         
 //        service = new ConvertService();
@@ -349,17 +356,30 @@ public class WindowController extends AbstractController implements Initializabl
             @Override
             protected Object call() throws Exception {
                 // start convertation
-                convertFile();
+                StopWatch sw = new StopWatch();
+                
+                sw.start();
+                try {
+                    convertFile();
+                    
+                    if (!isCanceled.get() && !isFailed.get()) {
+                        Platform.runLater(() -> {
+                            startBtn.setDisable(false);
+                            startBtn.setText(Config.START_BUTTON__START);
 
-                if (!isCancelled() && !isFailed.get()) {
-                    Platform.runLater(() -> {
-                        startBtn.setDisable(false);
-                        startBtn.setText(Config.START_BUTTON__START);
+                            enableOrDisableButtonsAndInputs(false);
 
-                        enableOrDisableButtonsAndInputs(false);
-
-                        message.setText("Finished");
-                    });
+                            String timePattern = "%02d:%02d";
+                            long seconds = sw.getTime(TimeUnit.SECONDS);
+                            message.setText("Finished in " + String.format(timePattern, seconds/60, seconds%60));
+                        });
+                    }
+                } finally {
+                    if (!sw.isStarted()) {
+                        try {
+                            sw.stop();
+                        } catch (Exception ex) {}
+                    }
                 }
 
                 return true;
@@ -369,7 +389,9 @@ public class WindowController extends AbstractController implements Initializabl
             protected void failed() {
                 super.failed();
                 
-                message.setText("Finished with errors");
+                if (!isCanceled.get()) {
+                    message.setText("Finished with errors");
+                }
                 isFailed.compareAndSet(false, true);
                 inProgress.compareAndSet(true, false);
                 startBtn.setText(Config.START_BUTTON__START);
@@ -415,7 +437,7 @@ public class WindowController extends AbstractController implements Initializabl
             long fileSizeInBytes = inputFile.length();
 
             input = new WrappedInputStream(new BufferedInputStream(new FileInputStream(inputFile)),
-                    processedBytes, fileSizeInBytes);
+                    processedBytes, fileSizeInBytes, isCanceled);
 
             JsonXMLConfig config = createConfig();
 

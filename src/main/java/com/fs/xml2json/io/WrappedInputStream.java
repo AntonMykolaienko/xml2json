@@ -2,6 +2,7 @@ package com.fs.xml2json.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.beans.property.DoubleProperty;
 
 /**
@@ -17,6 +18,7 @@ public class WrappedInputStream extends InputStream {
     private final DoubleProperty processedBytes;
     private final long fileBytes;
     private long bytesRead = 0;
+    private final AtomicBoolean isCancel;
 
     /**
      * Constructor.
@@ -24,12 +26,15 @@ public class WrappedInputStream extends InputStream {
      * @param input source input stream
      * @param processedBytes updatable pramaeter
      * @param fileBytes number of bytes of source file
+     * @param isCancel flag which indicates that process have been canceled
      */
-    public WrappedInputStream(InputStream input, DoubleProperty processedBytes, long fileBytes) {
+    public WrappedInputStream(InputStream input, DoubleProperty processedBytes, long fileBytes,
+            AtomicBoolean isCancel) {
         
         this.input = input;
         this.processedBytes = processedBytes;
         this.fileBytes = fileBytes;
+        this.isCancel = isCancel;
     }
 
     @Override
@@ -47,6 +52,11 @@ public class WrappedInputStream extends InputStream {
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
         int bytes = input.read(b, off, len);
+        
+        if (isCancel.get()) {
+            bytesRead = 0;
+            return -1;
+        }
 
         if (-1 == bytes) {
             processedBytes.set(1.0);

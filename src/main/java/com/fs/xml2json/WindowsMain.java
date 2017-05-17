@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 public class WindowsMain extends Application {
     
     private static final Logger logger = LoggerFactory.getLogger(WindowsMain.class);
+
     
     @Override
     public void start(Stage primaryStage) {
@@ -37,6 +38,10 @@ public class WindowsMain extends Application {
             primaryStage.setMinWidth(600);
 
             primaryStage.getIcons().add(new Image("favicon.png"));
+            
+            primaryStage.setOnCloseRequest(event -> {
+                logger.info("Shuting down application...");
+            });
 
             primaryStage.show();
         } catch (IOException ex) {
