@@ -124,6 +124,7 @@
                     
                     <jvmArgs>
                         <argument>-Xmx512m</argument>
+                        <argument>-Dvisualvm.display.name=${project.name}</argument>
                     </jvmArgs>
                 </configuration>
                 <executions>

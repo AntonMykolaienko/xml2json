@@ -9,6 +9,7 @@ import de.odysseus.staxon.json.JsonXMLConfig;
 import de.odysseus.staxon.json.JsonXMLConfigBuilder;
 import de.odysseus.staxon.json.JsonXMLInputFactory;
 import de.odysseus.staxon.json.JsonXMLOutputFactory;
+import de.odysseus.staxon.json.util.XMLMultipleEventWriter;
 import de.odysseus.staxon.xml.util.PrettyXMLEventWriter;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -446,6 +447,12 @@ public class WindowController extends AbstractController implements Initializabl
                     StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE));
 
             sw.start();
+            
+            // TODO: if source is xml then read file first and determine arrays
+            if (isXml(inputPath)) {
+                
+                //writer = new XMLMultipleEventWriter(writer, true, "/alice/bob");
+            }
 
             // Create reader.
             reader = createReader(config, input);
@@ -523,7 +530,7 @@ public class WindowController extends AbstractController implements Initializabl
                 * automatically converted to JSON primitives (number, boolean, null).
                  */
                 return new JsonXMLConfigBuilder()
-                        .autoArray(true)
+                        .autoArray(false)
                         .autoPrimitive(true)
                         .prettyPrint(true)
                         .build();
