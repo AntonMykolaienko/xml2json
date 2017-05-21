@@ -42,7 +42,7 @@ public class WrappedInputStream extends InputStream {
         int b = input.read();
 
         if (-1 == b) {
-            processedBytes.set(1.0);
+            //processedBytes.set(1.0);
             bytesRead = 0;
         }
 
@@ -59,7 +59,7 @@ public class WrappedInputStream extends InputStream {
         }
 
         if (-1 == bytes) {
-            processedBytes.set(1.0);
+            //processedBytes.set(1.0);
             bytesRead = 0;
         }
 

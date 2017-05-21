@@ -15,6 +15,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,7 +23,11 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -56,7 +61,9 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -436,6 +443,10 @@ public class WindowController extends AbstractController implements Initializabl
         XMLEventWriter writer = null;
         try {
             long fileSizeInBytes = inputFile.length();
+            
+            if (isXml(inputPath)) {
+                fileSizeInBytes *= 2;
+            }
 
             input = new WrappedInputStream(new BufferedInputStream(new FileInputStream(inputFile)),
                     processedBytes, fileSizeInBytes, isCanceled);
@@ -450,8 +461,8 @@ public class WindowController extends AbstractController implements Initializabl
             
             // TODO: if source is xml then read file first and determine arrays
             if (isXml(inputPath)) {
-                
-                //writer = new XMLMultipleEventWriter(writer, true, "/alice/bob");
+                List<String> fileArrays = determineArrays(inputFile);
+                writer = new XMLMultipleEventWriter(writer, true, fileArrays.toArray(new String[]{}));
             }
 
             // Create reader.
@@ -467,6 +478,7 @@ public class WindowController extends AbstractController implements Initializabl
             writer.close();
 
             processedBytes.set(1.0);
+            inProgress.compareAndSet(true, false);
         } catch (IOException | XMLStreamException ex) {
             logger.error(ex.toString());
             throw new RuntimeException(ex);
@@ -504,6 +516,74 @@ public class WindowController extends AbstractController implements Initializabl
         }
     }
 
+    
+    private List<String> determineArrays(File file) throws FileNotFoundException, XMLStreamException {
+        XMLStreamReader sr = null;
+        InputStream input = null;
+        try {
+            input = new WrappedInputStream(new BufferedInputStream(new FileInputStream(file)),
+                    processedBytes, file.length()*2, isCanceled);
+            
+            XMLInputFactory f = XMLInputFactory.newFactory();
+            sr = f.createXMLStreamReader(input);
+
+            String propertyName = "";
+            String propertyValue = "";
+            String currentElement = "";
+
+            HashMap<String, XmlNode> tree = new LinkedHashMap();
+            
+            while (sr.hasNext() && !isCanceled.get()) {
+                int code = sr.next();
+                switch (code) {
+                    case XMLStreamConstants.START_ELEMENT:
+                        currentElement = sr.getLocalName();
+                        XmlNode node = tree.get(currentElement.toLowerCase());
+                        if (null != node) { // node exists (array?)
+                            // TODO:
+                        }
+                        //System.out.println(currentElement);
+                        break;
+                    case XMLStreamConstants.END_ELEMENT:
+                        currentElement = sr.getLocalName();
+                        //System.out.println("/"+currentElement);
+                        break;
+                    case XMLStreamConstants.CHARACTERS:
+                        if (currentElement.equalsIgnoreCase("element")) {
+                            propertyName += sr.getText();
+                        } else if (currentElement.equalsIgnoreCase("attribute")) {
+                            propertyValue += sr.getText();
+                        }
+                        break;
+                    }
+
+            }
+
+            sr.close();
+            
+            // TODO: implement read
+        } finally {
+            if (null != input) {
+                try {
+                    input.close();
+                } catch (IOException ex) {
+                    logger.error(ex.toString());
+                }
+            }
+            if (null != sr) {
+                sr.close();
+            }
+        }
+        
+        return new ArrayList<>();
+    }
+    
+    private class XmlNode {
+        private String nodeName;
+        private int occurrence;
+        private XmlNode nestedNode;
+    }
+    
     private JsonXMLConfig createConfig() {
         switch (inputFileType) {
             case JSON:
