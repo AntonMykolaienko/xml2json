@@ -23,12 +23,14 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
@@ -138,7 +140,8 @@ public class WindowController extends AbstractController implements Initializabl
             });
         });
 
-        version.setText("Author: Anton Mykolaienko; Version: " + getVersion() + "; ");
+        String versionTxt = "Version: " + getVersion() + "; ";
+        version.setText(versionTxt);
         donate.setText("Donate");
         donate.setOnAction((ActionEvent e) -> {
             HostServicesProvider.INSTANCE.getHostServices().showDocument(Config.DONATE_LINK);
@@ -167,6 +170,7 @@ public class WindowController extends AbstractController implements Initializabl
 
             inputPath.setText(selectedFile.getAbsolutePath());
             outputPath.setText(createOutputFilePath(selectedFile));
+            processedBytes.set(0);
 
             inputFileType = FileTypeEnum.parseByFileName(selectedFile.getName());
             ConfigUtils.saveLastPath(selectedFile);
@@ -479,8 +483,9 @@ public class WindowController extends AbstractController implements Initializabl
 
             processedBytes.set(1.0);
             inProgress.compareAndSet(true, false);
-        } catch (IOException | XMLStreamException ex) {
-            logger.error(ex.toString());
+        } catch (Exception ex) {
+            //logger.error(ex.toString());
+            ex.printStackTrace();
             throw new RuntimeException(ex);
         } finally {
             logger.info("Taken time: {}", sw);
@@ -531,22 +536,62 @@ public class WindowController extends AbstractController implements Initializabl
             String propertyValue = "";
             String currentElement = "";
 
-            HashMap<String, XmlNode> tree = new LinkedHashMap();
+            Set<String> arrayKeys = new HashSet<>();
+            Map<String, XmlNode> tree = new LinkedHashMap();
             
+            XmlNode root = new XmlNode();
+            
+            String path = "/";
+            XmlNode parentNode = root;
+            int level = 0;
             while (sr.hasNext() && !isCanceled.get()) {
                 int code = sr.next();
                 switch (code) {
                     case XMLStreamConstants.START_ELEMENT:
                         currentElement = sr.getLocalName();
-                        XmlNode node = tree.get(currentElement.toLowerCase());
-                        if (null != node) { // node exists (array?)
-                            // TODO:
+                        if (!path.endsWith("/")) {
+                            path += "/";
                         }
-                        //System.out.println(currentElement);
+                        path = path + currentElement.toLowerCase();
+                        XmlNode node = tree.get(path);
+                        if (null == node) { // node exists (array?)
+                            level++;
+//                            if (parentNode.occurrence > 1) {
+//                                parentNode.occurrence = 1;
+//                            }
+                            node = new XmlNode(currentElement.toLowerCase());
+                            if (parentNode.equals(tree.get(path.substring(0, path.lastIndexOf("/"))))) {
+                                // same level
+                                // TODO:
+                            }
+                            parentNode = tree.get(path.substring(0, path.lastIndexOf("/")));
+                            if (null == parentNode) {
+                                parentNode = root;
+                            }
+                            node.parentNode = parentNode;
+                            parentNode.nestedNode = node;
+                            //parentNode = node;
+                            tree.put(path, node);
+                        } else {
+                            node.occurrence += 1;
+                            if (node.occurrence >= 2 && !arrayKeys.contains(path)) {
+                                arrayKeys.add(path);
+                            }
+                        }
                         break;
                     case XMLStreamConstants.END_ELEMENT:
+                        level--;
                         currentElement = sr.getLocalName();
-                        //System.out.println("/"+currentElement);
+                        if (path.endsWith(currentElement.toLowerCase())) {
+                            XmlNode elementNode = tree.get(path);
+                            if (null != elementNode && null != elementNode.nestedNode) {
+                                elementNode.nestedNode = null;
+                            }
+                            path = path.substring(0, path.lastIndexOf("/"));
+                        } else {
+                            logger.warn("Expected [{}], but found [{}]", path.substring(path.lastIndexOf("/") + 1), 
+                                    currentElement);
+                        }
                         break;
                     case XMLStreamConstants.CHARACTERS:
                         if (currentElement.equalsIgnoreCase("element")) {
@@ -562,6 +607,13 @@ public class WindowController extends AbstractController implements Initializabl
             sr.close();
             
             // TODO: implement read
+            tree.forEach((String key, XmlNode value) -> {
+                System.out.println(key + " - " + value.occurrence);
+            });
+            
+            System.out.println("========================");
+            System.out.println("Arrays");
+            arrayKeys.forEach(key -> {System.out.println(key);});
         } finally {
             if (null != input) {
                 try {
@@ -575,13 +627,56 @@ public class WindowController extends AbstractController implements Initializabl
             }
         }
         
-        return new ArrayList<>();
+        
+        //return new ArrayList<>();
+        return Arrays.asList("/root/channel");
     }
     
     private class XmlNode {
         private String nodeName;
-        private int occurrence;
+        private int occurrence = 1;
+        private XmlNode parentNode;
         private XmlNode nestedNode;
+        XmlNode() {}
+        XmlNode(String nodeName) {
+            this.nodeName = nodeName;
+        }
+
+        @Override
+        public int hashCode() {
+            return toString().hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final XmlNode other = (XmlNode) obj;
+            if (this.occurrence != other.occurrence) {
+                return false;
+            }
+            if (!Objects.equals(this.nodeName, other.nodeName)) {
+                return false;
+            }
+            if (!Objects.equals(this.parentNode, other.parentNode)) {
+                return false;
+            }
+            return true;
+        }
+        
+        @Override
+        public String toString() {
+            return String.format("{node=%s, nested=%s}", 
+                    (null != parentNode ? parentNode.toString()+"/" : "/") + nodeName, 
+                    (null != nestedNode ? nestedNode.toString() : "null"));
+        }
     }
     
     private JsonXMLConfig createConfig() {
