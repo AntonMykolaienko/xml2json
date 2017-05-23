@@ -4,6 +4,7 @@ import com.fs.xml2json.core.Config;
 import com.fs.xml2json.io.WrappedInputStream;
 import com.fs.xml2json.type.FileTypeEnum;
 import com.fs.xml2json.util.ConfigUtils;
+import com.fs.xml2json.util.XmlUtils;
 import com.sun.javafx.stage.StageHelper;
 import de.odysseus.staxon.json.JsonXMLConfig;
 import de.odysseus.staxon.json.JsonXMLConfigBuilder;
@@ -15,7 +16,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,13 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
@@ -63,9 +58,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +111,6 @@ public class WindowController extends AbstractController implements Initializabl
     Label version;
 
     private Task convertTask = null;
-//    private Service service = null;
     private String path;
     private FileTypeEnum inputFileType;
     private final DoubleProperty processedBytes = new SimpleDoubleProperty(0);
@@ -237,18 +229,10 @@ public class WindowController extends AbstractController implements Initializabl
                 message.setText("Canceled");
             });
 
-            //processedBytes.set(0);
-            //progressBar.progressProperty().unbind();
-
             // cancel converting task
             if (null != convertTask) {
-                //convertTask.cancel();
                 convertTask = null;
             }
-//            if (null != service) {
-//                service.cancel();
-//                service = null;
-//            }
 
             inProgress.set(false);
             isCanceled.compareAndSet(true, false);
@@ -337,32 +321,6 @@ public class WindowController extends AbstractController implements Initializabl
         progressBar.progressProperty().unbind();
         progressBar.progressProperty().bind(processedBytes);
         reset();
-        
-        
-        
-//        service = new ConvertService();
-//        service.setOnFailed(faultEvent -> {
-//            inProgress.set(false);
-//            logger.error(faultEvent.getEventType().toString());
-//            Platform.runLater(() -> {
-//                enableOrDisableButtonsAndInputs(false);
-//
-//                message.setText("Finished with exception");
-//            });
-//        });
-//        service.setOnCancelled(cancelEvent -> {
-//        });
-//        service.setOnSucceeded(successEvent -> {
-//            Platform.runLater(() -> {
-//                startBtn.setDisable(false);
-//                startBtn.setText(Config.START_BUTTON__START);
-//
-//                enableOrDisableButtonsAndInputs(false);
-//
-//                message.setText("Finished");
-//            });
-//        });
-//        service.start();
 
         convertTask = new Task() {
             @Override
@@ -462,18 +420,30 @@ public class WindowController extends AbstractController implements Initializabl
                     StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE));
 
             sw.start();
-            
-            // TODO: if source is xml then read file first and determine arrays
-            if (isXml(inputPath)) {
-                List<String> fileArrays = determineArrays(inputFile);
-                writer = new XMLMultipleEventWriter(writer, true, fileArrays.toArray(new String[]{}));
-            }
+
 
             // Create reader.
             reader = createReader(config, input);
             // Create writer.
             writer = createWriter(config, output);
 
+            // TODO: if source is xml then read file first and determine arrays
+            if (isXml(inputPath)) {
+                InputStream input2 = null;
+                try {
+                    input2 = new WrappedInputStream(new BufferedInputStream(new FileInputStream(inputFile)),
+                            processedBytes, inputFile.length()*2, isCanceled);
+                    List<String> fileArrays = XmlUtils.determineArrays(input2, isCanceled);
+                    writer = new XMLMultipleEventWriter(writer, true, fileArrays.toArray(new String[]{}));
+                } finally {
+                    if (null != input2) {
+                        try {
+                            input2.close();
+                        } catch (IOException ex) {}
+                    }
+                }
+            }
+            
             // Copy events from reader to writer.
             writer.add(reader);
 
@@ -521,163 +491,6 @@ public class WindowController extends AbstractController implements Initializabl
         }
     }
 
-    
-    private List<String> determineArrays(File file) throws FileNotFoundException, XMLStreamException {
-        XMLStreamReader sr = null;
-        InputStream input = null;
-        try {
-            input = new WrappedInputStream(new BufferedInputStream(new FileInputStream(file)),
-                    processedBytes, file.length()*2, isCanceled);
-            
-            XMLInputFactory f = XMLInputFactory.newFactory();
-            sr = f.createXMLStreamReader(input);
-
-            String propertyName = "";
-            String propertyValue = "";
-            String currentElement = "";
-
-            Set<String> arrayKeys = new HashSet<>();
-            Map<String, XmlNode> tree = new LinkedHashMap();
-            
-            XmlNode root = new XmlNode();
-            
-            String path = "/";
-            XmlNode parentNode = root;
-            int level = 0;
-            while (sr.hasNext() && !isCanceled.get()) {
-                int code = sr.next();
-                switch (code) {
-                    case XMLStreamConstants.START_ELEMENT:
-                        currentElement = sr.getLocalName();
-                        if (!path.endsWith("/")) {
-                            path += "/";
-                        }
-                        path = path + currentElement.toLowerCase();
-                        XmlNode node = tree.get(path);
-                        if (null == node) { // node exists (array?)
-                            level++;
-//                            if (parentNode.occurrence > 1) {
-//                                parentNode.occurrence = 1;
-//                            }
-                            node = new XmlNode(currentElement.toLowerCase());
-                            if (parentNode.equals(tree.get(path.substring(0, path.lastIndexOf("/"))))) {
-                                // same level
-                                // TODO:
-                            }
-                            parentNode = tree.get(path.substring(0, path.lastIndexOf("/")));
-                            if (null == parentNode) {
-                                parentNode = root;
-                            }
-                            node.parentNode = parentNode;
-                            parentNode.nestedNode = node;
-                            //parentNode = node;
-                            tree.put(path, node);
-                        } else {
-                            node.occurrence += 1;
-                            if (node.occurrence >= 2 && !arrayKeys.contains(path)) {
-                                arrayKeys.add(path);
-                            }
-                        }
-                        break;
-                    case XMLStreamConstants.END_ELEMENT:
-                        level--;
-                        currentElement = sr.getLocalName();
-                        if (path.endsWith(currentElement.toLowerCase())) {
-                            XmlNode elementNode = tree.get(path);
-                            if (null != elementNode && null != elementNode.nestedNode) {
-                                elementNode.nestedNode = null;
-                            }
-                            path = path.substring(0, path.lastIndexOf("/"));
-                        } else {
-                            logger.warn("Expected [{}], but found [{}]", path.substring(path.lastIndexOf("/") + 1), 
-                                    currentElement);
-                        }
-                        break;
-                    case XMLStreamConstants.CHARACTERS:
-                        if (currentElement.equalsIgnoreCase("element")) {
-                            propertyName += sr.getText();
-                        } else if (currentElement.equalsIgnoreCase("attribute")) {
-                            propertyValue += sr.getText();
-                        }
-                        break;
-                    }
-
-            }
-
-            sr.close();
-            
-            // TODO: implement read
-            tree.forEach((String key, XmlNode value) -> {
-                System.out.println(key + " - " + value.occurrence);
-            });
-            
-            System.out.println("========================");
-            System.out.println("Arrays");
-            arrayKeys.forEach(key -> {System.out.println(key);});
-        } finally {
-            if (null != input) {
-                try {
-                    input.close();
-                } catch (IOException ex) {
-                    logger.error(ex.toString());
-                }
-            }
-            if (null != sr) {
-                sr.close();
-            }
-        }
-        
-        
-        //return new ArrayList<>();
-        return Arrays.asList("/root/channel");
-    }
-    
-    private class XmlNode {
-        private String nodeName;
-        private int occurrence = 1;
-        private XmlNode parentNode;
-        private XmlNode nestedNode;
-        XmlNode() {}
-        XmlNode(String nodeName) {
-            this.nodeName = nodeName;
-        }
-
-        @Override
-        public int hashCode() {
-            return toString().hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final XmlNode other = (XmlNode) obj;
-            if (this.occurrence != other.occurrence) {
-                return false;
-            }
-            if (!Objects.equals(this.nodeName, other.nodeName)) {
-                return false;
-            }
-            if (!Objects.equals(this.parentNode, other.parentNode)) {
-                return false;
-            }
-            return true;
-        }
-        
-        @Override
-        public String toString() {
-            return String.format("{node=%s, nested=%s}", 
-                    (null != parentNode ? parentNode.toString()+"/" : "/") + nodeName, 
-                    (null != nestedNode ? nestedNode.toString() : "null"));
-        }
-    }
     
     private JsonXMLConfig createConfig() {
         switch (inputFileType) {
@@ -738,31 +551,4 @@ public class WindowController extends AbstractController implements Initializabl
         message.setText("");
     }
 
-    private class ConvertService extends Service {
-
-        @Override
-        protected Task createTask() {
-            return new Task() {
-                @Override
-                protected Object call() throws Exception {
-                    // start convertation
-                    convertFile();
-
-                    if (!isCancelled()) {
-                        Platform.runLater(() -> {
-                            startBtn.setDisable(false);
-                            startBtn.setText(Config.START_BUTTON__START);
-
-                            enableOrDisableButtonsAndInputs(false);
-
-                            message.setText("Finished");
-                        });
-                    }
-
-                    return true;
-                }
-            };
-        }
-        
-    }
 }
