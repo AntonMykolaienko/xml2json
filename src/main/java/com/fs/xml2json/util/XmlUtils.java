@@ -4,7 +4,6 @@ package com.fs.xml2json.util;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -31,89 +31,13 @@ public class XmlUtils {
     
 
     public static List<String> determineArrays(InputStream in, AtomicBoolean isCanceled) throws XMLStreamException {
+        Set<String> arrayKeys = new HashSet<>();
         XMLStreamReader sr = null;
         try {
             XMLInputFactory f = XMLInputFactory.newFactory();
             sr = f.createXMLStreamReader(in);
-
-            String propertyName = "";
-            String propertyValue = "";
-            String currentElement = "";
-
-            Set<String> arrayKeys = new HashSet<>();
-            Map<String, XmlNode> tree = new LinkedHashMap();
             
-            XmlNode root = new XmlNode();
-            
-            String path = "/";
-            XmlNode parentNode = root;
-            int level = 0;
-            while (sr.hasNext() && !isCanceled.get()) {
-                int code = sr.next();
-                switch (code) {
-                    case XMLStreamConstants.START_ELEMENT:
-                        currentElement = sr.getLocalName();
-                        if (!path.endsWith("/")) {
-                            path += "/";
-                        }
-                        path = path + currentElement.toLowerCase();
-                        XmlNode node = tree.get(path);
-                        if (null == node) { // node exists (array?)
-                            level++;
-//                            if (parentNode.occurrence > 1) {
-//                                parentNode.occurrence = 1;
-//                            }
-                            node = new XmlNode(currentElement.toLowerCase());
-                            if (parentNode.equals(tree.get(path.substring(0, path.lastIndexOf("/"))))) {
-                                // same level
-                                // TODO:
-                            }
-                            parentNode = tree.get(path.substring(0, path.lastIndexOf("/")));
-                            if (null == parentNode) {
-                                parentNode = root;
-                            }
-                            node.parentNode = parentNode;
-                            //parentNode.nestedNode = node;
-                            //parentNode = node;
-                            tree.put(path, node);
-                        } else {
-                            node.occurrence += 1;
-                            if (node.occurrence >= 2 && !arrayKeys.contains(path)) {
-                                arrayKeys.add(path);
-                            }
-                        }
-                        break;
-                    case XMLStreamConstants.END_ELEMENT:
-                        level--;
-                        currentElement = sr.getLocalName();
-                        if (path.endsWith(currentElement.toLowerCase())) {
-                            XmlNode elementNode = tree.get(path);
-                            if (null != elementNode && null != elementNode.nestedNode) {
-                                elementNode.nestedNode = null;
-                            }
-                            path = path.substring(0, path.lastIndexOf("/"));
-                        } else {
-                            logger.warn("Expected [{}], but found [{}]", path.substring(path.lastIndexOf("/") + 1), 
-                                    currentElement);
-                        }
-                        break;
-                    case XMLStreamConstants.CHARACTERS:
-                        if (currentElement.equalsIgnoreCase("element")) {
-                            propertyName += sr.getText();
-                        } else if (currentElement.equalsIgnoreCase("attribute")) {
-                            propertyValue += sr.getText();
-                        }
-                        break;
-                    }
-
-            }
-
-            sr.close();
-            
-            // TODO: implement read
-            tree.forEach((String key, XmlNode value) -> {
-                System.out.println(key + " - " + value.occurrence);
-            });
+            XmlUtils.getObjectElements(null, sr, new AtomicInteger(0), isCanceled, arrayKeys);
             
             System.out.println("========================");
             System.out.println("Arrays");
@@ -125,37 +49,65 @@ public class XmlUtils {
         }
         
         
-        //return new ArrayList<>();
-        return Arrays.asList("/root/channel", "/root/channel/formats/format");
+        return new ArrayList<>(arrayKeys);
+        //return Arrays.asList("/root/channel", "/root/channel/formats/format");
         //return new ArrayList<>();
     }
     
-    private static List<XmlNode> getObjectElements(XmlNode parentNode, XMLStreamReader sr, int level, 
-            AtomicBoolean isCanceled) throws XMLStreamException {
+    public static List<XmlNode> getObjectElements(XmlNode parentNode, XMLStreamReader sr, AtomicInteger level, 
+            AtomicBoolean isCanceled, Set<String> arrayKeys) throws XMLStreamException {
         if (null == sr) {
             throw new IllegalArgumentException("XMLStreamReader cannot be null");
         }
         
         List<XmlNode> result = new ArrayList<>();
-        String currentElement = "";
-        while (sr.hasNext() && !isCanceled.get()) {
+        String currentElement;
+        AtomicInteger elementLevel = level;
+        XmlNode node;
+        boolean levelFinished = false;
+        while (sr.hasNext() && !isCanceled.get() && !levelFinished) {
             int code = sr.next();
             switch (code) {
                 case XMLStreamConstants.START_ELEMENT:
                     currentElement = sr.getLocalName();
+                    elementLevel.incrementAndGet();
+                    node = new XmlNode(currentElement);
+                    //result.add(node);
+                    if (null == parentNode) {
+                        parentNode = node;
+                    } else {
+                        node.parentNode = parentNode;
+                        XmlNode elementNode = parentNode.nestedNode.get(node.getFullPath());
+                        if (null == elementNode) {
+                            parentNode.nestedNode.put(node.getFullPath(), node);
+                        } else {
+                            elementNode.occurrence++;
+                            if (elementNode.occurrence > 1) {
+                                if (null != arrayKeys && !arrayKeys.contains(elementNode.getFullPath())) {
+                                    arrayKeys.add(elementNode.getFullPath());
+                                }
+//                                System.out.println("array: " + elementNode.getFullPath());
+                            }
+                        }
+                    }
+                    
+//                    System.out.println("level - " + elementLevel + ", name - " + currentElement + ", parent - "+parentNode.getFullPath());
+                    getObjectElements(node, sr, elementLevel, isCanceled, arrayKeys);
 
                     break;
                 case XMLStreamConstants.END_ELEMENT:
-                    level--;
                     currentElement = sr.getLocalName();
+//                    System.out.println("level - " + elementLevel + ", name - /" + currentElement + ", parent - "+parentNode.parentNode.getFullPath());
+                    elementLevel.decrementAndGet();
+                    
+                    if (parentNode.nodeName.equals(currentElement)) {
+                        levelFinished = true;
+                    }
+                    
                     break;
                 case XMLStreamConstants.CHARACTERS:
-//                        if (currentElement.equalsIgnoreCase("element")) {
-//                            propertyName += sr.getText();
-//                        } else if (currentElement.equalsIgnoreCase("attribute")) {
-//                            propertyValue += sr.getText();
-//                        }
-                    break;
+                    
+                    //break;
                 }
 
         }
@@ -163,7 +115,7 @@ public class XmlUtils {
         return result;
     }
     
-    private static class XmlNode {
+    public static class XmlNode {
         private String nodeName;
         private int occurrence = 1;
         private XmlNode parentNode;
@@ -177,6 +129,24 @@ public class XmlUtils {
         public int hashCode() {
             return toString().hashCode();
         }
+
+        public String getNodeName() {
+            return nodeName;
+        }
+
+        public int getOccurrence() {
+            return occurrence;
+        }
+
+        public XmlNode getParentNode() {
+            return parentNode;
+        }
+
+        public Map<String, XmlNode> getNestedNode() {
+            return nestedNode;
+        }
+        
+        
 
         @Override
         public boolean equals(Object obj) {
@@ -197,6 +167,13 @@ public class XmlUtils {
                 return false;
             }
             return Objects.equals(this.parentNode, other.parentNode);
+        }
+        
+        public String getFullPath() {
+            if (null != parentNode) {
+                return parentNode.getFullPath() + "/" + nodeName;
+            }
+            return "/" + nodeName;
         }
         
         @Override

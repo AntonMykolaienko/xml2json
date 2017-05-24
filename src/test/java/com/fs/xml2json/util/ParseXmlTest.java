@@ -1,5 +1,5 @@
 
-package com.fs.xml2json.xml;
+package com.fs.xml2json.util;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.File;
