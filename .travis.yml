@@ -6,7 +6,7 @@ cache:
   - $HOME/.m2
 
 #use this distrib for actual java version
-dist: trusty
+#dist: trusty
 
 #matrix:
 # include:
@@ -16,6 +16,11 @@ dist: trusty
 #  - os: osx
 #  - os: windows
 
+sudo: false
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
 
 jdk:
  - oraclejdk8

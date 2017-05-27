@@ -32,7 +32,6 @@ import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -301,7 +300,6 @@ public class WindowController extends AbstractController implements Initializabl
             dialog.showAndWait();
 
             if (dialog.getResult() == ButtonType.YES) {
-                //do stuff
                 logger.debug("Overwrite file");
             } else if (dialog.getResult() == ButtonType.NO) {
                 logger.debug("Cancel overwrite file");
@@ -427,7 +425,7 @@ public class WindowController extends AbstractController implements Initializabl
             // Create writer.
             writer = createWriter(config, output);
 
-            // TODO: if source is xml then read file first and determine arrays
+            // if source is xml then read file first and determine arrays
             if (isXml(inputPath)) {
                 InputStream input2 = null;
                 try {
@@ -454,8 +452,7 @@ public class WindowController extends AbstractController implements Initializabl
             processedBytes.set(1.0);
             inProgress.compareAndSet(true, false);
         } catch (Exception ex) {
-            //logger.error(ex.toString());
-            ex.printStackTrace();
+            logger.error(ex.toString());
             throw new RuntimeException(ex);
         } finally {
             logger.info("Taken time: {}", sw);
@@ -518,7 +515,7 @@ public class WindowController extends AbstractController implements Initializabl
                 * automatically converted to JSON primitives (number, boolean, null).
                  */
                 return new JsonXMLConfigBuilder()
-                        .autoArray(false)
+                        .autoArray(false)   //  if set to true then memory usage will increase
                         .autoPrimitive(true)
                         .prettyPrint(true)
                         .build();
