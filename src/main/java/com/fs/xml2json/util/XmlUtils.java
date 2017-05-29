@@ -97,14 +97,12 @@ public class XmlUtils {
                             }
                         }
                     }
-                    
-//                    System.out.println("level - " + elementLevel + ", name - " + currentElement + ", parent - "+parentNode.getFullPath());
+
                     getObjectElements(node, sr, elementLevel, isCanceled, arrayKeys);
 
                     break;
                 case XMLStreamConstants.END_ELEMENT:
                     currentElement = sr.getLocalName();
-//                    System.out.println("level - " + elementLevel + ", name - /" + currentElement + ", parent - "+parentNode.parentNode.getFullPath());
                     elementLevel.decrementAndGet();
                     
                     if (parentNode.nodeName.equals(currentElement)) {

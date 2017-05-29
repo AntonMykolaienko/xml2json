@@ -15,7 +15,7 @@
         <URL value="@/styles/window.css" />
     </stylesheets>
     <children>
-        <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
                 <AnchorPane minHeight="30.0" minWidth="500.0" prefHeight="30.0" prefWidth="200.0">
                     <children>
@@ -49,8 +49,8 @@
                 </AnchorPane>
                 <AnchorPane minWidth="500.0" prefHeight="50.0" prefWidth="500.0">
                     <children>
-                        <Label fx:id="message" alignment="CENTER" layoutY="7.0" minWidth="500.0" prefHeight="18.0" prefWidth="500.0" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="10.0" />
-                        <HBox alignment="BOTTOM_CENTER" layoutY="40.0" prefHeight="44.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                        <Label fx:id="message" alignment="CENTER" layoutY="7.0" minWidth="500.0" prefHeight="18.0" prefWidth="500.0" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                        <HBox alignment="BOTTOM_CENTER" layoutY="40.0" prefHeight="44.0" prefWidth="600.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="16.0">
                             <children>
                                 <Button fx:id="startBtn" alignment="CENTER" contentDisplay="CENTER" maxHeight="34.0" maxWidth="132.0" minHeight="19.0" minWidth="132.0" mnemonicParsing="false" onAction="#startConvertation" prefHeight="30.0" prefWidth="132.0" text="Start convert" textAlignment="CENTER" />
                             </children>
@@ -63,19 +63,22 @@
                         <Insets />
                     </opaqueInsets>
                 </AnchorPane>
-                <AnchorPane maxHeight="10.0" minHeight="10.0" minWidth="500.0" prefHeight="10.0" prefWidth="500.0">
+                <AnchorPane maxHeight="10.0" minHeight="15.0" minWidth="500.0" prefHeight="10.0" prefWidth="500.0">
                     <children>
-                        <HBox layoutX="10.0" layoutY="-11.0" minWidth="500.0" prefHeight="20.0" prefWidth="500.0" AnchorPane.bottomAnchor="-12.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                        <HBox layoutX="10.0" layoutY="11.0" maxHeight="20.0" minWidth="500.0" prefHeight="20.0" prefWidth="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                             <children>
-                                <Label fx:id="version" contentDisplay="CENTER" prefHeight="23.0" styleClass="footer" text="Label" />
-                                <Hyperlink fx:id="donate" alignment="CENTER" styleClass="hyperlink-donate" text="Hyperlink" />
+                                <Label fx:id="version" contentDisplay="CENTER" maxHeight="23.0" prefHeight="23.0" styleClass="footer" text="Label" />
+                                <Hyperlink fx:id="donate" alignment="CENTER" contentDisplay="TOP" maxHeight="23.0" prefHeight="23.0" styleClass="hyperlink-donate" text="Hyperlink">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                           <padding>
+                              <Insets left="5.0" />
+                           </padding></Hyperlink>
                             </children>
                             <opaqueInsets>
                                 <Insets />
                             </opaqueInsets>
-                            <padding>
-                                <Insets top="10.0" />
-                            </padding>
                         </HBox>
                     </children>
                     <opaqueInsets>

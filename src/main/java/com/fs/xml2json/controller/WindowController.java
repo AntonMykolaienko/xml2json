@@ -445,10 +445,6 @@ public class WindowController extends AbstractController implements Initializabl
             // Copy events from reader to writer.
             writer.add(reader);
 
-            // Close reader/writer.
-            reader.close();
-            writer.close();
-
             processedBytes.set(1.0);
             inProgress.compareAndSet(true, false);
         } catch (Exception ex) {
