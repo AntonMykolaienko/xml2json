@@ -14,6 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <platform>linux</platform>
     </properties>
     
     <developers>
@@ -101,7 +102,42 @@
     
     
     <build>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>log4j2.xml</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <filtering>true</filtering>
+                <directory>distribution/${platform}</directory>
+                <includes>
+                    <include>log4j2.xml</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <echo>Displaying value of 'platform' property</echo>
+                                <echo>[platform]: ${platform}</echo>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -135,6 +171,12 @@
                     <nativeReleaseVersion>${project.version}</nativeReleaseVersion>
                     <appName>${project.name}</appName>
                     
+                    <!--
+                    <bundleArguments>
+                        
+                    </bundleArguments>
+                    -->
+                    
                     <manifestAttributes>
                         <Specification-Title>${project.name}</Specification-Title>
                         <Specification-Version>${project.version}</Specification-Version>
@@ -148,7 +190,7 @@
                     <jvmArgs>
                         <argument>-Xmx512m</argument>
                         <argument>-Dvisualvm.display.name=${project.name}</argument>
-                        <!--<argument>-Dlog4j.configurationFile=conf/log4j2.xml</argument>-->
+                        <!--<argument>-Dlog4j.configurationFile=./conf/log4j2.xml</argument>-->
                     </jvmArgs>
                 </configuration>
                 <executions>
@@ -173,12 +215,12 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
-                    <execution>
+                    <!--<execution>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
-                    </execution>
+                    </execution>-->
                     <execution>
                         <id>create-archive</id>
                         <phase>package</phase>
@@ -192,6 +234,7 @@
                     <archive>
                         <manifest>
                             <mainClass>com.fs.xml2json.WindowsMain</mainClass>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
                     <!--<descriptorRefs>
@@ -248,23 +291,41 @@
     </build>
     
     
-    <!-- TODO: create profiles fow 32-bit systems and for Mac OS X -->
+    <!-- TODO: create profiles for 32-bit systems and for Mac OS X -->
     <profiles>
         <profile>
             <id>default</id>
+            <!--
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            -->
         </profile>
         
         <profile>
             <id>windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <platform>windows</platform>
+            </properties>
         </profile>
         <profile>
             <id>linux</id>
         </profile>
         <profile>
             <id>macos</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <properties>
+                <platform>macos</platform>
+            </properties>
         </profile>
     </profiles>
 </project>

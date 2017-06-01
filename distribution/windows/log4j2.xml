@@ -4,8 +4,8 @@
         <Console name="STDOUT" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p %c{5}:%L: %m%n"/>
         </Console>
-        <RollingFile name="FILE" fileName="logs/xml2json.log"
-                     filePattern="logs/xml2json-%d{yyyy-MM-dd}-%i.log" >
+        <RollingFile name="FILE" fileName="../logs/xml2json.log"
+                     filePattern="../logs/xml2json-%d{yyyy-MM-dd}-%i.log" >
             <!--<PatternLayout>
                 <Pattern>%d %p %c [%t] %m%n</Pattern>
             </PatternLayout>-->
