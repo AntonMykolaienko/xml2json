@@ -21,6 +21,7 @@ addons:
   apt:
     packages:
       - oracle-java8-installer
+      - alien
 
 jdk:
  - oraclejdk8
