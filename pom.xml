@@ -210,39 +210,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <!--<execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>-->
-                    <execution>
-                        <id>create-archive</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <descriptor>src/assembly/assembly.xml</descriptor>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.fs.xml2json.WindowsMain</mainClass>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-            </plugin>
-            
+
             <!--
             <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
@@ -309,6 +277,42 @@
             <properties>
                 <platform>windows</platform>
             </properties>
+            
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <!--<execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>-->
+                            <execution>
+                                <id>create-archive</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <descriptor>src/assembly/assembly.xml</descriptor>
+                            <archive>
+                                <manifest>
+                                    <mainClass>com.fs.xml2json.WindowsMain</mainClass>
+                                    <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>linux</id>
