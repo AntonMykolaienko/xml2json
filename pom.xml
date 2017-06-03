@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <platform>linux</platform>
+        <platform>default</platform>
     </properties>
     
     <developers>
@@ -122,7 +122,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.4</version>
+                <version>1.8</version>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -190,7 +190,6 @@
                     <jvmArgs>
                         <argument>-Xmx512m</argument>
                         <argument>-Dvisualvm.display.name=${project.name}</argument>
-                        <!--<argument>-Dlog4j.configurationFile=./conf/log4j2.xml</argument>-->
                     </jvmArgs>
                 </configuration>
                 <executions>
@@ -237,9 +236,10 @@
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
-                    <!--<descriptorRefs>
+                    <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>-->
+                    </descriptorRefs>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
             </plugin>
             
@@ -291,15 +291,12 @@
     </build>
     
     
-    <!-- TODO: create profiles for 32-bit systems and for Mac OS X -->
     <profiles>
         <profile>
             <id>default</id>
-            <!--
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            -->
         </profile>
         
         <profile>
@@ -315,6 +312,11 @@
         </profile>
         <profile>
             <id>linux</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
         </profile>
         <profile>
             <id>macos</id>
