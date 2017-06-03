@@ -1,5 +1,4 @@
 
-
 package com.fs.xml2json.util;
 
 import java.io.InputStream;
@@ -8,7 +7,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -66,9 +64,6 @@ public class XmlUtils {
     
     private static void getObjectElements(XmlNode parentNode, XMLStreamReader sr, AtomicInteger level, 
             AtomicBoolean isCanceled, Set<String> arrayKeys) throws XMLStreamException {
-        if (null == sr) {
-            throw new IllegalArgumentException("XMLStreamReader cannot be null");
-        }
         
         String currentElement;
         AtomicInteger elementLevel = level;
@@ -121,55 +116,11 @@ public class XmlUtils {
         private int occurrence = 1;
         private XmlNode parentNode;
         private Map<String, XmlNode> nestedNode = new LinkedHashMap<>();
-        XmlNode() {}
+        //XmlNode() {}
         XmlNode(String nodeName) {
             this.nodeName = nodeName;
         }
 
-        @Override
-        public int hashCode() {
-            return toString().hashCode();
-        }
-
-        public String getNodeName() {
-            return nodeName;
-        }
-
-        public int getOccurrence() {
-            return occurrence;
-        }
-
-        public XmlNode getParentNode() {
-            return parentNode;
-        }
-
-        public Map<String, XmlNode> getNestedNode() {
-            return nestedNode;
-        }
-        
-        
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final XmlNode other = (XmlNode) obj;
-            if (this.occurrence != other.occurrence) {
-                return false;
-            }
-            if (!Objects.equals(this.nodeName, other.nodeName)) {
-                return false;
-            }
-            return Objects.equals(this.parentNode, other.parentNode);
-        }
-        
         public String getFullPath() {
             if (null != parentNode) {
                 return parentNode.getFullPath() + "/" + nodeName;
