@@ -7,7 +7,7 @@
     
     <groupId>com.fs</groupId>
     <artifactId>xml2json</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
     
     <properties>
@@ -33,14 +33,6 @@
             <artifactId>staxon</artifactId>
             <version>1.3</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>de.odysseus.staxon</groupId>
-            <artifactId>staxon-gson</artifactId>
-            <version>1.3</version>
-        </dependency>
-        -->
-        
         <dependency>
             <groupId>de.odysseus.staxon</groupId>
             <artifactId>staxon-jackson</artifactId>
@@ -171,12 +163,6 @@
                     <nativeReleaseVersion>${project.version}</nativeReleaseVersion>
                     <appName>${project.name}</appName>
                     
-                    <!--
-                    <bundleArguments>
-                        
-                    </bundleArguments>
-                    -->
-                    
                     <manifestAttributes>
                         <Specification-Title>${project.name}</Specification-Title>
                         <Specification-Version>${project.version}</Specification-Version>
@@ -210,51 +196,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!--
-            <plugin>
-                <groupId>com.akathist.maven.plugins.launch4j</groupId>
-                <artifactId>launch4j-maven-plugin</artifactId>
-                <version>1.7.16</version>
-                <executions>
-                    <execution>
-                        <id>l4j-clui</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>launch4j</goal>
-                        </goals>
-                        <configuration>
-                            <headerType>gui</headerType>
-                            <outfile>target/xml2json.exe</outfile>
-                            <jar>target/xml2json-${version}-jar-with-dependencies.jar</jar>
-                            <errTitle>xml2json</errTitle>
-                            <classPath>
-                                <mainClass>com.fs.xml2json.WindowsMain</mainClass>
-                                <addDependencies>false</addDependencies>
-                                <preCp>anything</preCp>
-                            </classPath>
-                            <jre>
-                                <minVersion>1.8.0</minVersion>
-                                <opts>
-                                    <opt>-Djava.endorsed.dirs=./endorsed</opt>
-                                </opts>
-                            </jre>
-                            <versionInfo>
-                                <fileVersion>1.0.0.0</fileVersion>
-                                <txtFileVersion>First version</txtFileVersion>
-                                <fileDescription>Simple tool for converting XML to JSON and vise vera</fileDescription>
-                                <copyright>Copyright</copyright>
-                                <productVersion>1.0.0.0</productVersion>
-                                <txtProductVersion>First version</txtProductVersion>
-                                <productName>Xml2Json</productName>
-                                <internalName>xml2json</internalName>
-                                <originalFilename>xml2json.exe</originalFilename>
-                            </versionInfo>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
         </plugins>
     </build>
     
@@ -308,6 +249,7 @@
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
+                            <finalName>${project.artifactId}-${project.version}-windows</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </plugin>
