@@ -263,6 +263,9 @@
                     <family>unix</family>
                 </os>
             </activation>
+            <properties>
+                <platform>linux</platform>
+            </properties>
         </profile>
         <profile>
             <id>macos</id>
