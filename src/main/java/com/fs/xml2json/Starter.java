@@ -65,13 +65,16 @@ public class Starter {
         logger.info("Starting Xml2Json converter (v." + getApplicationVersion() + ")");
         
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("Xml2json Converter", options);
-        System.out.println("Example:\n"
-                + "\tjava -jar xml2json.jar --" + Config.PAR_NO_GUI + " "
-                + "--"+Config.PAR_SOURCE_FILE_PATTERN + "=C:\\temp\\input "
+        formatter.printHelp(120, "\n  java -jar xml2json.jar --" + Config.PAR_NO_GUI + " "
+                + "--" + Config.PAR_SOURCE_FOLDER + "=[path_to_source_folder] "
+                + "--" + Config.PAR_DESTINATION_FOLDER + "=[path_to_destination_folder] "
+                + "--" + Config.PAR_SOURCE_FILE_PATTERN + "=[*.json|*.xml]", 
+                ", where:", 
+                options, 
+                "example:\n  java -jar xml2json.jar --" + Config.PAR_NO_GUI + " "
+                + "--"+Config.PAR_SOURCE_FOLDER + "=C:\\temp\\input "
                 + "--" + Config.PAR_DESTINATION_FOLDER + "=C:\\temp\\output "
-                + "--" + Config.PAR_SOURCE_FILE_PATTERN + "=*.json "
-                );
+                + "--" + Config.PAR_SOURCE_FILE_PATTERN + "=*.json\n\n");
         
         CommandLineParser parser = new DefaultParser();
         try {
