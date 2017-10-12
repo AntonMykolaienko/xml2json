@@ -38,5 +38,29 @@ public class Config {
      */
     public static final String LAST_DIRECTORY = "browse.lastDirectory";
 
-
+    
+    /******************************************************/
+    /**************** Input parameter names ***************/
+    /******************************************************/
+    
+    /**
+     * Parameter name for Source folder.
+     */
+    public static String PAR_SOURCE_FOLDER = "sourceFolder";
+    /**
+     * Parameter name for Destination folder.
+     */
+    public static String PAR_DESTINATION_FOLDER = "destinationFolder";
+    /**
+     * Parameter name for file pattern
+     */
+    public static String PAR_SOURCE_FILE_PATTERN = "pattern";
+    /**
+     * Parameter name for disabling GUI.
+     */
+    public static String PAR_NO_GUI = "noGui";
+    /**
+     * Parameter name for overwriting converted files.
+     */
+    public static String PAR_FORCE_OVERWRITE = "overwrite";
 }

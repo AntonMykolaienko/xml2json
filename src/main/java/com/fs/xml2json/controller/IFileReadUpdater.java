@@ -15,4 +15,9 @@ public interface IFileReadUpdater {
      * @param bytes processed bytes
      */
     void update(int bytes);
+    
+    /**
+     * Updates listener about finishing file processing.
+     */
+    void finished();
 }

@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
  * @author Anton Mykolaienko
  * @since 1.0.0
  */
-public class WindowsMain extends Application {
+public class GuiStarter extends Application {
     
-    private static final Logger logger = LoggerFactory.getLogger(WindowsMain.class);
+    private static final Logger logger = LoggerFactory.getLogger(GuiStarter.class);
 
     
     @Override

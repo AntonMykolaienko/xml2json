@@ -19,6 +19,16 @@ public enum FileTypeEnum {
         this.extension = extension;
     }
     
+    
+    /**
+     * Returns file's extension with dot (example: .json, .xml)
+     * 
+     * @return file's extension
+     */
+    public String getExtension() {
+        return extension;
+    }
+    
     /**
      * Return file's type (XML or JSON) or return <code>null<code> if not XML and not JSON.
      * 

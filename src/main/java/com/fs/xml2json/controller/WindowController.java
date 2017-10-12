@@ -75,8 +75,6 @@ public class WindowController extends AbstractController implements Initializabl
 
     private static final ExtensionFilter EXTENSION_XML = new ExtensionFilter("XML-files", "*.xml");
     private static final ExtensionFilter EXTENSION_JSON = new ExtensionFilter("Json-files", "*.json");
-    private static final String XML = ".xml";
-    private static final String JSON = ".json";
 
     private static final DecimalFormat df = new DecimalFormat("###");
 
@@ -181,9 +179,9 @@ public class WindowController extends AbstractController implements Initializabl
         }
 
         if (null != inputPath) {
-            if (inputPath.getText().endsWith(XML)) {
+            if (inputPath.getText().endsWith(FileTypeEnum.XML.getExtension())) {
                 fileChooser.getExtensionFilters().addAll(EXTENSION_JSON);
-            } else if (inputPath.getText().endsWith(JSON)) {
+            } else if (inputPath.getText().endsWith(FileTypeEnum.JSON.getExtension())) {
                 fileChooser.getExtensionFilters().addAll(EXTENSION_XML);
             }
         } else {
@@ -207,10 +205,12 @@ public class WindowController extends AbstractController implements Initializabl
     private String createOutputFilePath(File inputFile) {
         String fileNameWithoutExtension = inputFile.getName().substring(0, inputFile.getName().lastIndexOf("."));
 
-        if (inputFile.getName().endsWith(XML)) {
-            return inputFile.getParentFile() + File.separator + fileNameWithoutExtension + JSON;
-        } else if (inputFile.getName().endsWith(JSON)) {
-            return inputFile.getParentFile() + File.separator + fileNameWithoutExtension + XML;
+        if (inputFile.getName().endsWith(FileTypeEnum.XML.getExtension())) {
+            return inputFile.getParentFile() + File.separator + fileNameWithoutExtension 
+                    + FileTypeEnum.JSON.getExtension();
+        } else if (inputFile.getName().endsWith(FileTypeEnum.JSON.getExtension())) {
+            return inputFile.getParentFile() + File.separator + fileNameWithoutExtension 
+                    + FileTypeEnum.XML.getExtension();
         }
 
         return null;
@@ -371,11 +371,11 @@ public class WindowController extends AbstractController implements Initializabl
     }
 
     private boolean isXml(TextField txtField) {
-        return txtField.getText().toLowerCase().endsWith(XML);
+        return txtField.getText().toLowerCase().endsWith(FileTypeEnum.XML.getExtension());
     }
 
     private boolean isJson(TextField txtField) {
-        return txtField.getText().toLowerCase().endsWith(JSON);
+        return txtField.getText().toLowerCase().endsWith(FileTypeEnum.JSON.getExtension());
     }
 
     /**

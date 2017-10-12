@@ -1,25 +1,14 @@
 
 package com.fs.xml2json;
 
-import de.odysseus.staxon.json.JsonXMLConfig;
-import de.odysseus.staxon.json.JsonXMLConfigBuilder;
-import de.odysseus.staxon.json.JsonXMLInputFactory;
-import de.odysseus.staxon.json.JsonXMLOutputFactory;
-import de.odysseus.staxon.xml.util.PrettyXMLEventWriter;
-import java.io.BufferedInputStream;
+import com.fs.xml2json.core.Config;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLEventWriter;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import org.apache.commons.lang3.time.StopWatch;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,158 +20,106 @@ import org.slf4j.LoggerFactory;
  */
 public class Starter {
     
-    private static final String XML_EXTENSION = ".xml";
-    private static final String JSON_EXTENSION = ".json";
-    
     private static final Logger logger = LoggerFactory.getLogger(Starter.class);
     
+    
+    private static final Options options = new Options();
+    
+    static {
+        options.addOption("g", Config.PAR_NO_GUI, false, "Flag to start Application without GUI in command line mode");
+        options.addOption("s", Config.PAR_SOURCE_FOLDER, true, "Path to folder with files\n\tExample: C:\\temp\\input");
+        options.addOption("o", Config.PAR_DESTINATION_FOLDER, true, "Path to folder for converted files\n\tExample: C:\\temp\\output");
+        options.addOption("p", Config.PAR_SOURCE_FILE_PATTERN, true, "Pattern for filtering input files\n\tExample: *.json ");
+    }
 
+    
+    private String[] args;
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        if (args.length == 0) {
-            throw new IllegalArgumentException("Please run with filepath to json- or xml- file");
-        }
-        String filePath = args[0];
-        File file = new File(filePath);
-        if (!file.exists()) {
-            throw new RuntimeException("File '" + filePath + "' not found");
-        } else if (file.isDirectory()) {
-            throw new IllegalArgumentException("Mentioned path point to directory while expected File");
-        }
         
-        Starter converter = new Starter();
-        if (filePath.toLowerCase().endsWith(JSON_EXTENSION)) {
-            converter.convertFileJsonToXml(file.toURI());
-        } else if (filePath.toLowerCase().endsWith(XML_EXTENSION)) {
-            converter.convertFileXmlToJson(file.toURI());
-        } else {
-            throw new IllegalArgumentException("Mentioned path point to not supported file type. Only JSON and XML files supported.");
-        }
+        Starter starter = new Starter(args);
+        
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("Shutting down application starter ...");
+            starter.stop();
+        }, "ShutdownThread"));
+
+        starter.start();
+        
+        
     }
     
     
-    public Starter() {
+    public Starter(String[] args) {
+        this.args = args;
     }
     
     
-    public void convertFileJsonToXml(URI uri) {
-        String fileNameWithExtension = new File(uri).getName();
+    public void start() {
+        logger.info("Starting Xml2Json converter (v." + getApplicationVersion() + ")");
         
-        //FileMetrics metrics = new FileMetrics();
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("Xml2json Converter", options);
+        System.out.println("Example:\n"
+                + "\tjava -jar xml2json.jar --" + Config.PAR_NO_GUI + " "
+                + "--"+Config.PAR_SOURCE_FILE_PATTERN + "=C:\\temp\\input "
+                + "--" + Config.PAR_DESTINATION_FOLDER + "=C:\\temp\\output "
+                + "--" + Config.PAR_SOURCE_FILE_PATTERN + "=*.json "
+                );
         
-        StopWatch sw = new StopWatch();
-        
-        try (InputStream input = new BufferedInputStream(new FileInputStream(new File(uri)))) {
-            OutputStream output = new FileOutputStream(new File(new File(uri).getParentFile(), 
-                fileNameWithExtension.substring(0, fileNameWithExtension.lastIndexOf("."))+".xml"));
+        CommandLineParser parser = new DefaultParser();
+        try {
+            CommandLine cmd = parser.parse(options, args, true);
             
-            sw.start();
-            /*
-            * If the <code>multiplePI</code> property is
-            * set to <code>true</code>, the StAXON reader will generate
-            * <code>&lt;xml-multiple&gt;</code> processing instructions
-            * which would be copied to the XML output.
-            * These can be used by StAXON when converting back to JSON
-            * to trigger array starts.
-            * Set to <code>false</code> if you don't need to go back to JSON.
-            */
-            JsonXMLConfig config = new JsonXMLConfigBuilder().multiplePI(false).build();
-            try {
-                /*
-                * Create reader (JSON).
-                */
-                XMLEventReader reader = new JsonXMLInputFactory(config).createXMLEventReader(input);
-
-               /*
-                * Create writer (XML).
-                */
-                XMLEventWriter writer = XMLOutputFactory.newInstance().createXMLEventWriter(output);
-                writer = new PrettyXMLEventWriter(writer); // format output
-
-               /*
-                * Copy events from reader to writer.
-                */
-                writer.add(reader);
-                
-                /*
-                * Close reader/writer.
-                */
-                reader.close();
-                writer.close();
-            } catch (XMLStreamException e) {
-                logger.error(e.toString());
-            } finally {
-               /*
-                * As per StAX specification, XMLStreamReader/Writer.close() doesn't close
-                * the underlying stream.
-                */
-                output.close();
-                input.close();
-           }
-        } catch (IOException ex) {
+            if (cmd.hasOption(Config.PAR_NO_GUI)) {
+                String sourceFolder = cmd.getOptionValue(Config.PAR_SOURCE_FOLDER);
+                String destinationFolder = cmd.getOptionValue(Config.PAR_DESTINATION_FOLDER);
+                String pattern = cmd.getOptionValue(Config.PAR_SOURCE_FILE_PATTERN);
+                if (null == sourceFolder) {
+                    throw new IllegalArgumentException("Parameter '--" + Config.PAR_SOURCE_FOLDER+ "' not set");
+                }
+                if (null == destinationFolder) {
+                    throw new IllegalArgumentException("Parameter '--" + Config.PAR_DESTINATION_FOLDER+ "' not set");
+                }
+                File file = new File(sourceFolder);
+                if (!file.exists()) {
+                    throw new RuntimeException("File '" + sourceFolder + "' not found");
+                } else if (!file.isDirectory()) {
+                    throw new IllegalArgumentException("Mentioned path point to File while expected Directory");
+                }
+//                if (filePath.toLowerCase().endsWith(JSON_EXTENSION)) {
+//                    convertFileJsonToXml(file.toURI());
+//                } else if (filePath.toLowerCase().endsWith(XML_EXTENSION)) {
+//                    convertFileXmlToJson(file.toURI());
+//                } else {
+//                    throw new IllegalArgumentException("Mentioned path point to not supported file type. Only JSON and XML files supported.");
+//                }
+            } else {
+                GuiStarter.main(args);
+            }
+        } catch (ParseException ex) {
             logger.error(ex.toString());
-        } finally {
-            sw.stop();
         }
-        
-        //logger.info("Metrics for '{}':\n{}", new File(uri).getAbsolutePath(), metrics.toString());
-        logger.info("Time taken: {}", sw.toString());
     }
-
     
-    public void convertFileXmlToJson(URI uri) {
-        String fileNameWithExtension = new File(uri).getName();
-        
-        //FileMetrics metrics = new FileMetrics();
-        
-        StopWatch sw = new StopWatch();
-        
-        /*
-         * If we want to insert JSON array boundaries for multiple elements,
-         * we need to set the <code>autoArray</code> property.
-         * If our XML source was decorated with <code>&lt;?xml-multiple?&gt;</code>
-         * processing instructions, we'd set the <code>multiplePI</code>
-         * property instead.
-         * With the <code>autoPrimitive</code> property set, element text gets
-         * automatically converted to JSON primitives (number, boolean, null).
-         */
-        JsonXMLConfig config = new JsonXMLConfigBuilder()
-            .autoArray(true)
-            .autoPrimitive(true)
-            .prettyPrint(true)
-            .build();
-        
-        try (InputStream input = new BufferedInputStream(new FileInputStream(new File(uri)))) {
-            OutputStream output = new FileOutputStream(new File(new File(uri).getParentFile(), 
-                fileNameWithExtension.substring(0, fileNameWithExtension.lastIndexOf("."))+".json"));
-            
-            sw.start();
-            /*
-             * Create reader (XML).
-             */
-            XMLEventReader reader = XMLInputFactory.newInstance().createXMLEventReader(input);
-
-            /*
-             * Create writer (JSON).
-             */
-            XMLEventWriter writer = new JsonXMLOutputFactory(config).createXMLEventWriter(output);
-
-            /*
-             * Copy events from reader to writer.
-             */
-            writer.add(reader);
-
-            /*
-             * Close reader/writer.
-             */
-            reader.close();
-            writer.close();
-        } catch (IOException | XMLStreamException ex) {
-            logger.error(ex.toString());
-        } finally {
-            sw.stop();
-        }
+    public void stop() {
     }
+    
+    
+    /**
+     * Returns application's version from POM-file.
+     *
+     * @return application's version
+     */
+    private String getApplicationVersion() {
+        String version = Starter.class.getPackage().getImplementationVersion();
+        if (null == version) {
+            version = "unknown";
+        }
+        return version;
+    }
+    
 }
