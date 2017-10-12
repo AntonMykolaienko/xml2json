@@ -152,7 +152,7 @@
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                         <manifestEntries>
-                            <Main-class>com.fs.xml2json.WindowsMain</Main-class>
+                            <Main-class>com.fs.xml2json.Starter</Main-class>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -163,7 +163,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>8.8.3</version>
                 <configuration>
-                    <mainClass>com.fs.xml2json.WindowsMain</mainClass>
+                    <mainClass>com.fs.xml2json.Starter</mainClass>
                     <vendor>Anton Mykolaienko</vendor>
                     <verbose>true</verbose>
                     <jfxAppOutputDir>${project.build.directory}/os/app</jfxAppOutputDir>

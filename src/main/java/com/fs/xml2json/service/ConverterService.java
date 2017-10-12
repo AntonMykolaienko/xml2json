@@ -42,7 +42,7 @@ public class ConverterService {
     
     
     /**
-     * Converts file from XML to JSON or vise versa
+     * Converts file from XML to JSON or vise versa.
      * 
      * @param sourceFile file to convert
      * @param outputFile output file 

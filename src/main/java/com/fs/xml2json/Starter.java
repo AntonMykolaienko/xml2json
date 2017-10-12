@@ -2,7 +2,9 @@
 package com.fs.xml2json;
 
 import com.fs.xml2json.core.Config;
+import com.fs.xml2json.filter.CustomPatternFileFilter;
 import java.io.File;
+import java.util.regex.Pattern;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -28,8 +30,9 @@ public class Starter {
     static {
         options.addOption("g", Config.PAR_NO_GUI, false, "Flag to start Application without GUI in command line mode");
         options.addOption("s", Config.PAR_SOURCE_FOLDER, true, "Path to folder with files\n\tExample: C:\\temp\\input");
-        options.addOption("o", Config.PAR_DESTINATION_FOLDER, true, "Path to folder for converted files\n\tExample: C:\\temp\\output");
-        options.addOption("p", Config.PAR_SOURCE_FILE_PATTERN, true, "Pattern for filtering input files\n\tExample: *.json ");
+        options.addOption("d", Config.PAR_DESTINATION_FOLDER, true, "Path to folder for converted files\n\tExample: C:\\temp\\output");
+        options.addOption("p", Config.PAR_SOURCE_FILE_PATTERN, true, "Pattern for filtering input files\n\tExample: *.json");
+        options.addOption("o", Config.PAR_FORCE_OVERWRITE, false, "Force overwrite existing converted files");
     }
 
     
@@ -75,21 +78,36 @@ public class Starter {
             CommandLine cmd = parser.parse(options, args, true);
             
             if (cmd.hasOption(Config.PAR_NO_GUI)) {
-                String sourceFolder = cmd.getOptionValue(Config.PAR_SOURCE_FOLDER);
+                String sourceFolderTxt = cmd.getOptionValue(Config.PAR_SOURCE_FOLDER);
                 String destinationFolder = cmd.getOptionValue(Config.PAR_DESTINATION_FOLDER);
-                String pattern = cmd.getOptionValue(Config.PAR_SOURCE_FILE_PATTERN);
-                if (null == sourceFolder) {
-                    throw new IllegalArgumentException("Parameter '--" + Config.PAR_SOURCE_FOLDER+ "' not set");
+                String patternTxt = cmd.getOptionValue(Config.PAR_SOURCE_FILE_PATTERN);
+                String overwrite = cmd.getOptionValue(Config.PAR_FORCE_OVERWRITE);
+                if (null == sourceFolderTxt) {
+                    throw new IllegalArgumentException("Parameter '--" + Config.PAR_SOURCE_FOLDER + "' not set");
                 }
                 if (null == destinationFolder) {
-                    throw new IllegalArgumentException("Parameter '--" + Config.PAR_DESTINATION_FOLDER+ "' not set");
+                    throw new IllegalArgumentException("Parameter '--" + Config.PAR_DESTINATION_FOLDER + "' not set");
                 }
-                File file = new File(sourceFolder);
-                if (!file.exists()) {
-                    throw new RuntimeException("File '" + sourceFolder + "' not found");
-                } else if (!file.isDirectory()) {
-                    throw new IllegalArgumentException("Mentioned path point to File while expected Directory");
+                if (null == patternTxt) {
+                    throw new IllegalArgumentException("Parameter '--" + Config.PAR_SOURCE_FILE_PATTERN + "' not set");
                 }
+                File sourceFolder = new File(sourceFolderTxt);
+                if (!sourceFolder.exists()) {
+                    throw new RuntimeException("Directory '" + sourceFolderTxt + "' not found, nothing to convert...");
+                } else if (sourceFolder.list().length == 0) {
+                    logger.info("Source directory ('{}') is empty, nothing to convert", sourceFolderTxt);
+                }
+                
+                CustomPatternFileFilter filter = new CustomPatternFileFilter(patternTxt);
+                for (File file : sourceFolder.listFiles()) {
+                    //if (pattern.matcher(file.getName().matches(patternTxt)).matches()) {
+                    if (filter.accept(file)) {
+                        logger.info("Start processing '{}'", file.getAbsolutePath());
+                    } else {
+                        logger.debug("File '{}' will be skipped", file.getAbsolutePath());
+                    }
+                }
+                // TODO: call ConverterService
 //                if (filePath.toLowerCase().endsWith(JSON_EXTENSION)) {
 //                    convertFileJsonToXml(file.toURI());
 //                } else if (filePath.toLowerCase().endsWith(XML_EXTENSION)) {
