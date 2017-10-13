@@ -23,7 +23,7 @@ Examples:
 	java -jar xml2json-1.2.0-all.jar --noGui --sourceFolder=C:\Temp\Input --destinationFolder=C:\Temp\Output --pattern=someFile.xml
 	```
 	
-To start Tool with GUI just runn following command: 
+To start Tool with GUI just run following command: 
 	```
 	java -jar xml2json-1.2.0-all.jar
 	```
