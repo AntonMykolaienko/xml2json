@@ -12,15 +12,18 @@ Tool support following command line parameters:
 Examples:
 1. Convert list of JSON-files:
 	```
-	java -jar xml2json-1.2.0-all.jar --noGui --sourceFolder=C:\Temp\Input --destinationFolder=C:\Temp\Output --pattern=*.json
+	java -jar xml2json-1.2.0-all.jar --noGui --sourceFolder=C:\Temp\Input \
+	--destinationFolder=C:\Temp\Output --pattern=*.json
 	```
 2. Convert list of XML-files:
 	```
-	java -jar xml2json-1.2.0-all.jar --noGui --sourceFolder=C:\Temp\Input --destinationFolder=C:\Temp\Output --pattern=*.xml
+	java -jar xml2json-1.2.0-all.jar --noGui --sourceFolder=C:\Temp\Input \
+	--destinationFolder=C:\Temp\Output --pattern=*.xml
 	```
 3. Convert only one file :
 	```
-	java -jar xml2json-1.2.0-all.jar --noGui --sourceFolder=C:\Temp\Input --destinationFolder=C:\Temp\Output --pattern=someFile.xml
+	java -jar xml2json-1.2.0-all.jar --noGui --sourceFolder=C:\Temp\Input \
+	--destinationFolder=C:\Temp\Output --pattern=someFile.xml
 	```
 	
 To start Tool with GUI just run following command: 
