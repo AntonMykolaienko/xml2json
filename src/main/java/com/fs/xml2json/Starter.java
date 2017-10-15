@@ -3,6 +3,7 @@ package com.fs.xml2json;
 
 import com.fs.xml2json.core.Config;
 import com.fs.xml2json.filter.CustomPatternFileFilter;
+import com.fs.xml2json.service.ConverterService;
 import java.io.File;
 import java.util.regex.Pattern;
 import org.apache.commons.cli.CommandLine;
@@ -102,14 +103,31 @@ public class Starter {
                 }
                 
                 CustomPatternFileFilter filter = new CustomPatternFileFilter(patternTxt);
+                int numberOfFiles = 0;
                 for (File file : sourceFolder.listFiles()) {
-                    //if (pattern.matcher(file.getName().matches(patternTxt)).matches()) {
                     if (filter.accept(file)) {
-                        logger.info("Start processing '{}'", file.getAbsolutePath());
-                    } else {
-                        logger.debug("File '{}' will be skipped", file.getAbsolutePath());
+                        numberOfFiles++;
                     }
                 }
+                if (numberOfFiles > 0) {
+                    logger.info("Found {} files", numberOfFiles);
+                    ConverterService service = new ConverterService();
+                    int numberOfProcessed = 0;
+                    for (File file : sourceFolder.listFiles()) {
+                        //if (pattern.matcher(file.getName().matches(patternTxt)).matches()) {
+                        if (filter.accept(file)) {
+                            logger.info("Start processing '{}'", file.getAbsolutePath());
+                            //service.convert(file, getConvertedFile(file), listener);
+                            numberOfProcessed++;
+                        } else {
+                            logger.debug("File '{}' will be skipped", file.getAbsolutePath());
+                        }
+                    }
+                } else {
+                    logger.info("No one file found for '{}'", patternTxt);
+                }
+                
+                
                 // TODO: call ConverterService
 //                if (filePath.toLowerCase().endsWith(JSON_EXTENSION)) {
 //                    convertFileJsonToXml(file.toURI());
@@ -129,6 +147,10 @@ public class Starter {
     public void stop() {
     }
     
+    private File getConvertedFile(File sourceFile) {
+        // TODO: implement me
+        return null;
+    }
     
     /**
      * Returns application's version from POM-file.
