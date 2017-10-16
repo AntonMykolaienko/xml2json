@@ -15,7 +15,6 @@ public abstract class AbstractFileReadListener implements IFileReadListener {
     private long readBytes;
     private long buffer;
     private final long fileSize;
-    private FileTypeEnum fileType;
     
     // helper variable for XML, when we need to read file twice
     private int numberOfReads = 1;
@@ -26,11 +25,11 @@ public abstract class AbstractFileReadListener implements IFileReadListener {
      * @param sourceFile source file
      */
     public AbstractFileReadListener(File sourceFile) {       
-        this.fileType = FileTypeEnum.parseByFileName(sourceFile.getName());
+        FileTypeEnum fileType = FileTypeEnum.parseByFileName(sourceFile.getName());
         switch (fileType) {
             case XML:
                 this.fileSize = sourceFile.length() * 2;
-                this.numberOfReads += 1;
+                this.numberOfReads += 1;    // XML file will be read twice (first time - for determining arrays)
                 break;
             default:
                 this.fileSize = sourceFile.length();
@@ -46,7 +45,7 @@ public abstract class AbstractFileReadListener implements IFileReadListener {
     public void update(int bytes) {
         buffer += bytes;
         double delta = (double) buffer / (double) fileSize;
-        if (delta > 0.01) {
+        if (delta >= 0.01) {
             readBytes += buffer;
             updateProgressInPercent((double) readBytes / (double) fileSize);
             buffer = 0;
@@ -60,7 +59,11 @@ public abstract class AbstractFileReadListener implements IFileReadListener {
     public void finished() {
         numberOfReads--;
         if (numberOfReads == 0) {
-            updateProgressInPercent(1.0);
+            if (buffer > 0) {
+                readBytes += buffer;
+                updateProgressInPercent((double) readBytes / (double) fileSize);
+                buffer = 0;
+            }
         }
     }
     
@@ -71,13 +74,4 @@ public abstract class AbstractFileReadListener implements IFileReadListener {
      */
     abstract void updateProgressInPercent(double newValue);
     
-    
-    /**
-     * Returns <code>true</code> if file is XML, otherwise return <code>false</code>.
-     * 
-     * @return true if file is XML
-     */
-    protected final boolean isXml() {
-        return fileType == FileTypeEnum.XML;
-    }
 }

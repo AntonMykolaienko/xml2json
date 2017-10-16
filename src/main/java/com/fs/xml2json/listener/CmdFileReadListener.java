@@ -10,7 +10,6 @@ import java.io.File;
  */
 public class CmdFileReadListener extends AbstractFileReadListener {
 
-    private double lastProgress;
     /**
      * Creates instance of Command line listener.
      *
@@ -20,16 +19,6 @@ public class CmdFileReadListener extends AbstractFileReadListener {
         super(sourceFile);
     }
 
-    @Override
-    public void finished() {
-        super.finished(); 
-        if (lastProgress == 1.0) {
-            System.out.print("\n");
-        }
-    }
-    
-    
-
     /**
      * Draws progress bar in command line.
      * 
@@ -37,7 +26,6 @@ public class CmdFileReadListener extends AbstractFileReadListener {
      */
     @Override
     void updateProgressInPercent(double newValue) {
-        lastProgress = newValue;
         int maxBareSize = 100; // number of chars for progress bar
         int percentDone = (int) (100 * newValue) * (maxBareSize / 100 /*100 percent*/);
         char defaultChar = ' ';
@@ -55,8 +43,8 @@ public class CmdFileReadListener extends AbstractFileReadListener {
         
         String bareRemain = bare.substring(percentDone, bare.length());
         System.out.print("\r" + bareDone + bareRemain + " " + percentDone + "%");
-//        if (newValue == 1.0d) {
-//            System.out.print("\n");
-//        }
+        if (newValue == 1.0d) {
+            System.out.print("\n");
+        }
     }
 }
