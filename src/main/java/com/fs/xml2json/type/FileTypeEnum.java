@@ -30,7 +30,7 @@ public enum FileTypeEnum {
     }
     
     /**
-     * Return file's type (XML or JSON) or return <code>null<code> if not XML and not JSON.
+     * Return file's type (XML or JSON) or return <code>null</code> if not XML and not JSON.
      * 
      * @param fileName file's name
      * @return fyles type or null if cannot determine

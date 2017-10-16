@@ -1,5 +1,5 @@
 
-package com.fs.xml2json.controller;
+package com.fs.xml2json.listener;
 
 /**
  * Iterface for 
@@ -7,7 +7,7 @@ package com.fs.xml2json.controller;
  * @author Anton
  * @since 1.1.0
  */
-public interface IFileReadUpdater {
+public interface IFileReadListener {
     
     /**
      * Updates listener about number of bytes which have been read.

@@ -45,13 +45,13 @@ public class XmlUtils {
             
             XmlUtils.getObjectElements(null, sr, new AtomicInteger(0), isCanceled, arrayKeys);
             
-            if (logger.isInfoEnabled()) {
+            if (logger.isDebugEnabled()) {
                 StringBuilder sb = new StringBuilder();
                 arrayKeys.forEach(key -> {
                     sb.append(sb.length() > 0 ? "\n" : "").append(key);
                 });
                 
-                logger.info("Found arrays:\n{}", sb.toString());
+                logger.trace("Found arrays:\n{}", sb.toString());
             }            
         } finally {
             if (null != sr) {

@@ -1,30 +1,15 @@
 package com.fs.xml2json.controller;
 
 import com.fs.xml2json.core.Config;
-import com.fs.xml2json.io.WrappedInputStream;
+import com.fs.xml2json.listener.GuiFileReadListener;
+import com.fs.xml2json.service.ConverterService;
 import com.fs.xml2json.type.FileTypeEnum;
 import com.fs.xml2json.util.ConfigUtils;
-import com.fs.xml2json.util.XmlUtils;
 import com.sun.javafx.stage.StageHelper;
-import de.odysseus.staxon.json.JsonXMLConfig;
-import de.odysseus.staxon.json.JsonXMLConfigBuilder;
-import de.odysseus.staxon.json.JsonXMLInputFactory;
-import de.odysseus.staxon.json.JsonXMLOutputFactory;
-import de.odysseus.staxon.json.util.XMLMultipleEventWriter;
-import de.odysseus.staxon.xml.util.PrettyXMLEventWriter;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.util.Arrays;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,11 +38,6 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLEventWriter;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +89,6 @@ public class WindowController extends AbstractController implements Initializabl
 
     private Task convertTask = null;
     private String path;
-    private FileTypeEnum inputFileType;
     private final DoubleProperty processedBytes = new SimpleDoubleProperty(0);
     private final AtomicBoolean inProgress = new AtomicBoolean(false);
     private final AtomicBoolean isFailed = new AtomicBoolean(false);
@@ -161,7 +140,6 @@ public class WindowController extends AbstractController implements Initializabl
             outputPath.setText(createOutputFilePath(selectedFile));
             processedBytes.set(0);
 
-            inputFileType = FileTypeEnum.parseByFileName(selectedFile.getName());
             ConfigUtils.saveLastPath(selectedFile);
         }
     }
@@ -392,152 +370,18 @@ public class WindowController extends AbstractController implements Initializabl
     private void convertFile() {
         logger.info("Converting started");
 
+        ConverterService service = new ConverterService();
+        
         File inputFile = new File(inputPath.getText());
-        File outputFile;
-
+        File outputFile = new File(outputPath.getText());
+        
         StopWatch sw = new StopWatch();
-
-        InputStream input = null;
-        OutputStream output = null;
-        XMLEventReader reader = null;
-        XMLEventWriter writer = null;
         try {
-            long fileSizeInBytes = inputFile.length();
-            
-            if (isXml(inputPath)) {
-                fileSizeInBytes *= 2;
-            }
-
-            input = new WrappedInputStream(new BufferedInputStream(new FileInputStream(inputFile)),
-                    processedBytes, fileSizeInBytes, isCanceled);
-
-            JsonXMLConfig config = createConfig();
-
-            outputFile = new File(outputPath.getText());
-            output = new BufferedOutputStream(Files.newOutputStream(outputFile.toPath(),
-                    StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE));
-
-            sw.start();
-
-
-            // Create reader.
-            reader = createReader(config, input);
-            // Create writer.
-            writer = createWriter(config, output);
-
-            // if source is xml then read file first and determine arrays
-            if (isXml(inputPath)) {
-                InputStream input2 = null;
-                try {
-                    input2 = new WrappedInputStream(new BufferedInputStream(new FileInputStream(inputFile)),
-                            processedBytes, inputFile.length()*2, isCanceled);
-                    List<String> fileArrays = XmlUtils.determineArrays(input2, isCanceled);
-                    writer = new XMLMultipleEventWriter(writer, true, fileArrays.toArray(new String[]{}));
-                } finally {
-                    if (null != input2) {
-                        try {
-                            input2.close();
-                        } catch (IOException ex) {}
-                    }
-                }
-            }
-            
-            // Copy events from reader to writer.
-            writer.add(reader);
-
-            processedBytes.set(1.0);
-            inProgress.compareAndSet(true, false);
+            service.convert(inputFile, outputFile, new GuiFileReadListener(processedBytes, inputFile), isCanceled);
         } catch (Exception ex) {
             logger.error(ex.toString());
             throw new RuntimeException(ex);
-        } finally {
-            logger.info("Taken time: {}", sw);
-            sw.stop();
-            if (null != reader) {
-                try {
-                    reader.close();
-                } catch (XMLStreamException ex) {
-                    logger.error(ex.toString());
-                }
-            }
-            if (null != writer) {
-                try {
-                    writer.close();
-                } catch (XMLStreamException ex) {
-                    logger.error(ex.toString());
-                }
-            }
-            if (null != input) {
-                try {
-                    input.close();
-                } catch (IOException ex) {
-                    logger.error(ex.toString());
-                }
-            }
-            if (null != output) {
-                try {
-                    output.close();
-                } catch (IOException ex) {
-                    logger.error(ex.toString());
-                }
-            }
-        }
-    }
-
-    
-    private JsonXMLConfig createConfig() {
-        switch (inputFileType) {
-            case JSON:
-                /*
-                * If the <code>multiplePI</code> property is
-                * set to <code>true</code>, the StAXON reader will generate
-                * <code>&lt;xml-multiple&gt;</code> processing instructions
-                * which would be copied to the XML output.
-                * These can be used by StAXON when converting back to JSON
-                * to trigger array starts.
-                * Set to <code>false</code> if you don't need to go back to JSON.
-                 */
-                return new JsonXMLConfigBuilder()
-                        .multiplePI(false)
-                        .build();
-            case XML:
-                /*
-                * If we want to insert JSON array boundaries for multiple elements,
-                * we need to set the <code>autoArray</code> property.
-                * If our XML source was decorated with <code>&lt;?xml-multiple?&gt;</code>
-                * processing instructions, we'd set the <code>multiplePI</code>
-                * property instead.
-                * With the <code>autoPrimitive</code> property set, element text gets
-                * automatically converted to JSON primitives (number, boolean, null).
-                 */
-                return new JsonXMLConfigBuilder()
-                        .autoArray(false)   //  if set to true then memory usage will increase
-                        .autoPrimitive(true)
-                        .prettyPrint(true)
-                        .build();
-            default:
-                throw new RuntimeException("Unsupported file type: " + inputFileType.toString());
-        }
-    }
-
-    private XMLEventReader createReader(JsonXMLConfig config, InputStream input) throws XMLStreamException {
-        if (inputFileType == FileTypeEnum.XML) {
-            return XMLInputFactory.newInstance().createXMLEventReader(input);
-        } else if (inputFileType == FileTypeEnum.JSON) {
-            return new JsonXMLInputFactory(config).createXMLEventReader(input);
-        }
-
-        throw new IllegalArgumentException("Unsupported file type: " + inputFileType);
-    }
-
-    private XMLEventWriter createWriter(JsonXMLConfig config, OutputStream output) throws XMLStreamException {
-        if (inputFileType == FileTypeEnum.XML) {
-            return new JsonXMLOutputFactory(config).createXMLEventWriter(output);
-        } else if (inputFileType == FileTypeEnum.JSON) {
-            return new PrettyXMLEventWriter(XMLOutputFactory.newInstance().createXMLEventWriter(output));
-        }
-
-        throw new IllegalArgumentException("Unsupported file type: " + inputFileType);
+        } 
     }
 
     private void reset() {

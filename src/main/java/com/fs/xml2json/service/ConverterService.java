@@ -1,7 +1,6 @@
 
 package com.fs.xml2json.service;
 
-import com.fs.xml2json.controller.IFileReadUpdater;
 import com.fs.xml2json.io.WrappedInputStream;
 import com.fs.xml2json.type.FileTypeEnum;
 import com.fs.xml2json.util.XmlUtils;
@@ -21,6 +20,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
@@ -29,6 +29,8 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.fs.xml2json.listener.IFileReadListener;
+import java.io.FileNotFoundException;
 
 /**
  * Service which responsible for file conversion from JSON to XML and vise versa.
@@ -42,20 +44,15 @@ public class ConverterService {
     
     
     /**
-     * Converts file from XML to JSON or vise versa.
+     * Converts file from XML to JSON or vise versa and returns link to converted file.
      * 
      * @param sourceFile file to convert
      * @param outputFile output file 
      * @param listener read listener
+     * @param isCanceled flag to stop process
      * @return converted file
      */
-    public File convert(File sourceFile, File outputFile, IFileReadUpdater listener) {
-        
-        // TODO: implement me
-        
-        logger.info("Started converting ...");
-
-
+    public File convert(File sourceFile, File outputFile, IFileReadListener listener, AtomicBoolean isCanceled) {
         StopWatch sw = new StopWatch();
 
         InputStream input = null;
@@ -64,63 +61,43 @@ public class ConverterService {
         XMLEventWriter writer = null;
         FileTypeEnum inputFileType;
         try {
-            long fileSizeInBytes = sourceFile.length();
             inputFileType = FileTypeEnum.parseByFileName(sourceFile.getName());
-            
-            if (isXml(sourceFile)) {
-                fileSizeInBytes *= 2;
+
+            input = new WrappedInputStream(new BufferedInputStream(new FileInputStream(sourceFile)),
+                    listener, isCanceled);
+
+            File parentFolder = outputFile.getParentFile();
+            if (!parentFolder.exists()) {
+                parentFolder.mkdirs();
             }
-
-            // XXX: uncomment this
-//            input = new WrappedInputStream(new BufferedInputStream(new FileInputStream(sourceFile)),
-//                    processedBytes, fileSizeInBytes, isCanceled);
-
-            JsonXMLConfig config = createConfig(inputFileType);
-
+            
             output = new BufferedOutputStream(Files.newOutputStream(outputFile.toPath(),
                     StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE));
 
             sw.start();
 
+            // converter config
+            JsonXMLConfig config = createConfig(inputFileType);
 
             // Create reader.
             reader = createReader(config, inputFileType, input);
             // Create writer.
-            writer = createWriter(config, inputFileType, output);
-
-            // if source is xml then read file first and determine arrays
-            if (isXml(sourceFile)) {
-                InputStream input2 = null;
-                try {
-                    //XXX: uncomment this
-//                    input2 = new WrappedInputStream(new BufferedInputStream(new FileInputStream(sourceFile)),
-//                            processedBytes, fileSizeInBytes, isCanceled);
-//                    List<String> fileArrays = XmlUtils.determineArrays(input2, isCanceled);
-//                    writer = new XMLMultipleEventWriter(writer, true, fileArrays.toArray(new String[]{}));
-                } finally {
-                    if (null != input2) {
-                        try {
-                            input2.close();
-                        } catch (IOException ex) {}
-                    }
-                }
-            }
+            writer = createWriter(config, sourceFile, output, isCanceled, listener);
             
             // Copy events from reader to writer.
             writer.add(reader);
 
-            // XXX: uncomment this
-//            processedBytes.set(1.0);
-//            inProgress.compareAndSet(true, false);
             if (null != listener) {
                 listener.finished();
             }
-        } catch (Exception ex) {
+        } catch (IOException | XMLStreamException ex) {
             logger.error(ex.toString());
             throw new RuntimeException(ex);
         } finally {
             logger.info("Taken time: {}", sw);
-            sw.stop();
+            if (sw.isStarted()) {
+                sw.stop();
+            }
             if (null != reader) {
                 try {
                     reader.close();
@@ -130,6 +107,7 @@ public class ConverterService {
             }
             if (null != writer) {
                 try {
+                    writer.flush();
                     writer.close();
                 } catch (XMLStreamException ex) {
                     logger.error(ex.toString());
@@ -151,18 +129,9 @@ public class ConverterService {
             }
         }
         
-        return null;
-    }
-    
-    
-    private boolean isXml(File file) {
-        return file.getAbsolutePath().toLowerCase().endsWith(FileTypeEnum.XML.getExtension());
+        return outputFile;
     }
 
-    private boolean isJson(File file) {
-        return file.getAbsolutePath().toLowerCase().endsWith(FileTypeEnum.JSON.getExtension());
-    }
-    
     
     private JsonXMLConfig createConfig(FileTypeEnum inputFileType) {
         switch (inputFileType) {
@@ -199,6 +168,7 @@ public class ConverterService {
         }
     }
     
+    
     private XMLEventReader createReader(JsonXMLConfig config, FileTypeEnum inputFileType, InputStream input) 
             throws XMLStreamException {
         if (inputFileType == FileTypeEnum.XML) {
@@ -210,10 +180,17 @@ public class ConverterService {
         throw new IllegalArgumentException("Unsupported file type: " + inputFileType);
     }
 
-    private XMLEventWriter createWriter(JsonXMLConfig config, FileTypeEnum inputFileType, OutputStream output) 
-            throws XMLStreamException {
+    private XMLEventWriter createWriter(JsonXMLConfig config, File sourceFile, OutputStream output,
+            AtomicBoolean isCanceled, IFileReadListener listener) 
+            throws XMLStreamException, FileNotFoundException, IOException {
+        FileTypeEnum inputFileType = FileTypeEnum.parseByFileName(sourceFile.getName());
         if (inputFileType == FileTypeEnum.XML) {
-            return new JsonXMLOutputFactory(config).createXMLEventWriter(output);
+            XMLEventWriter sourceWriter = new JsonXMLOutputFactory(config).createXMLEventWriter(output);
+            try (InputStream input = new WrappedInputStream(new BufferedInputStream(new FileInputStream(sourceFile)),
+                            listener, isCanceled)) {
+                List<String> fileArrays = XmlUtils.determineArrays(input, isCanceled);
+                return new XMLMultipleEventWriter(sourceWriter, true, fileArrays.toArray(new String[]{}));
+            }
         } else if (inputFileType == FileTypeEnum.JSON) {
             return new PrettyXMLEventWriter(XMLOutputFactory.newInstance().createXMLEventWriter(output));
         }
