@@ -36,11 +36,16 @@ public class Starter {
     private static final Options options = new Options();
     
     static {
-        options.addOption("g", Config.PAR_NO_GUI, false, "Flag to start Application without GUI in command line mode");
-        options.addOption("s", Config.PAR_SOURCE_FOLDER, true, "Path to folder with files\n\tExample: C:\\temp\\input");
-        options.addOption("d", Config.PAR_DESTINATION_FOLDER, true, "Path to folder for converted files\n\tExample: C:\\temp\\output");
-        options.addOption("p", Config.PAR_SOURCE_FILE_PATTERN, true, "Pattern for filtering input files\n\tExample: *.json");
-        options.addOption("o", Config.PAR_FORCE_OVERWRITE, false, "Force overwrite existing converted files (Default: false)");
+        options.addOption("g", Config.PAR_NO_GUI, false, 
+                "Flag to start Application without GUI in command line mode");
+        options.addOption("s", Config.PAR_SOURCE_FOLDER, true, 
+                "Path to folder with files to convert\n\tExample: C:\\temp\\input");
+        options.addOption("d", Config.PAR_DESTINATION_FOLDER, true, 
+                "Path to folder for converted files\n\tExample: C:\\temp\\output");
+        options.addOption("p", Config.PAR_SOURCE_FILE_PATTERN, true, 
+                "Pattern for filtering input files\n\tExample: *.json");
+        options.addOption("o", Config.PAR_FORCE_OVERWRITE, false, 
+                "Force overwrite existing converted files (Default: false)");
     }
 
     

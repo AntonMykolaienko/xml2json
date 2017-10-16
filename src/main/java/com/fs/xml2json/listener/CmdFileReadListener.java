@@ -10,9 +10,7 @@ import java.io.File;
  */
 public class CmdFileReadListener extends AbstractFileReadListener {
 
-    // helper variable for XML, when we need to read file twice
-    private int numberOfReads = 1;
-    
+    private double lastProgress;
     /**
      * Creates instance of Command line listener.
      *
@@ -20,32 +18,26 @@ public class CmdFileReadListener extends AbstractFileReadListener {
      */
     public CmdFileReadListener(File sourceFile) {
         super(sourceFile);
-        if (isXml()) {
-            numberOfReads += 1;
-        }
     }
 
     @Override
     public void finished() {
-        numberOfReads--;
-        if (0 == numberOfReads) {
-            progressPercentage(1.0d);
+        super.finished(); 
+        if (lastProgress == 1.0) {
             System.out.print("\n");
         }
     }
-
-    @Override
-    void updateProgressInPercent(double newValue) {
-        progressPercentage(newValue);
-    }
-
     
+    
+
     /**
      * Draws progress bar in command line.
      * 
      * @param newValue percent processed
      */
-    private void progressPercentage(double newValue) {
+    @Override
+    void updateProgressInPercent(double newValue) {
+        lastProgress = newValue;
         int maxBareSize = 100; // number of chars for progress bar
         int percentDone = (int) (100 * newValue) * (maxBareSize / 100 /*100 percent*/);
         char defaultChar = ' ';
@@ -63,8 +55,8 @@ public class CmdFileReadListener extends AbstractFileReadListener {
         
         String bareRemain = bare.substring(percentDone, bare.length());
         System.out.print("\r" + bareDone + bareRemain + " " + percentDone + "%");
-        if (newValue == 1.0d) {
-            System.out.print("\n");
-        }
+//        if (newValue == 1.0d) {
+//            System.out.print("\n");
+//        }
     }
 }

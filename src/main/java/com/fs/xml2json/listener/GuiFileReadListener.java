@@ -13,8 +13,6 @@ import javafx.beans.property.DoubleProperty;
 public class GuiFileReadListener extends AbstractFileReadListener {
 
     private final DoubleProperty processedBytes;
-    // helper variable for XML, when we need to read file twice
-    private int numberOfReads = 1;
 
     /**
      * Creates instance of GuiFileReadListener.
@@ -25,18 +23,6 @@ public class GuiFileReadListener extends AbstractFileReadListener {
     public GuiFileReadListener(DoubleProperty processedBytes, File sourceFile) {
         super(sourceFile);
         this.processedBytes = processedBytes;
-        if (isXml()) {
-            numberOfReads += 1;
-        }
-    }
-
-
-    @Override
-    public void finished() {
-        numberOfReads--;
-        if (0 == numberOfReads) {
-            processedBytes.set(1.0);
-        }
     }
 
     @Override

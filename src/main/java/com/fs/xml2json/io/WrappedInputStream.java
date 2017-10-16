@@ -58,9 +58,9 @@ public class WrappedInputStream extends InputStream {
         int bytes = input.read(b, off, len);
         if (-1 == bytes) {
             listener.finished();
-            return bytes;
+        } else {
+            listener.update(bytes);
         }
-        listener.update(bytes);
 
         return bytes;
     }

@@ -16,6 +16,9 @@ public abstract class AbstractFileReadListener implements IFileReadListener {
     private long buffer;
     private final long fileSize;
     private FileTypeEnum fileType;
+    
+    // helper variable for XML, when we need to read file twice
+    private int numberOfReads = 1;
 
     /**
      * Creates instance of Listener.
@@ -27,6 +30,7 @@ public abstract class AbstractFileReadListener implements IFileReadListener {
         switch (fileType) {
             case XML:
                 this.fileSize = sourceFile.length() * 2;
+                this.numberOfReads += 1;
                 break;
             default:
                 this.fileSize = sourceFile.length();
@@ -54,7 +58,10 @@ public abstract class AbstractFileReadListener implements IFileReadListener {
      */
     @Override
     public void finished() {
-        updateProgressInPercent(1.0d);
+        numberOfReads--;
+        if (numberOfReads == 0) {
+            updateProgressInPercent(1.0);
+        }
     }
     
     /**
