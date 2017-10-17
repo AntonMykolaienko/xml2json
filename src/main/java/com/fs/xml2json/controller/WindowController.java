@@ -231,6 +231,10 @@ public class WindowController extends AbstractController implements Initializabl
             hasErrors = true;
             errorMessage = "Only xml->json or json->xml convert supported";
         }
+        if (!hasErrors && (null != inputPath.getText() && !(new File(inputPath.getText())).exists())) {
+            hasErrors = true;
+            errorMessage = "\"Source file\" not exists";
+        }
 
         // show errors
         if (hasErrors) {
