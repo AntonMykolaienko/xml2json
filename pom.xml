@@ -14,7 +14,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        
+        <!-- will be updated by profile -->
         <platform>default</platform>
+        <fxBundle>windows.app</fxBundle>
     </properties>
     
     <developers>
@@ -171,6 +174,13 @@
                     <nativeOutputDir>${project.build.directory}/os/distribution</nativeOutputDir>
                     <nativeReleaseVersion>${project.version}</nativeReleaseVersion>
                     <appName>${project.name}</appName>
+                    <skipJNLP>true</skipJNLP>
+                    
+                    <bundler>${fxBundle}</bundler>
+                    <bundleArguments>
+                        <!-- additional suffix for Mac installer -->
+                        <mac.dmg.installerName.suffix>-with_jre-macosx</mac.dmg.installerName.suffix>
+                    </bundleArguments>
                     
                     <manifestAttributes>
                         <Specification-Title>${project.name}</Specification-Title>
@@ -280,6 +290,7 @@
             </activation>
             <properties>
                 <platform>linux</platform>
+                <fxBundle>rpm</fxBundle>
             </properties>
         </profile>
         <profile>
@@ -291,6 +302,7 @@
             </activation>
             <properties>
                 <platform>macos</platform>
+                <fxBundle>dmg</fxBundle>
             </properties>
         </profile>
     </profiles>
