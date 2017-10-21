@@ -2,6 +2,7 @@
 package com.fs.xml2json.util;
 
 import com.fs.xml2json.type.FileTypeEnum;
+import com.fs.xml2json.type.UnsupportedFileType;
 import java.io.File;
 
 /**
@@ -11,6 +12,12 @@ import java.io.File;
  * @since 1.2.0
  */
 public class ConverterUtils {
+    
+    /**
+     * Private constructor.
+     */
+    private ConverterUtils() {
+    }
 
     /**
      * Returns link to converted file with same name as source file, but with 
@@ -25,7 +32,7 @@ public class ConverterUtils {
     public static File getConvertedFile(File sourceFile, File destinationFolder) {
         FileTypeEnum fileType = FileTypeEnum.parseByFileName(sourceFile.getName());
         String convertedFileName = "";
-        String fileNameWithoutExtension = sourceFile.getName().substring(0, sourceFile.getName().lastIndexOf("."));
+        String fileNameWithoutExtension = sourceFile.getName().substring(0, sourceFile.getName().lastIndexOf('.'));
         switch (fileType) {
             case JSON:
                 convertedFileName = fileNameWithoutExtension + FileTypeEnum.XML.getExtension();
@@ -34,7 +41,7 @@ public class ConverterUtils {
                 convertedFileName = fileNameWithoutExtension + FileTypeEnum.JSON.getExtension();
                 break;
             default:
-                throw new RuntimeException("Unsupported file's extension");
+                throw new UnsupportedFileType("Unsupported file's extension");
         }
         
         return new File(destinationFolder, convertedFileName);
