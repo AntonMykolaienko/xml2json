@@ -4,8 +4,10 @@ import com.fs.xml2json.core.Config;
 import com.fs.xml2json.listener.GuiFileReadListener;
 import com.fs.xml2json.service.ConverterService;
 import com.fs.xml2json.type.FileTypeEnum;
+import com.fs.xml2json.type.UnsupportedFileType;
 import com.fs.xml2json.util.ApplicationUtils;
 import com.fs.xml2json.util.ConfigUtils;
+import com.fs.xml2json.util.ConverterUtils;
 import com.sun.javafx.stage.StageHelper;
 import java.io.File;
 import java.net.URL;
@@ -98,23 +100,21 @@ public class WindowController extends AbstractController implements Initializabl
     /**
      * Initializes the controller class.
      *
-     * @param url
-     * @param rb
+     * @param url url
+     * @param rb resource bundle
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         processedBytes.addListener((ObservableValue<? extends Object> observable, Object oldValue, Object newValue) -> {
-            Platform.runLater(() -> {
-                progressValue.setText(df.format((double) newValue * 100) + "%");
-            });
+            Platform.runLater(() -> progressValue.setText(df.format((double) newValue * 100) + "%"));
         });
 
         String versionTxt = "Version: " + ApplicationUtils.getVersion() + "; ";
         version.setText(versionTxt);
         donate.setText("Donate");
-        donate.setOnAction((ActionEvent e) -> {
-            HostServicesProvider.INSTANCE.getHostServices().showDocument(Config.DONATE_LINK);
-        });
+        donate.setOnAction((ActionEvent e) -> 
+                HostServicesProvider.INSTANCE.getHostServices().showDocument(Config.DONATE_LINK)
+        );
         
         // TODO: check updates
     }
@@ -138,7 +138,14 @@ public class WindowController extends AbstractController implements Initializabl
             path = selectedFile.getParent();
 
             inputPath.setText(selectedFile.getAbsolutePath());
-            outputPath.setText(createOutputFilePath(selectedFile));
+            
+            try {
+                File outputFile = ConverterUtils.getConvertedFile(selectedFile, selectedFile.getParentFile());
+                outputPath.setText(outputFile.getAbsolutePath());
+            } catch (UnsupportedFileType ex) {
+                logger.warn(ex.toString());
+            }
+            
             processedBytes.set(0);
 
             ConfigUtils.saveLastPath(selectedFile);
@@ -174,26 +181,6 @@ public class WindowController extends AbstractController implements Initializabl
         }
     }
 
-    /**
-     * Creates fullpath for destination file based on source file (Replaces
-     * extension to opposite).
-     *
-     * @param inputFile file to convert
-     * @return full path for destination file
-     */
-    private String createOutputFilePath(File inputFile) {
-        String fileNameWithoutExtension = inputFile.getName().substring(0, inputFile.getName().lastIndexOf("."));
-
-        if (inputFile.getName().endsWith(FileTypeEnum.XML.getExtension())) {
-            return inputFile.getParentFile() + File.separator + fileNameWithoutExtension 
-                    + FileTypeEnum.JSON.getExtension();
-        } else if (inputFile.getName().endsWith(FileTypeEnum.JSON.getExtension())) {
-            return inputFile.getParentFile() + File.separator + fileNameWithoutExtension 
-                    + FileTypeEnum.XML.getExtension();
-        }
-
-        return null;
-    }
 
     public void startConvertation(ActionEvent event) {
         if (inProgress.get()) { // handle cancel event
@@ -279,10 +266,9 @@ public class WindowController extends AbstractController implements Initializabl
                             startBtn.setText(Config.START_BUTTON__START);
 
                             enableOrDisableButtonsAndInputs(false);
-
-                            String timePattern = "%02d:%02d";
+                            
                             long seconds = sw.getTime(TimeUnit.SECONDS);
-                            message.setText("Finished in " + String.format(timePattern, seconds/60, seconds%60));
+                            message.setText("Finished in " + String.format("%02d:%02d", seconds/60, seconds%60));
                         });
                     }
                 } finally {

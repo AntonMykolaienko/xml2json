@@ -54,9 +54,13 @@ public class ConfigUtils {
         if (applicationProperties.isEmpty()) {
             loadApplicationProperties();
         }
-        applicationProperties.put(Config.LAST_DIRECTORY, path.getParent().replace("\\", "\\\\"));
-        
-        saveApplicationProperties();
+        String formattedPath = path.getParent().replace("\\", "\\\\");
+        String oldValue = (String)applicationProperties.get(Config.LAST_DIRECTORY);
+        if (null == oldValue || formattedPath.equalsIgnoreCase(oldValue)) {
+            applicationProperties.put(Config.LAST_DIRECTORY, formattedPath);
+            
+            saveApplicationProperties();
+        }
     }
     
     
