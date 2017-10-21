@@ -5,13 +5,11 @@ import com.fs.xml2json.core.Config;
 import com.fs.xml2json.filter.CustomPatternFileFilter;
 import com.fs.xml2json.listener.CmdFileReadListener;
 import com.fs.xml2json.service.ConverterService;
-import com.fs.xml2json.type.FileTypeEnum;
+import com.fs.xml2json.util.ConverterUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -93,15 +91,12 @@ public class Starter {
                 String destinationFolderTxt = cmd.getOptionValue(Config.PAR_DESTINATION_FOLDER);
                 String patternTxt = cmd.getOptionValue(Config.PAR_SOURCE_FILE_PATTERN);
                 boolean forceOverwrite = cmd.hasOption(Config.PAR_FORCE_OVERWRITE);
-                
-                // adjust heap-size
-                setHeapMaxSize();
-                
+
                 checkInputParameters(cmd);
-                
+
                 File sourceFolder = new File(sourceFolderTxt);
                 File destinationFolder = new File(destinationFolderTxt);
-                
+
                 CustomPatternFileFilter filter = new CustomPatternFileFilter(patternTxt);
                 int numberOfFiles = 0;
                 for (File file : sourceFolder.listFiles()) {
@@ -119,12 +114,12 @@ public class Starter {
                         }
                         if (filter.accept(file)) {
                             logger.debug("Start processing '{}'", file.getAbsolutePath());
-                            File convertedFile = getConvertedFile(file, destinationFolder);
+                            File convertedFile = ConverterUtils.getConvertedFile(file, destinationFolder);
                             boolean skip = false;
                             if (convertedFile.exists() && !forceOverwrite) {
                                 skip = true;
                                 // overwrite ?
-                                System.out.print(String.format("\nFile '%s' already exists, overwrite? [y/n]: ", 
+                                System.out.print(String.format("%nFile '%s' already exists, overwrite? [y/n]: ", 
                                         convertedFile.getAbsolutePath()));
                                 
                                 boolean isCorrectAnswer = false;
@@ -184,7 +179,7 @@ public class Starter {
                 + "--" + Config.PAR_SOURCE_FILE_PATTERN + "=[*.json|*.xml]", 
                 ", where:", 
                 options, 
-                "example:\n  java -jar xml2json.jar --" + Config.PAR_NO_GUI + " "
+                "example:%n  java -jar xml2json.jar --" + Config.PAR_NO_GUI + " "
                 + "--"+Config.PAR_SOURCE_FOLDER + "=C:\\temp\\input "
                 + "--" + Config.PAR_DESTINATION_FOLDER + "=C:\\temp\\output "
                 + "--" + Config.PAR_SOURCE_FILE_PATTERN + "=*.json\n\n");
@@ -222,36 +217,7 @@ public class Starter {
             destinationFolder.mkdirs();
         }
     }
-    
-    /**
-     * Returns link to converted file with same name as source file, but with 
-     * another extension (xml -> json, json -> xml).
-     * 
-     * @param sourceFile file to convert
-     * @param destinationFolder path to destination folder
-     * @return link to converted file
-     */
-    private File getConvertedFile(File sourceFile, File destinationFolder) {
-        FileTypeEnum fileType = FileTypeEnum.parseByFileName(sourceFile.getName());
-        if (null == fileType) {
-            return null;
-        }
-        String convertedFileName = "";
-        String fileNameWithoutExtension = sourceFile.getName()
-                .substring(0, sourceFile.getName().lastIndexOf("."));
-        switch (fileType) {
-            case JSON:
-                convertedFileName = fileNameWithoutExtension + FileTypeEnum.XML.getExtension();
-                break;
-            case XML:
-                convertedFileName = fileNameWithoutExtension + FileTypeEnum.JSON.getExtension();
-                break;
-            default:
-                throw new RuntimeException("Unsupported file's extension");
-        }
-        
-        return new File(destinationFolder, convertedFileName);
-    }
+
     
     /**
      * Returns application's version from POM-file.
@@ -264,13 +230,6 @@ public class Starter {
             version = "unknown";
         }
         return version;
-    }
-    
-    private void setHeapMaxSize() {
-        // TODO: implement me
-        RuntimeMXBean mxBean = ManagementFactory.getRuntimeMXBean();
-        mxBean.getName();
-        //MonitoredHost
     }
     
 }

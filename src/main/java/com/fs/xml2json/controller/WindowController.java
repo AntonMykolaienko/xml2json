@@ -363,6 +363,7 @@ public class WindowController extends AbstractController implements Initializabl
     }
 
     /**
+     * Disables or enables buttons.
      *
      * @param isDisable true if want to disable buttons
      */
@@ -389,6 +390,9 @@ public class WindowController extends AbstractController implements Initializabl
         } 
     }
 
+    /**
+     * Sets empty string to message area.
+     */
     private void reset() {
         message.setText("");
     }

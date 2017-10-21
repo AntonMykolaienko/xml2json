@@ -69,4 +69,13 @@ public class CustomPatternFileFilterTest {
         
         Assert.assertTrue(filter.accept(file));
     }
+    
+    @Test
+    public void testFilteringUnsupportedExtension() {
+        String pattern = "*.txt";
+        File file = new File("SomeFileWithJson.txt");
+        CustomPatternFileFilter filter = new CustomPatternFileFilter(pattern);
+        
+        Assert.assertFalse(filter.accept(file));
+    }
 }

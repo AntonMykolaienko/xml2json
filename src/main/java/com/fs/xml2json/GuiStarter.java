@@ -39,9 +39,7 @@ public class GuiStarter extends Application {
 
             primaryStage.getIcons().add(new Image("favicon.png"));
             
-            primaryStage.setOnCloseRequest(event -> {
-                logger.info("Shuting down GUI ...");
-            });
+            primaryStage.setOnCloseRequest(event -> logger.info("Shuting down GUI ..."));
 
             primaryStage.show();
         } catch (IOException ex) {
