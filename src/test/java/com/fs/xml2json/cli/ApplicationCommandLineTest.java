@@ -58,9 +58,10 @@ public class ApplicationCommandLineTest {
         cmd.getSourceFolder();
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = FileNotFoundException.class)
     public void testParseNoGuiAndSourceFolderNotExists() throws ParseException, FileNotFoundException {
-        String[] args = new String[]{"--noGui", "--sourceFolder", "/SomeFolderName"};
+        String[] args = new String[]{"--noGui", "--sourceFolder", "/SomeFolderName/", 
+            "--destinationFolder", DESTINATION_FOLDER_PATH, "--pattern", "*.json"};
         ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
         Assert.assertTrue(cmd.isNoGuiEnabled());
         cmd.getSourceFolder();
@@ -128,6 +129,21 @@ public class ApplicationCommandLineTest {
         Assert.assertEquals("*.json", cmd.getPattern());
         Assert.assertTrue(cmd.isForceOverwrite());
         Assert.assertTrue(cmd.isForceOverwrite()); // second call for checking cache
+    }
+    
+    @Test
+    public void testParseNoGuiAndEmptySourceFolder() throws ParseException, FileNotFoundException {
+        String sourceFolderPath = "/SomeFolderName/";
+        File sourceFolder = new File(sourceFolderPath);
+        sourceFolder.mkdirs();
+        
+        String[] args = new String[]{"--noGui", "--sourceFolder", sourceFolderPath, 
+            "--destinationFolder", DESTINATION_FOLDER_PATH, "--pattern", "*.json"};
+        ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
+        Assert.assertTrue(cmd.isNoGuiEnabled());
+        cmd.getSourceFolder();
+        
+        sourceFolder.delete();
     }
 
     @Test
