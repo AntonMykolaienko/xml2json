@@ -40,6 +40,10 @@ java -Xmx=512M -jar xml2json-1.2.0-all.jar --noGui --sourceFolder=C:\Temp\Input 
 ```
 
 
+### Requirements
+- Oracle JRE 1.8 update 40 or higher
+
+
 ### Releases
 Date | Version | Description
 -----|---------|------------
