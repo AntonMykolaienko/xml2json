@@ -328,7 +328,9 @@ public class WindowController extends AbstractController implements Initializabl
                     if (!sw.isStarted()) {
                         try {
                             sw.stop();
-                        } catch (Exception ex) {}
+                        } catch (Exception ex) {
+                            logger.debug(ex.toString());    // not importatnt exception
+                        }
                     }
                 }
 
@@ -379,7 +381,6 @@ public class WindowController extends AbstractController implements Initializabl
         File inputFile = new File(inputPath.getText());
         File outputFile = new File(outputPath.getText());
         
-        StopWatch sw = new StopWatch();
         try {
             service.convert(inputFile, outputFile, new GuiFileReadListener(processedBytes, inputFile), isCanceled);
         } catch (Exception ex) {

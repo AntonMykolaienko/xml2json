@@ -69,7 +69,11 @@ public class Starter {
         
     }
     
-    
+    /**
+     * Constructor.
+     * 
+     * @param args command line arguments
+     */
     public Starter(String[] args) {
         this.args = args;
     }
@@ -114,7 +118,7 @@ public class Starter {
                             break;
                         }
                         if (filter.accept(file)) {
-                            //logger.info("Start processing '{}'", file.getAbsolutePath());
+                            logger.debug("Start processing '{}'", file.getAbsolutePath());
                             File convertedFile = getConvertedFile(file, destinationFolder);
                             boolean skip = false;
                             if (convertedFile.exists() && !forceOverwrite) {
@@ -161,6 +165,7 @@ public class Starter {
         } catch (ParseException  ex) {
             logger.error(ex.toString());
         } catch (IOException ex) {
+            logger.debug(ex.toString());    // unimportant exception at this point
         }
     }
     
@@ -173,7 +178,7 @@ public class Starter {
      */
     private void printHelp() {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp(120, "\n  java -jar xml2json.jar --" + Config.PAR_NO_GUI + " "
+        formatter.printHelp(120, "%n  java -jar xml2json.jar --" + Config.PAR_NO_GUI + " "
                 + "--" + Config.PAR_SOURCE_FOLDER + "=[path_to_source_folder] "
                 + "--" + Config.PAR_DESTINATION_FOLDER + "=[path_to_destination_folder] "
                 + "--" + Config.PAR_SOURCE_FILE_PATTERN + "=[*.json|*.xml]", 
@@ -184,7 +189,7 @@ public class Starter {
                 + "--" + Config.PAR_DESTINATION_FOLDER + "=C:\\temp\\output "
                 + "--" + Config.PAR_SOURCE_FILE_PATTERN + "=*.json\n\n");
     }
-    
+
     /**
      * Checks input parameters and throws exception if mandatory values are missing.
      * Creates Destination directories.
