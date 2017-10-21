@@ -59,6 +59,14 @@ public class ApplicationCommandLineTest {
     }
     
     @Test(expected = IllegalArgumentException.class)
+    public void testParseNoGuiAndSourceFolderNotExists() throws ParseException, FileNotFoundException {
+        String[] args = new String[]{"--noGui", "--sourceFolder", "/SomeFolderName"};
+        ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
+        Assert.assertTrue(cmd.isNoGuiEnabled());
+        cmd.getSourceFolder();
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
     public void testParseNoGuiAndNoDestinationFolder() throws ParseException, FileNotFoundException {
         String[] args = new String[]{"--noGui", "--sourceFolder", "."};
         ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
@@ -82,7 +90,7 @@ public class ApplicationCommandLineTest {
     }
     
     @Test
-    public void testParseNoGuiAndForceOverwrite() throws ParseException, FileNotFoundException {
+    public void testParseNoGuiAndForceOverwriteFalse() throws ParseException, FileNotFoundException {
         String[] args = new String[]{"--noGui", "--sourceFolder", ".", "--destinationFolder", DESTINATION_FOLDER_PATH,
             "--pattern", "*.json"};
         ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
@@ -92,6 +100,34 @@ public class ApplicationCommandLineTest {
         Assert.assertFalse(null == cmd.getPattern());
         Assert.assertEquals("*.json", cmd.getPattern());
         Assert.assertFalse(cmd.isForceOverwrite());
+    }
+    
+    @Test
+    public void testParseNoGuiAndDoubleCallForceOverwrite() throws ParseException, FileNotFoundException {
+        String[] args = new String[]{"--noGui", "--sourceFolder", ".", "--destinationFolder", DESTINATION_FOLDER_PATH,
+            "--pattern", "*.json"};
+        ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
+        Assert.assertTrue(cmd.isNoGuiEnabled());
+        Assert.assertFalse(null == cmd.getSourceFolder());
+        Assert.assertFalse(null == cmd.getDestinationFolder());
+        Assert.assertFalse(null == cmd.getPattern());
+        Assert.assertEquals("*.json", cmd.getPattern());
+        Assert.assertFalse(cmd.isForceOverwrite());
+        Assert.assertFalse(cmd.isForceOverwrite()); // second call for checking cache
+    }
+    
+    @Test
+    public void testParseNoGuiAndForceOverwrite() throws ParseException, FileNotFoundException {
+        String[] args = new String[]{"--noGui", "--sourceFolder", ".", "--destinationFolder", DESTINATION_FOLDER_PATH,
+            "--pattern", "*.json", "--overwrite"};
+        ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
+        Assert.assertTrue(cmd.isNoGuiEnabled());
+        Assert.assertFalse(null == cmd.getSourceFolder());
+        Assert.assertFalse(null == cmd.getDestinationFolder());
+        Assert.assertFalse(null == cmd.getPattern());
+        Assert.assertEquals("*.json", cmd.getPattern());
+        Assert.assertTrue(cmd.isForceOverwrite());
+        Assert.assertTrue(cmd.isForceOverwrite()); // second call for checking cache
     }
 
     @Test

@@ -24,6 +24,7 @@ public class ApplicationCommandLine {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationCommandLine.class);
     
     private static final Boolean DEFAULT_FORCE_OVERWRITE = false;
+    private static final String PARAMETER_MISSING_TEPLATE = "Parameter '--%s' is not set";
     private static final String PARAM_SIGN = "--";
     private static final Options options = new Options();
     
@@ -109,16 +110,16 @@ public class ApplicationCommandLine {
 
         if (isNoGuiEnabled) {
             if (null == sourceFolderTxt) {
-                throw new IllegalArgumentException("Parameter '" 
-                        + PARAM_SIGN + Config.PAR_SOURCE_FOLDER + "' not set");
+                throw new IllegalArgumentException(String.format(PARAMETER_MISSING_TEPLATE, 
+                        Config.PAR_SOURCE_FOLDER));
             }
             if (null == destinationFolderTxt) {
-                throw new IllegalArgumentException("Parameter '" 
-                        + PARAM_SIGN + Config.PAR_DESTINATION_FOLDER + "' not set");
+                throw new IllegalArgumentException(String.format(PARAMETER_MISSING_TEPLATE, 
+                        Config.PAR_DESTINATION_FOLDER));
             }
             if (null == patternTxt) {
-                throw new IllegalArgumentException("Parameter '" 
-                        + PARAM_SIGN + Config.PAR_SOURCE_FILE_PATTERN + "' not set");
+                throw new IllegalArgumentException(String.format(PARAMETER_MISSING_TEPLATE, 
+                        Config.PAR_SOURCE_FILE_PATTERN));
             }
             File sourceFolder = new File(sourceFolderTxt);
             if (!sourceFolder.exists()) {
