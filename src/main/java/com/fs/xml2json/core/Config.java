@@ -46,21 +46,21 @@ public class Config {
     /**
      * Parameter name for Source folder.
      */
-    public static String PAR_SOURCE_FOLDER = "sourceFolder";
+    public static final String PAR_SOURCE_FOLDER = "sourceFolder";
     /**
      * Parameter name for Destination folder.
      */
-    public static String PAR_DESTINATION_FOLDER = "destinationFolder";
+    public static final String PAR_DESTINATION_FOLDER = "destinationFolder";
     /**
      * Parameter name for file pattern
      */
-    public static String PAR_SOURCE_FILE_PATTERN = "pattern";
+    public static final String PAR_SOURCE_FILE_PATTERN = "pattern";
     /**
      * Parameter name for disabling GUI.
      */
-    public static String PAR_NO_GUI = "noGui";
+    public static final String PAR_NO_GUI = "noGui";
     /**
      * Parameter name for overwriting converted files.
      */
-    public static String PAR_FORCE_OVERWRITE = "overwrite";
+    public static final String PAR_FORCE_OVERWRITE = "overwrite";
 }
