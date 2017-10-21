@@ -24,6 +24,7 @@ public class ApplicationCommandLine {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationCommandLine.class);
     
     private static final Boolean DEFAULT_FORCE_OVERWRITE = false;
+    private static final String PARAM_SIGN = "--";
     private static final Options options = new Options();
     
     static {
@@ -39,7 +40,6 @@ public class ApplicationCommandLine {
                 "Force overwrite existing converted files (Default: false)");
     }
     
-    //private final String[] args;
     private final CommandLine cmd;
     
     // source file or folder with files to convert.
@@ -83,16 +83,18 @@ public class ApplicationCommandLine {
      */
     public static void printHelp() {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp(120, "%n  java -jar xml2json.jar --" + Config.PAR_NO_GUI + " "
-                + "--" + Config.PAR_SOURCE_FOLDER + "=[path_to_source_folder] "
-                + "--" + Config.PAR_DESTINATION_FOLDER + "=[path_to_destination_folder] "
-                + "--" + Config.PAR_SOURCE_FILE_PATTERN + "=[*.json|*.xml]", 
+        formatter.printHelp(120, "%n  java -jar xml2json.jar "
+                + PARAM_SIGN + Config.PAR_NO_GUI + " "
+                + PARAM_SIGN + Config.PAR_SOURCE_FOLDER + "=[path_to_source_folder] "
+                + PARAM_SIGN + Config.PAR_DESTINATION_FOLDER + "=[path_to_destination_folder] "
+                + PARAM_SIGN + Config.PAR_SOURCE_FILE_PATTERN + "=[*.json|*.xml]", 
                 ", where:", 
                 options, 
-                "example:%n  java -jar xml2json.jar --" + Config.PAR_NO_GUI + " "
-                + "--" + Config.PAR_SOURCE_FOLDER + "=C:\\temp\\input "
-                + "--" + Config.PAR_DESTINATION_FOLDER + "=C:\\temp\\output "
-                + "--" + Config.PAR_SOURCE_FILE_PATTERN + "=*.json\n\n");
+                "example:%n  java -jar xml2json.jar "
+                + PARAM_SIGN + Config.PAR_NO_GUI + " "
+                + PARAM_SIGN + Config.PAR_SOURCE_FOLDER + "=C:\\temp\\input "
+                + PARAM_SIGN + Config.PAR_DESTINATION_FOLDER + "=C:\\temp\\output "
+                + PARAM_SIGN + Config.PAR_SOURCE_FILE_PATTERN + "=*.json\n\n");
     }
     
     /**
@@ -107,13 +109,16 @@ public class ApplicationCommandLine {
 
         if (isNoGuiEnabled) {
             if (null == sourceFolderTxt) {
-                throw new IllegalArgumentException("Parameter '--" + Config.PAR_SOURCE_FOLDER + "' not set");
+                throw new IllegalArgumentException("Parameter '" 
+                        + PARAM_SIGN + Config.PAR_SOURCE_FOLDER + "' not set");
             }
             if (null == destinationFolderTxt) {
-                throw new IllegalArgumentException("Parameter '--" + Config.PAR_DESTINATION_FOLDER + "' not set");
+                throw new IllegalArgumentException("Parameter '" 
+                        + PARAM_SIGN + Config.PAR_DESTINATION_FOLDER + "' not set");
             }
             if (null == patternTxt) {
-                throw new IllegalArgumentException("Parameter '--" + Config.PAR_SOURCE_FILE_PATTERN + "' not set");
+                throw new IllegalArgumentException("Parameter '" 
+                        + PARAM_SIGN + Config.PAR_SOURCE_FILE_PATTERN + "' not set");
             }
             File sourceFolder = new File(sourceFolderTxt);
             if (!sourceFolder.exists()) {

@@ -40,7 +40,7 @@ public class ApplicationCommandLineTest {
     }
 
     @Test
-    public void parseNoInputs() throws ParseException, FileNotFoundException {
+    public void testParseNoInputs() throws ParseException, FileNotFoundException {
         String[] args = new String[]{};
         ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
         Assert.assertFalse(cmd.isNoGuiEnabled());
@@ -51,7 +51,7 @@ public class ApplicationCommandLineTest {
     }
     
     @Test(expected = IllegalArgumentException.class)
-    public void parseNoGuiAndNoSourceFolder() throws ParseException, FileNotFoundException {
+    public void testParseNoGuiAndNoSourceFolder() throws ParseException, FileNotFoundException {
         String[] args = new String[]{"--noGui"};
         ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
         Assert.assertTrue(cmd.isNoGuiEnabled());
@@ -59,7 +59,7 @@ public class ApplicationCommandLineTest {
     }
     
     @Test(expected = IllegalArgumentException.class)
-    public void parseNoGuiAndNoDestinationFolder() throws ParseException, FileNotFoundException {
+    public void testParseNoGuiAndNoDestinationFolder() throws ParseException, FileNotFoundException {
         String[] args = new String[]{"--noGui", "--sourceFolder", "."};
         ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
         Assert.assertTrue(cmd.isNoGuiEnabled());
@@ -69,7 +69,7 @@ public class ApplicationCommandLineTest {
     }
     
     @Test(expected = IllegalArgumentException.class)
-    public void parseNoGuiAndNoPattern() throws ParseException, FileNotFoundException {
+    public void testParseNoGuiAndNoPattern() throws ParseException, FileNotFoundException {
         File destinationFolder = new File(DESTINATION_FOLDER_PATH);
         
         String[] args = new String[]{"--noGui", "--sourceFolder", ".", "--destinationFolder", DESTINATION_FOLDER_PATH};
@@ -82,7 +82,7 @@ public class ApplicationCommandLineTest {
     }
     
     @Test
-    public void parseNoGuiAndForceOverwrite() throws ParseException, FileNotFoundException {
+    public void testParseNoGuiAndForceOverwrite() throws ParseException, FileNotFoundException {
         String[] args = new String[]{"--noGui", "--sourceFolder", ".", "--destinationFolder", DESTINATION_FOLDER_PATH,
             "--pattern", "*.json"};
         ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
@@ -94,4 +94,8 @@ public class ApplicationCommandLineTest {
         Assert.assertFalse(cmd.isForceOverwrite());
     }
 
+    @Test
+    public void testPrintHelp() {
+        ApplicationCommandLine.printHelp();
+    }
 }

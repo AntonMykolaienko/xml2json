@@ -217,28 +217,11 @@ public class WindowController extends AbstractController implements Initializabl
 
             return;
         }
+        
         // check all values
-        boolean hasErrors = false;
-        String errorMessage = "";
-        if (null == inputPath.getText() || inputPath.getText().isEmpty()) {
-            hasErrors = true;
-            errorMessage = "Select \"Source file\"";
-        }
-        if (!hasErrors && (null == outputPath.getText() || outputPath.getText().isEmpty())) {
-            hasErrors = true;
-            errorMessage = "Select \"Output file\"";
-        }
-        if (!hasErrors && ((isXml(inputPath) && isXml(outputPath)) || (isJson(inputPath) && isJson(outputPath)))) {
-            hasErrors = true;
-            errorMessage = "Only xml->json or json->xml convert supported";
-        }
-        if (!hasErrors && (null != inputPath.getText() && !(new File(inputPath.getText())).exists())) {
-            hasErrors = true;
-            errorMessage = "\"Source file\" not exists";
-        }
-
+        String errorMessage = checkInputParameters();
         // show errors
-        if (hasErrors) {
+        if (null != errorMessage) {
             showErrors(errorMessage);
             return;
         }
@@ -338,6 +321,29 @@ public class WindowController extends AbstractController implements Initializabl
 
     private boolean isJson(TextField txtField) {
         return txtField.getText().toLowerCase().endsWith(FileTypeEnum.JSON.getExtension());
+    }
+    
+    /**
+     * Returns error message if exists, or null if all is OK.
+     * 
+     * @return error message or null;
+     */
+    private String checkInputParameters() {
+        // check all values
+        if (null == inputPath.getText() || inputPath.getText().isEmpty()) {
+            return "Select \"Source file\"";
+        }
+        if (null == outputPath.getText() || outputPath.getText().isEmpty()) {
+            return "Select \"Output file\"";
+        }
+        if ((isXml(inputPath) && isXml(outputPath)) || (isJson(inputPath) && isJson(outputPath))) {
+            return "Only xml->json or json->xml convert supported";
+        }
+        if (null != inputPath.getText() && !(new File(inputPath.getText())).exists()) {
+            return "\"Source file\" not exists";
+        }
+        
+        return null;
     }
     
     private void showErrors(String errorMessage) {
