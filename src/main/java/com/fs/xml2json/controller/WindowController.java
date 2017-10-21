@@ -4,6 +4,7 @@ import com.fs.xml2json.core.Config;
 import com.fs.xml2json.listener.GuiFileReadListener;
 import com.fs.xml2json.service.ConverterService;
 import com.fs.xml2json.type.FileTypeEnum;
+import com.fs.xml2json.util.ApplicationUtils;
 import com.fs.xml2json.util.ConfigUtils;
 import com.sun.javafx.stage.StageHelper;
 import java.io.File;
@@ -108,7 +109,7 @@ public class WindowController extends AbstractController implements Initializabl
             });
         });
 
-        String versionTxt = "Version: " + getVersion() + "; ";
+        String versionTxt = "Version: " + ApplicationUtils.getVersion() + "; ";
         version.setText(versionTxt);
         donate.setText("Donate");
         donate.setOnAction((ActionEvent e) -> {
@@ -238,30 +239,7 @@ public class WindowController extends AbstractController implements Initializabl
 
         // show errors
         if (hasErrors) {
-            Alert alert = new Alert(AlertType.ERROR, errorMessage, ButtonType.OK);
-            alert.initOwner(StageHelper.getStages().get(0));
-            alert.initModality(Modality.WINDOW_MODAL);
-            
-            Text text = new Text(errorMessage);
-            TextFlow textFlow = new TextFlow();
-            textFlow.setTextAlignment(TextAlignment.CENTER);
-
-            textFlow.getChildren().addAll(text);
-
-            alert.getDialogPane().setContent(textFlow);
-            alert.getDialogPane().setMinHeight(100);
-            alert.getDialogPane().setMinWidth(300);
-
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.setHeader(new GridPane());
-            dialogPane.setGraphic(null);
-            dialogPane.setCenterShape(true);
-            
-            alert.setX(alert.getOwner().getX() + (alert.getOwner().getWidth() - alert.getDialogPane().getWidth())/2);
-            alert.setY(alert.getOwner().getY() + 50);
-            
-            alert.showAndWait();
-
+            showErrors(errorMessage);
             return;
         }
 
@@ -360,6 +338,32 @@ public class WindowController extends AbstractController implements Initializabl
 
     private boolean isJson(TextField txtField) {
         return txtField.getText().toLowerCase().endsWith(FileTypeEnum.JSON.getExtension());
+    }
+    
+    private void showErrors(String errorMessage) {
+        Alert alert = new Alert(AlertType.ERROR, errorMessage, ButtonType.OK);
+        alert.initOwner(StageHelper.getStages().get(0));
+        alert.initModality(Modality.WINDOW_MODAL);
+
+        Text text = new Text(errorMessage);
+        TextFlow textFlow = new TextFlow();
+        textFlow.setTextAlignment(TextAlignment.CENTER);
+
+        textFlow.getChildren().addAll(text);
+
+        alert.getDialogPane().setContent(textFlow);
+        alert.getDialogPane().setMinHeight(100);
+        alert.getDialogPane().setMinWidth(300);
+
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setHeader(new GridPane());
+        dialogPane.setGraphic(null);
+        dialogPane.setCenterShape(true);
+
+        alert.setX(alert.getOwner().getX() + (alert.getOwner().getWidth() - alert.getDialogPane().getWidth())/2);
+        alert.setY(alert.getOwner().getY() + 50);
+
+        alert.showAndWait();
     }
 
     /**

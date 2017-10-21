@@ -101,9 +101,9 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
-    
-    
+
+
+
     <build>
         <resources>
             <resource>
@@ -141,26 +141,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <archive>
-                        <index>true</index>
-                        <addMavenDescriptor>false</addMavenDescriptor>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                        </manifest>
-                        <manifestEntries>
-                            <Main-class>com.fs.xml2json.Starter</Main-class>
-                        </manifestEntries>
-                    </archive>
-                    <finalName>${project.artifactId}-${project.version}</finalName>
-                </configuration>
-            </plugin>-->
                         
             <plugin>
                 <groupId>com.zenjava</groupId>
@@ -175,7 +155,6 @@
                     <nativeReleaseVersion>${project.version}</nativeReleaseVersion>
                     <appName>${project.name}</appName>
                     <skipJNLP>true</skipJNLP>
-                    
                     <bundler>${fxBundle}</bundler>
                     <bundleArguments>
                         <!-- additional suffix for Mac installer -->
@@ -189,7 +168,7 @@
                         <Implementation-Title>${project.name}</Implementation-Title>
                         <Implementation-Version>${project.version}</Implementation-Version>
                         <Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
-                        <Implementation-Vendor>${project.organization.name</Implementation-Vendor>
+                        <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
                     </manifestAttributes>
                     
                     <jvmArgs>
@@ -244,14 +223,14 @@
                         <artifactId>maven-assembly-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>create-archive</id>
+                                <id>all</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>single</goal>
                                 </goals>
                                 <configuration>
                                     <descriptors>
-                                        <descriptor>src/assembly/assembly_jar_with_dependencies.xml</descriptor>
+                                        <descriptor>src/assembly/assembly_jar_full.xml</descriptor>
                                     </descriptors>
                                     <archive>
                                         <manifest>
@@ -269,7 +248,7 @@
                                 </goals>
                                 <configuration>
                                     <descriptors>
-                                        <descriptor>src/assembly/assembly.xml</descriptor>
+                                        <descriptor>src/assembly/assembly_archive.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                             </execution>

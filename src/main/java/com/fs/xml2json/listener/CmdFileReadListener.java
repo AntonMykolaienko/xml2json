@@ -43,7 +43,8 @@ public class CmdFileReadListener extends AbstractFileReadListener {
         
         String bareRemain = bare.substring(percentDone, bare.length());
         System.out.print("\r" + bareDone + bareRemain + " " + percentDone + "%");
-        if ((int)(newValue*100) == 100) {
+        //if ((int)(newValue*100) == 100) {
+        if (newValue == 1.0d) {
             System.out.print("%n");
         }
     }
