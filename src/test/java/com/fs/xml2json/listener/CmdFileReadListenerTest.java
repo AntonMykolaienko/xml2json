@@ -92,7 +92,6 @@ public class CmdFileReadListenerTest {
         @Override
         public void finished() {
             super.finished();
-            System.out.println("call finish");
             if (0 == --numberOfReads) {
                 isFinishedCalled.set(true);
             }
