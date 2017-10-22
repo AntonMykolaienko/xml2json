@@ -28,11 +28,10 @@ addons:
     organization: "antonmykolaienko-github" # the key of the org you chose at step #3
     #token:
      # secure: ********* # encrypted value of your token
-script:
-  # other script steps might be done before running the actual analysis
-  - sonar-scanner
 
 jdk:
  - oraclejdk8
 
-script: mvn clean package
+script: 
+ - mvn clean package
+ - sonar-scanner
