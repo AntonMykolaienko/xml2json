@@ -15,14 +15,30 @@ public class CmdFileReadListenerTest {
 
     
     @Test
-    public void testCmdFileReadListener() {
+    public void testCmdFileReadListenerForXml() {
         File sourceFile = new File(this.getClass().getClassLoader().getResource("SampleXml.xml").getFile());
         System.out.println(sourceFile.getAbsolutePath());
         Assert.assertTrue(sourceFile.exists());
         IFileReadListener listener = new CmdFileReadListener(sourceFile);
         
-        listener.update((int) sourceFile.length() / (int) sourceFile.length() / 2);  // 50%
-        listener.update((int) sourceFile.length() / (int) sourceFile.length());  // 100%
+        // read bytes
+        listener.update((int) sourceFile.length() / 2);  // 25%
+        listener.update((int) sourceFile.length() / 2);  // 50%
+        listener.update((int) sourceFile.length() / 2);  // 75%
+        listener.update((int) sourceFile.length() / 2);  // 100%
+        
+        listener.finished();
+    }
+    
+    @Test
+    public void testCmdFileReadListenerForJson() {
+        File sourceFile = new File(this.getClass().getClassLoader().getResource("SampleJson.json").getFile());
+        System.out.println(sourceFile.getAbsolutePath());
+        Assert.assertTrue(sourceFile.exists());
+        IFileReadListener listener = new CmdFileReadListener(sourceFile);
+        
+        listener.update((int) sourceFile.length() / 2);  // 50%
+        listener.update((int) sourceFile.length() / 2);  // 100%
         
         listener.finished();
     }
