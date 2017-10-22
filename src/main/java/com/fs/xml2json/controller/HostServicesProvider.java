@@ -22,6 +22,7 @@ public class HostServicesProvider {
         }
         this.hostServices = hostServices ;
     }
+    
     public HostServices getHostServices() {
         if (hostServices == null) {
             throw new IllegalStateException("Host services not initialized");

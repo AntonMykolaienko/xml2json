@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Anton Mykolaienko
  * @since 1.0.0
  */
-public class WindowController extends AbstractController implements Initializable {
+public class WindowController implements Initializable {
 
     private static final ExtensionFilter EXTENSION_XML_OR_JSON = new ExtensionFilter("XML or JSON files",
             Arrays.asList("*.xml", "*.json"));
@@ -115,8 +115,6 @@ public class WindowController extends AbstractController implements Initializabl
         donate.setOnAction((ActionEvent e) -> 
                 HostServicesProvider.INSTANCE.getHostServices().showDocument(Config.DONATE_LINK)
         );
-        
-        // TODO: check updates
     }
 
     public void openBrowseDialogInput(ActionEvent event) {
@@ -269,6 +267,7 @@ public class WindowController extends AbstractController implements Initializabl
                             
                             long seconds = sw.getTime(TimeUnit.SECONDS);
                             message.setText("Finished in " + String.format("%02d:%02d", seconds/60, seconds%60));
+                            inProgress.compareAndSet(true, false);
                         });
                     }
                 } finally {
