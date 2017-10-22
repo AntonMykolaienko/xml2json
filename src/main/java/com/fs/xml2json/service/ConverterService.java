@@ -197,12 +197,11 @@ public class ConverterService {
      * @param listener progress listener
      * @return file writer
      * @throws XMLStreamException if cannot create writer
-     * @throws FileNotFoundException if source file not found
-     * @throws IOException if an I/O error occurs
+     * @throws IOException if an I/O error occurs or if source file not found
      */
     private XMLEventWriter createWriter(JsonXMLConfig config, File sourceFile, OutputStream output,
             AtomicBoolean isCanceled, IFileReadListener listener) 
-            throws XMLStreamException, FileNotFoundException, IOException {
+            throws XMLStreamException, IOException {
         
         FileTypeEnum inputFileType = FileTypeEnum.parseByFileName(sourceFile.getName());
         if (inputFileType == FileTypeEnum.XML) {

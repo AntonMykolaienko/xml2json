@@ -26,6 +26,12 @@ public class ConfigUtils {
     private static final Properties applicationProperties = new Properties();
 
     /**
+     * Private constructor.
+     */
+    private ConfigUtils() {
+    }
+    
+    /**
      * Reads stored path to file to convert and return this path or null if file with path not found.
      * 
      * @return path to file or null
@@ -66,7 +72,6 @@ public class ConfigUtils {
     
     /**
      * Loads properties from application's config file.
-     * 
      */
     private static void loadApplicationProperties() {
         if (applicationProperties.isEmpty()) {
@@ -75,20 +80,12 @@ public class ConfigUtils {
             File appDir = new File(usersDir, Config.APPLICATION_FOLDER_NAME);
             if (appDir.exists()) {
                 File configFile = new File(appDir, Config.APPLICATION_STORAGE_FILE_NAME);
-                InputStream in = null;
                 if (configFile.exists()) {
-                    try {
-                        in = new FileInputStream(configFile);
+                    try (InputStream in = new FileInputStream(configFile)) {
                         applicationProperties.load(in);
                         logger.debug("Loaded {} properties", applicationProperties.size());
                     } catch (IOException ex) {
                         logger.error(ex.toString());
-                    } finally {
-                        if (null != in) {
-                            try {
-                                in.close();
-                            } catch (IOException ex) {}
-                        }
                     }
                 }
             } else {
@@ -104,9 +101,7 @@ public class ConfigUtils {
         if (!appDir.exists()) {
             appDir.mkdir();
         } 
-        OutputStream os = null;
-        try {
-            os = new BufferedOutputStream(new FileOutputStream(configFile));
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(configFile))) {
             StringBuilder sb = new StringBuilder();
             applicationProperties.entrySet().forEach(entry -> {
                 if (null != entry.getKey() && !entry.getKey().toString().trim().isEmpty()) {
@@ -121,12 +116,6 @@ public class ConfigUtils {
             os.flush();
         } catch (IOException ex) {
             logger.error(ex.toString());
-        } finally {
-            if (null != os) {
-                try {
-                    os.close();
-                } catch (IOException ex) {}
-            }
         }
     }
 }

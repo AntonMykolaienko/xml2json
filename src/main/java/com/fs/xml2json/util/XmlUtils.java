@@ -27,6 +27,11 @@ public class XmlUtils {
     
     private static final Logger logger = LoggerFactory.getLogger(XmlUtils.class);
     
+    /**
+     * Private constructor.
+     */
+    private XmlUtils() {
+    }
 
     /**
      * Returns a list of paths of all arrays in XML.
@@ -47,9 +52,7 @@ public class XmlUtils {
             
             if (logger.isDebugEnabled()) {
                 StringBuilder sb = new StringBuilder();
-                arrayKeys.forEach(key -> {
-                    sb.append(sb.length() > 0 ? "\n" : "").append(key);
-                });
+                arrayKeys.forEach(key -> sb.append(sb.length() > 0 ? "\n" : "").append(key));
                 
                 logger.trace("Found arrays:\n{}", sb.toString());
             }            
@@ -85,10 +88,9 @@ public class XmlUtils {
                             parentNode.nestedNode.put(node.getFullPath(), node);
                         } else {
                             elementNode.occurrence++;
-                            if (elementNode.occurrence > 1) {
-                                if (null != arrayKeys && !arrayKeys.contains(elementNode.getFullPath())) {
-                                    arrayKeys.add(elementNode.getFullPath());
-                                }
+                            if (elementNode.occurrence > 1 && null != arrayKeys 
+                                    && !arrayKeys.contains(elementNode.getFullPath())) {
+                                arrayKeys.add(elementNode.getFullPath());
                             }
                         }
                     }
@@ -107,6 +109,9 @@ public class XmlUtils {
                     break;
                 case XMLStreamConstants.CHARACTERS:
                     break;
+                    
+                default: // nothing to do
+                    break;
             }
         }
     }
@@ -116,7 +121,7 @@ public class XmlUtils {
         private int occurrence = 1;
         private XmlNode parentNode;
         private Map<String, XmlNode> nestedNode = new LinkedHashMap<>();
-        //XmlNode() {}
+
         XmlNode(String nodeName) {
             this.nodeName = nodeName;
         }

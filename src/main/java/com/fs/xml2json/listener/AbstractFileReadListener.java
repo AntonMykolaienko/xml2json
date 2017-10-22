@@ -26,13 +26,11 @@ public abstract class AbstractFileReadListener implements IFileReadListener {
      */
     public AbstractFileReadListener(File sourceFile) {       
         FileTypeEnum fileType = FileTypeEnum.parseByFileName(sourceFile.getName());
-        switch (fileType) {
-            case XML:
-                this.fileSize = sourceFile.length() * 2;
-                this.numberOfReads += 1;    // XML file will be read twice (first time - for determining arrays)
-                break;
-            default:
-                this.fileSize = sourceFile.length();
+        if (fileType == FileTypeEnum.XML) {
+            this.fileSize = sourceFile.length() * 2;
+            this.numberOfReads += 1;    // XML file will be read twice (first time - for determining arrays)
+        } else {
+            this.fileSize = sourceFile.length();
         }
     }
     
@@ -58,12 +56,10 @@ public abstract class AbstractFileReadListener implements IFileReadListener {
     @Override
     public void finished() {
         numberOfReads--;
-        if (numberOfReads == 0) {
-            if (buffer > 0) {
-                readBytes += buffer;
-                updateProgressInPercent((double) readBytes / (double) fileSize);
-                buffer = 0;
-            }
+        if (numberOfReads == 0 && buffer > 0) {
+            readBytes += buffer;
+            updateProgressInPercent((double) readBytes / (double) fileSize);
+            buffer = 0;
         }
     }
     
