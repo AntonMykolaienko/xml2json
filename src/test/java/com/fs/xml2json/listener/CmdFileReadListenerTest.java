@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -22,7 +21,6 @@ public class CmdFileReadListenerTest {
 
     
     @Test
-    @Ignore(value = "ignore temporarily")
     public void testCmdFileReadListenerForXml() throws IOException {
         File sourceFile = new File(this.getClass().getClassLoader().getResource("SampleXml.xml").getFile());
         System.out.println(sourceFile.getAbsolutePath());
@@ -35,47 +33,52 @@ public class CmdFileReadListenerTest {
         byte[] buffer = new byte[128];
         // determine arrays
         try (InputStream in = new WrappedInputStream(new FileInputStream(sourceFile), listener, isCanceled)){
-            while (in.available() > 0) {
-                int bytesToRead = in.available() > buffer.length ? buffer.length : in.available();
-                in.read(buffer, 0, bytesToRead);
+            while (in.read(buffer, 0, buffer.length) > 0) {
             }
         }
         
         // second read for convertation
         try (InputStream in = new WrappedInputStream(new FileInputStream(sourceFile), listener, isCanceled)){
-            while (in.available() > 0) {
-                int bytesToRead = in.available() > buffer.length ? buffer.length : in.available();
-                in.read(buffer, 0, bytesToRead);
+            while (in.read(buffer, 0, buffer.length) > 0) {
             }
         }
-        
         Assert.assertEquals(sourceFile.length() * 2, bytesRead.get());
         Assert.assertTrue(isFinishCalled.get());
     }
     
     
     
-//    @Test
-//    public void testCmdFileReadListenerForJson() {
-//        File sourceFile = new File(this.getClass().getClassLoader().getResource("SampleJson.json").getFile());
-//        System.out.println(sourceFile.getAbsolutePath());
-//        Assert.assertTrue(sourceFile.exists());
-//        IFileReadListener listener = new CmdFileReadListener(sourceFile);
-//        
-//        listener.update((int) sourceFile.length() / 2);  // 50%
-//        listener.update((int) sourceFile.length() / 2);  // 100%
-//        
-//        listener.finished();
-//    }
+    @Test
+    public void testCmdFileReadListenerForJson() throws IOException {
+        File sourceFile = new File(this.getClass().getClassLoader().getResource("SampleJson.json").getFile());
+        System.out.println(sourceFile.getAbsolutePath());
+        Assert.assertTrue(sourceFile.exists());
+        AtomicBoolean isFinishCalled = new AtomicBoolean(false);
+        AtomicLong bytesRead = new AtomicLong(0);
+        IFileReadListener listener = new CustomCmdFileReadListener(isFinishCalled, bytesRead, sourceFile);
+        AtomicBoolean isCanceled = new AtomicBoolean(false);
+        
+        byte[] buffer = new byte[128];
+        try (InputStream in = new WrappedInputStream(new FileInputStream(sourceFile), listener, isCanceled)){
+            while (in.read(buffer, 0, buffer.length) > 0) {
+            }
+        }
+        Assert.assertEquals(sourceFile.length(), bytesRead.get());
+        Assert.assertTrue(isFinishCalled.get());
+    }
     
     private class CustomCmdFileReadListener extends CmdFileReadListener {
         AtomicBoolean isFinishedCalled;
         AtomicLong bytesRead;
+        int numberOfReads = 1;
 
         public CustomCmdFileReadListener(AtomicBoolean isFinishedCalled, AtomicLong bytesRead, File sourceFile) {
             super(sourceFile);
             this.isFinishedCalled = isFinishedCalled;
             this.bytesRead = bytesRead;
+            if (sourceFile.getName().toLowerCase().endsWith(".xml")) {
+                numberOfReads += 1;
+            }
         }
 
         @Override
@@ -88,8 +91,11 @@ public class CmdFileReadListenerTest {
 
         @Override
         public void finished() {
-            super.finished(); 
-            isFinishedCalled.set(true);
+            super.finished();
+            System.out.println("call finish");
+            if (0 == --numberOfReads) {
+                isFinishedCalled.set(true);
+            }
         }
         
         
