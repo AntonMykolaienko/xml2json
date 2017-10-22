@@ -90,7 +90,7 @@ public class Starter {
                             if (convertedFile.exists() && !cmd.isForceOverwrite()) {
                                 skip = true;
                                 // overwrite ?
-                                System.out.print(String.format("%nFile '%s' already exists, overwrite? [y/n]: ", 
+                                System.out.print(String.format("\nFile '%s' already exists, overwrite? [y/n]: ", 
                                         convertedFile.getAbsolutePath()));
                                 
                                 boolean isCorrectAnswer = false;

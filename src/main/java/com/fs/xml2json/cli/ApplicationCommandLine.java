@@ -84,14 +84,14 @@ public class ApplicationCommandLine {
      */
     public static void printHelp() {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp(120, "%n  java -jar xml2json.jar "
+        formatter.printHelp(120, "\n  java -jar xml2json.jar "
                 + PARAM_SIGN + Config.PAR_NO_GUI + " "
                 + PARAM_SIGN + Config.PAR_SOURCE_FOLDER + "=[path_to_source_folder] "
                 + PARAM_SIGN + Config.PAR_DESTINATION_FOLDER + "=[path_to_destination_folder] "
                 + PARAM_SIGN + Config.PAR_SOURCE_FILE_PATTERN + "=[*.json|*.xml]", 
                 ", where:", 
                 options, 
-                "example:%n  java -jar xml2json.jar "
+                "example:\n  java -jar xml2json.jar "
                 + PARAM_SIGN + Config.PAR_NO_GUI + " "
                 + PARAM_SIGN + Config.PAR_SOURCE_FOLDER + "=C:\\temp\\input "
                 + PARAM_SIGN + Config.PAR_DESTINATION_FOLDER + "=C:\\temp\\output "
