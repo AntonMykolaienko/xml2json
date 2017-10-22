@@ -187,7 +187,7 @@ public class WindowController extends AbstractController implements Initializabl
             Platform.runLater(() -> {
                 isCanceled.compareAndSet(false, true);
                 startBtn.setDisable(false);
-                startBtn.setText(Config.START_BUTTON__START);
+                startBtn.setText(Config.START_BUTTON_START);
 
                 enableOrDisableButtonsAndInputs(false);
 
@@ -240,7 +240,7 @@ public class WindowController extends AbstractController implements Initializabl
         isFailed.compareAndSet(true, false);
         isCanceled.compareAndSet(true, false);
         inProgress.set(true);
-        startBtn.setText(Config.START_BUTTON__CANCEL);
+        startBtn.setText(Config.START_BUTTON_CANCEL);
         startBtn.setDisable(false);
 
         enableOrDisableButtonsAndInputs(true);
@@ -263,7 +263,7 @@ public class WindowController extends AbstractController implements Initializabl
                     if (!isCanceled.get() && !isFailed.get()) {
                         Platform.runLater(() -> {
                             startBtn.setDisable(false);
-                            startBtn.setText(Config.START_BUTTON__START);
+                            startBtn.setText(Config.START_BUTTON_START);
 
                             enableOrDisableButtonsAndInputs(false);
                             
@@ -293,7 +293,7 @@ public class WindowController extends AbstractController implements Initializabl
                 }
                 isFailed.compareAndSet(false, true);
                 inProgress.compareAndSet(true, false);
-                startBtn.setText(Config.START_BUTTON__START);
+                startBtn.setText(Config.START_BUTTON_START);
                 enableOrDisableButtonsAndInputs(false);
             }
         };

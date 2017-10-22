@@ -72,7 +72,7 @@ public class Starter {
             if (cmd.isNoGuiEnabled()) {
                 CustomPatternFileFilter filter = new CustomPatternFileFilter(cmd.getPattern());
                 long numberOfFiles = Stream.of(cmd.getSourceFolder().listFiles())
-                        .filter(file -> filter.accept(file))
+                        .filter(filter::accept)
                         .count();
 
                 if (numberOfFiles > 0) {

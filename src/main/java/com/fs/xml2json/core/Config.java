@@ -8,15 +8,18 @@ package com.fs.xml2json.core;
  * @since 1.0.0
  */
 public class Config {
+    
+    private Config() {
+    }
 
     /**
      * Name for Start button to start convert process.
      */
-    public static final String START_BUTTON__START  = "Start convert";
+    public static final String START_BUTTON_START  = "Start convert";
     /**
      * Button's name when convert process have been started.
      */
-    public static final String START_BUTTON__CANCEL = "Cancel";
+    public static final String START_BUTTON_CANCEL = "Cancel";
 
     /**
      * Folder's name where all configuration files will be stored.
