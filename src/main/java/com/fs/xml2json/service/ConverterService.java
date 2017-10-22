@@ -55,24 +55,18 @@ public class ConverterService {
     public File convert(File sourceFile, File outputFile, IFileReadListener listener, AtomicBoolean isCanceled) {
         StopWatch sw = new StopWatch();
 
-        InputStream input = null;
-        OutputStream output = null;
         XMLEventReader reader = null;
         XMLEventWriter writer = null;
         FileTypeEnum inputFileType;
-        try {
+        try (InputStream input = getWrappedInputStream(sourceFile, listener, isCanceled); 
+                OutputStream output = getOutputStream(outputFile)) {
+            
             inputFileType = FileTypeEnum.parseByFileName(sourceFile.getName());
-
-            input = new WrappedInputStream(new BufferedInputStream(new FileInputStream(sourceFile)),
-                    listener, isCanceled);
 
             File parentFolder = outputFile.getParentFile();
             if (!parentFolder.exists()) {
                 parentFolder.mkdirs();
             }
-            
-            output = new BufferedOutputStream(Files.newOutputStream(outputFile.toPath(),
-                    StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE));
 
             sw.start();
 
@@ -113,25 +107,37 @@ public class ConverterService {
                     logger.error(ex.toString());
                 }
             }
-            if (null != input) {
-                try {
-                    input.close();
-                } catch (IOException ex) {
-                    logger.error(ex.toString());
-                }
-            }
-            if (null != output) {
-                try {
-                    output.close();
-                } catch (IOException ex) {
-                    logger.error(ex.toString());
-                }
-            }
         }
         
         return outputFile;
     }
 
+    /**
+     * Returns wrapped input stream.
+     * 
+     * @param sourceFile file to read
+     * @param listener progress listener
+     * @param isCanceled variable for canceling process
+     * @return wrapped input stream 
+     * @throws FileNotFoundException if file not found
+     */
+    private InputStream getWrappedInputStream(File sourceFile, IFileReadListener listener, 
+            AtomicBoolean isCanceled) throws FileNotFoundException {
+        return new WrappedInputStream(new BufferedInputStream(new FileInputStream(sourceFile)), 
+                listener, isCanceled);
+    }
+    
+    /**
+     * Returns output stream.
+     * 
+     * @param outputFile file for output
+     * @return output stream
+     * @throws IOException if an I/O error occurs
+     */
+    private OutputStream getOutputStream(File outputFile) throws IOException {
+        return new BufferedOutputStream(Files.newOutputStream(outputFile.toPath(),
+                    StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE));
+    }
     
     private JsonXMLConfig createConfig(FileTypeEnum inputFileType) {
         switch (inputFileType) {
@@ -180,14 +186,28 @@ public class ConverterService {
         throw new IllegalArgumentException("Unsupported file type: " + inputFileType);
     }
 
+    /**
+     * Creates writer based on source file.
+     * <p>Is source file is XML, then arrays will be determined first.
+     * 
+     * @param config converter config
+     * @param sourceFile file to convert
+     * @param output output stream
+     * @param isCanceled object for canceling process
+     * @param listener progress listener
+     * @return file writer
+     * @throws XMLStreamException if cannot create writer
+     * @throws FileNotFoundException if source file not found
+     * @throws IOException if an I/O error occurs
+     */
     private XMLEventWriter createWriter(JsonXMLConfig config, File sourceFile, OutputStream output,
             AtomicBoolean isCanceled, IFileReadListener listener) 
             throws XMLStreamException, FileNotFoundException, IOException {
+        
         FileTypeEnum inputFileType = FileTypeEnum.parseByFileName(sourceFile.getName());
         if (inputFileType == FileTypeEnum.XML) {
             XMLEventWriter sourceWriter = new JsonXMLOutputFactory(config).createXMLEventWriter(output);
-            try (InputStream input = new WrappedInputStream(new BufferedInputStream(new FileInputStream(sourceFile)),
-                            listener, isCanceled)) {
+            try (InputStream input = getWrappedInputStream(sourceFile, listener, isCanceled)) {
                 List<String> fileArrays = XmlUtils.determineArrays(input, isCanceled);
                 return new XMLMultipleEventWriter(sourceWriter, true, fileArrays.toArray(new String[]{}));
             }

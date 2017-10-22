@@ -105,16 +105,14 @@ public class WindowController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        processedBytes.addListener((ObservableValue<? extends Object> observable, Object oldValue, Object newValue) -> {
-            Platform.runLater(() -> progressValue.setText(df.format((double) newValue * 100) + "%"));
-        });
+        processedBytes.addListener((observable, oldValue, newValue) -> 
+            Platform.runLater(() -> progressValue.setText(df.format((double) newValue * 100) + "%"))
+        );
 
         String versionTxt = "Version: " + ApplicationUtils.getVersion() + "; ";
         version.setText(versionTxt);
         donate.setText("Donate");
-        donate.setOnAction((ActionEvent e) -> 
-                HostServicesProvider.INSTANCE.getHostServices().showDocument(Config.DONATE_LINK)
-        );
+        donate.setOnAction(e -> HostServicesProvider.INSTANCE.getHostServices().showDocument(Config.DONATE_LINK));
     }
 
     public void openBrowseDialogInput(ActionEvent event) {
