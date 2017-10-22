@@ -4,6 +4,7 @@ language: java
 cache:
  directories:
   - $HOME/.m2
+  - $HOME/.sonar/cache
 
 #use this distrib for actual java version
 #dist: trusty
