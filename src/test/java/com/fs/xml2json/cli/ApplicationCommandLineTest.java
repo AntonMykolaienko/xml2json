@@ -16,7 +16,7 @@ import org.junit.Test;
  */
 public class ApplicationCommandLineTest {
     
-    private static final String DESTINATION_FOLDER_PATH = "/destination/";
+    private static final String DESTINATION_FOLDER_PATH = "destination/";
     
     @After
     public void tearDown() {
@@ -133,9 +133,10 @@ public class ApplicationCommandLineTest {
     
     @Test
     public void testParseNoGuiAndEmptySourceFolder() throws ParseException, FileNotFoundException {
-        String sourceFolderPath = "/SomeFolderName/";
+        String sourceFolderPath = "SomeFolderName/";
         File sourceFolder = new File(sourceFolderPath);
-        sourceFolder.mkdirs();
+        
+        Assert.assertTrue(sourceFolder.mkdirs());
         
         String[] args = new String[]{"--noGui", "--sourceFolder", sourceFolderPath, 
             "--destinationFolder", DESTINATION_FOLDER_PATH, "--pattern", "*.json"};
@@ -143,7 +144,7 @@ public class ApplicationCommandLineTest {
         Assert.assertTrue(cmd.isNoGuiEnabled());
         cmd.getSourceFolder();
         
-        sourceFolder.delete();
+        Assert.assertTrue(sourceFolder.delete());
     }
 
     @Test
