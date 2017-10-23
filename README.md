@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/AntonMykolaienko/xml2json.svg?branch=master)](https://travis-ci.org/AntonMykolaienko/xml2json) [![Download Xml2Json Converter](https://img.shields.io/sourceforge/dm/xml2json-converter.svg)](https://sourceforge.net/projects/xml2json-converter/files/latest/download)
+[![Quality Gate](https://sonarcloud.io/api/badges/gate?key=com.fs.xml2json)](https://sonarcloud.io/dashboard?id=com.fs%3Axml2json)
 [![Dependency Status](https://www.versioneye.com/user/projects/59eb28472de28c156fca6707/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/59eb28472de28c156fca6707)
 # xml2json
 Simple UI and Command line tool for converting large XML-files to JSON or JSON to XML written on Java
