@@ -55,8 +55,6 @@ public class ConverterService {
     public File convert(File sourceFile, File outputFile, IFileReadListener listener, AtomicBoolean isCanceled) {
         StopWatch sw = new StopWatch();
 
-        XMLEventReader reader = null;
-        XMLEventWriter writer = null;
         FileTypeEnum inputFileType;
         try (InputStream input = getWrappedInputStream(sourceFile, listener, isCanceled); 
                 OutputStream output = getOutputStream(outputFile)) {
@@ -74,9 +72,9 @@ public class ConverterService {
             JsonXMLConfig config = createConfig(inputFileType);
 
             // Create reader.
-            reader = createReader(config, inputFileType, input);
+            XMLEventReader reader = createReader(config, inputFileType, input);
             // Create writer.
-            writer = createWriter(config, sourceFile, output, isCanceled, listener);
+            XMLEventWriter writer = createWriter(config, sourceFile, output, isCanceled, listener);
             
             // Copy events from reader to writer.
             writer.add(reader);
@@ -84,6 +82,10 @@ public class ConverterService {
             if (null != listener) {
                 listener.finished();
             }
+            
+            writer.flush();
+            writer.close();
+            reader.close();
         } catch (IOException | XMLStreamException ex) {
             logger.error(ex.toString());
             throw new RuntimeException(ex);
@@ -91,21 +93,6 @@ public class ConverterService {
             logger.info("Taken time: {}", sw);
             if (sw.isStarted()) {
                 sw.stop();
-            }
-            if (null != reader) {
-                try {
-                    reader.close();
-                } catch (XMLStreamException ex) {
-                    logger.error(ex.toString());
-                }
-            }
-            if (null != writer) {
-                try {
-                    writer.flush();
-                    writer.close();
-                } catch (XMLStreamException ex) {
-                    logger.error(ex.toString());
-                }
             }
         }
         
