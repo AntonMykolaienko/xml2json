@@ -43,7 +43,7 @@ public class WrappedInputStream extends InputStream {
         if (-1 == b) {
             listener.finished();
         } else {
-            listener.update(b);
+            listener.update(1);
         }
 
         return b;
@@ -72,6 +72,9 @@ public class WrappedInputStream extends InputStream {
 
     @Override
     public int available() throws IOException {
+        if (isCancel.get()) {
+            return -1;
+        }
         return input.available();
     }
 
