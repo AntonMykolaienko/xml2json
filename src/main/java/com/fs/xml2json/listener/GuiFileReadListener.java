@@ -17,7 +17,7 @@ public class GuiFileReadListener extends AbstractFileReadListener {
     /**
      * Creates instance of GuiFileReadListener.
      * 
-     * @param processedBytes giu object wich indicates progress
+     * @param processedBytes GUI object wich indicates progress (max 1.0)
      * @param sourceFile source file
      */
     public GuiFileReadListener(DoubleProperty processedBytes, File sourceFile) {

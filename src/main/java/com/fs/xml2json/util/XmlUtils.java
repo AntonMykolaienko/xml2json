@@ -94,7 +94,6 @@ public class XmlUtils {
                             }
                         }
                     }
-
                     getObjectElements(node, sr, elementLevel, isCanceled, arrayKeys);
 
                     break;
