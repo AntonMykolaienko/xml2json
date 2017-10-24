@@ -54,4 +54,4 @@ Not released yet|1.2.0|Added ability to convert files by pattern in batch mode v
 2016-08-10|1.0.0|Initial release
 
 ### Donation
-You can make donation via [PayPal])ttps://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=33R3LMBMX3R96)
+You can make donation via [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=33R3LMBMX3R96)
