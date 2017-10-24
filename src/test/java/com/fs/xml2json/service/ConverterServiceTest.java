@@ -4,6 +4,8 @@ package com.fs.xml2json.service;
 import com.fs.xml2json.listener.IFileReadListener;
 import com.fs.xml2json.type.UnsupportedFileType;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import org.junit.After;
@@ -18,6 +20,7 @@ import org.junit.Test;
  */
 public class ConverterServiceTest {
     
+    List<File> filesToDelete = new ArrayList<>();
     File destinationFile;
     
     @After
@@ -25,12 +28,16 @@ public class ConverterServiceTest {
         if (null != destinationFile && destinationFile.exists()) {
             deleteFilesAndDirs(destinationFile);
         }
+        if (!filesToDelete.isEmpty()) {
+            filesToDelete.forEach(file -> deleteFilesAndDirs(file));
+        }
     }
     
     void deleteFilesAndDirs(File file) {
         if (file.isDirectory()) {
             // delete from directory all files
             Stream.of(file.listFiles()).forEach(f -> deleteFilesAndDirs(f));
+            file.delete();
         } else {
             file.delete();
         }
@@ -54,7 +61,9 @@ public class ConverterServiceTest {
     @Test
     public void testConvertXmlToJsonToNonExistingDirectory() {
         File sourceFile = new File(this.getClass().getClassLoader().getResource("SampleXml.xml").getFile());
-        destinationFile = new File(getTempDirectory(), "newDirectory/ConvertedFile.json");
+        File nonExistingDirectory = new File(getTempDirectory(), "newDirectory");
+        filesToDelete.add(nonExistingDirectory);
+        destinationFile = new File(nonExistingDirectory, "newDirectory/ConvertedFile.json");
         
         ConverterService service = new ConverterService();
         AtomicBoolean isCanceled = new AtomicBoolean(false);
