@@ -5,6 +5,7 @@ import com.fs.xml2json.listener.IFileReadListener;
 import com.fs.xml2json.type.UnsupportedFileType;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 import org.junit.After;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -22,11 +23,16 @@ public class ConverterServiceTest {
     @After
     public void tearDown() {
         if (null != destinationFile && destinationFile.exists()) {
-            if (destinationFile.isDirectory()) {
-                // delete from directory all files
-            } else {
-                destinationFile.delete();
-            }
+            deleteFilesAndDirs(destinationFile);
+        }
+    }
+    
+    void deleteFilesAndDirs(File file) {
+        if (file.isDirectory()) {
+            // delete from directory all files
+            Stream.of(file.listFiles()).forEach(f -> deleteFilesAndDirs(f));
+        } else {
+            file.delete();
         }
     }
 
@@ -97,6 +103,18 @@ public class ConverterServiceTest {
         AtomicBoolean isCanceled = new AtomicBoolean(false);
         
         service.convert(sourceFile, destinationFile, new CustomFileReadListener(), isCanceled);
+    }
+    
+    
+    @Test(expected = AssertionError.class)
+    public void testTryConvertWithNullListener() {
+        File sourceFile = new File(this.getClass().getClassLoader().getResource("SampleJson.json").getFile());
+        destinationFile = new File(getTempDirectory(), "ConvertedFile.xml");
+        
+        ConverterService service = new ConverterService();
+        AtomicBoolean isCanceled = new AtomicBoolean(false);
+        
+        service.convert(sourceFile, destinationFile, null, isCanceled);
     }
     
     private File getTempDirectory() {
