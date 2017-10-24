@@ -34,7 +34,6 @@ jdk:
  - oraclejdk8
 
 script: 
- - mvn clean package
+ - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar
  #- sonar-scanner
  #- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar
- - mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar
