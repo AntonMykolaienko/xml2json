@@ -30,6 +30,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fs.xml2json.listener.IFileReadListener;
+import com.fs.xml2json.type.UnsupportedFileType;
 import java.io.FileNotFoundException;
 
 /**
@@ -54,18 +55,23 @@ public class ConverterService {
      */
     public File convert(File sourceFile, File outputFile, IFileReadListener listener, AtomicBoolean isCanceled) {
         StopWatch sw = new StopWatch();
+        
+        assert listener != null;
 
-        FileTypeEnum inputFileType;
+        FileTypeEnum inputFileType = FileTypeEnum.parseByFileName(sourceFile.getName());
+        
+        if (null == inputFileType) {
+            throw new UnsupportedFileType("Unsupported file type: '" + sourceFile.getName() + "'");
+        }
+        
+        File parentFolder = outputFile.getParentFile();
+        if (!parentFolder.exists()) {
+            parentFolder.mkdirs();
+        }
+        
         try (InputStream input = getWrappedInputStream(sourceFile, listener, isCanceled); 
                 OutputStream output = getOutputStream(outputFile)) {
             
-            inputFileType = FileTypeEnum.parseByFileName(sourceFile.getName());
-
-            File parentFolder = outputFile.getParentFile();
-            if (!parentFolder.exists()) {
-                parentFolder.mkdirs();
-            }
-
             sw.start();
 
             // converter config
@@ -79,10 +85,8 @@ public class ConverterService {
             // Copy events from reader to writer.
             writer.add(reader);
 
-            if (null != listener) {
-                listener.finished();
-            }
-            
+            listener.finished();
+                
             writer.flush();
             writer.close();
             reader.close();
