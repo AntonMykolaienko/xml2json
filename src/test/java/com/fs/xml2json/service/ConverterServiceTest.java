@@ -1,15 +1,26 @@
 
 package com.fs.xml2json.service;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fs.xml2json.listener.IFileReadListener;
+import com.fs.xml2json.model.ComplexObject;
+import com.fs.xml2json.model.SimpleObject;
 import com.fs.xml2json.type.UnsupportedFileType;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import org.junit.After;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -125,6 +136,83 @@ public class ConverterServiceTest {
         
         service.convert(sourceFile, destinationFile, null, isCanceled);
     }
+    
+    
+    
+    @Test
+    @Ignore
+    public void testConvertXmlToJsonFullProcess() throws FileNotFoundException, IOException {
+        
+        File tempDirectory = new File(getTempDirectory(), "xml2jsonSerialize");
+        //filesToDelete.add(tempDirectory);
+        
+        tempDirectory.mkdirs();
+        
+        ComplexObject actualObject = new ComplexObject();
+        actualObject.setIntValue(555);
+        actualObject.setText("Some Text in Complex Object");
+        
+        SimpleObject so = new SimpleObject();
+        so.setBytePrimValue(Byte.valueOf("109"));
+        so.setByteValue(Byte.valueOf("45"));
+        so.setDoublePrimValue(457d);
+        so.setDoubleValue(Double.parseDouble("256.12"));
+        so.setFloatPrimValue(15.4f);
+        so.setFloatValue(Float.parseFloat("852.45"));
+        so.setIntegerValue(Integer.parseInt("400"));
+        so.setIntValue(500);
+        so.setLongPrimValue(32000000);
+        so.setLongValue(Long.parseLong("4656053654"));
+        so.setShortPrimValue((short)120);
+        so.setShortValue(Short.parseShort("-99"));
+        so.setSomeValue("Some text");
+        
+        actualObject.getListOfObjects().add(so);
+        
+        //2
+        so = new SimpleObject();
+        so.setBytePrimValue(Byte.valueOf("111"));
+        so.setByteValue(Byte.valueOf("23"));
+        so.setDoublePrimValue(3242d);
+        so.setDoubleValue(Double.parseDouble("222.55"));
+        so.setFloatPrimValue(2.2134f);
+        so.setFloatValue(Float.parseFloat("876.44"));
+        so.setIntegerValue(Integer.parseInt("456"));
+        so.setIntValue(2223);
+        so.setLongPrimValue(34534634);
+        so.setLongValue(Long.parseLong("45856865"));
+        so.setShortPrimValue((short)101);
+        so.setShortValue(Short.parseShort("-44"));
+        so.setSomeValue("Some text 2");
+        
+        actualObject.getListOfObjects().add(so);
+        
+        File sourceFile = new File(tempDirectory, "SerializedObject.xml");
+        
+        XmlMapper xmlMapper = new XmlMapper();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(sourceFile))) {
+            writer.write(xmlMapper.writeValueAsString(actualObject));
+        }
+        
+        File destinationFile = new File(tempDirectory, "SerializedObject.json");
+        ConverterService service = new ConverterService();
+        AtomicBoolean isCanceled = new AtomicBoolean(false);
+        
+        service.convert(sourceFile, destinationFile, new CustomFileReadListener(), isCanceled);
+        
+        assertTrue(destinationFile.exists());
+        assertTrue(destinationFile.length() > 0);
+        
+        
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        
+        ComplexObject result = mapper.readValue(destinationFile, ComplexObject.class);
+        
+        assertNotNull(result);
+    }
+    
     
     private File getTempDirectory() {
         return new File(System.getProperty("java.io.tmpdir"));
