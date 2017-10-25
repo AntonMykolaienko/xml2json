@@ -23,6 +23,7 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -220,7 +221,7 @@ public class WindowController implements Initializable {
             textFlow.getChildren().addAll(text);
             
             dialog.getDialogPane().setContent(textFlow);
-            dialog.initOwner(StageHelper.getStages().get(0));
+            dialog.initOwner(((Node)event.getTarget()).getScene().getWindow());
             dialog.setTitle("File already exists");
             dialog.showAndWait();
 
