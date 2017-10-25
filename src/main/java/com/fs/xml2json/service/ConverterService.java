@@ -43,6 +43,7 @@ public class ConverterService {
     
     private static final Logger logger = LoggerFactory.getLogger(ConverterService.class);
     
+    private static final String UNSUPPORTED_FILE_TYPE_TEMPLATE = "Unsupported file type: '%s'";
     
     /**
      * Converts file from XML to JSON or vise versa and returns link to converted file.
@@ -61,7 +62,7 @@ public class ConverterService {
         FileTypeEnum inputFileType = FileTypeEnum.parseByFileName(sourceFile.getName());
         
         if (null == inputFileType) {
-            throw new UnsupportedFileType("Unsupported file type: '" + sourceFile.getName() + "'");
+            throw new UnsupportedFileType(String.format(UNSUPPORTED_FILE_TYPE_TEMPLATE, sourceFile.getName()));
         }
         
         File parentFolder = outputFile.getParentFile();
@@ -161,7 +162,7 @@ public class ConverterService {
                         .prettyPrint(true)
                         .build();
             default:
-                throw new RuntimeException("Unsupported file type: " + inputFileType.toString());
+                throw new UnsupportedFileType(String.format(UNSUPPORTED_FILE_TYPE_TEMPLATE, inputFileType.toString()));
         }
     }
     
@@ -174,7 +175,7 @@ public class ConverterService {
             return new JsonXMLInputFactory(config).createXMLEventReader(input);
         }
 
-        throw new IllegalArgumentException("Unsupported file type: " + inputFileType);
+        throw new UnsupportedFileType(String.format(UNSUPPORTED_FILE_TYPE_TEMPLATE, inputFileType.toString()));
     }
 
     /**
@@ -205,6 +206,6 @@ public class ConverterService {
             return new PrettyXMLEventWriter(XMLOutputFactory.newInstance().createXMLEventWriter(output));
         }
 
-        throw new IllegalArgumentException("Unsupported file type: " + inputFileType);
+        throw new UnsupportedFileType(String.format(UNSUPPORTED_FILE_TYPE_TEMPLATE, inputFileType));
     }
 }
