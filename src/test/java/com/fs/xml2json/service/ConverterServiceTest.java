@@ -3,6 +3,7 @@ package com.fs.xml2json.service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fs.xml2json.listener.IFileReadListener;
 import com.fs.xml2json.model.ComplexObject;
@@ -140,11 +141,10 @@ public class ConverterServiceTest {
     
     
     @Test
-    @Ignore
     public void testConvertXmlToJsonFullProcess() throws FileNotFoundException, IOException {
         
         File tempDirectory = new File(getTempDirectory(), "xml2jsonSerialize");
-        //filesToDelete.add(tempDirectory);
+        filesToDelete.add(tempDirectory);
         
         tempDirectory.mkdirs();
         
@@ -190,11 +190,14 @@ public class ConverterServiceTest {
         File sourceFile = new File(tempDirectory, "SerializedObject.xml");
         
         XmlMapper xmlMapper = new XmlMapper();
+        xmlMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        xmlMapper.configure(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED, true);
+        xmlMapper.setDefaultUseWrapper(false);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(sourceFile))) {
             writer.write(xmlMapper.writeValueAsString(actualObject));
         }
         
-        File destinationFile = new File(tempDirectory, "SerializedObject.json");
+        destinationFile = new File(tempDirectory, "SerializedObject.json");
         ConverterService service = new ConverterService();
         AtomicBoolean isCanceled = new AtomicBoolean(false);
         
