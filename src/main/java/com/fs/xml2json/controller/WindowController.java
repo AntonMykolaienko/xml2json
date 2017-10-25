@@ -8,7 +8,6 @@ import com.fs.xml2json.type.UnsupportedFileType;
 import com.fs.xml2json.util.ApplicationUtils;
 import com.fs.xml2json.util.ConfigUtils;
 import com.fs.xml2json.util.ConverterUtils;
-import com.sun.javafx.stage.StageHelper;
 import java.io.File;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -205,7 +204,7 @@ public class WindowController implements Initializable {
         String errorMessage = checkInputParameters();
         // show errors
         if (null != errorMessage) {
-            showErrors(errorMessage);
+            showErrors(event, errorMessage);
             return;
         }
 
@@ -329,9 +328,9 @@ public class WindowController implements Initializable {
         return null;
     }
     
-    private void showErrors(String errorMessage) {
+    private void showErrors(ActionEvent event, String errorMessage) {
         Alert alert = new Alert(AlertType.ERROR, errorMessage, ButtonType.OK);
-        alert.initOwner(StageHelper.getStages().get(0));
+        alert.initOwner(((Node)event.getTarget()).getScene().getWindow());
         alert.initModality(Modality.WINDOW_MODAL);
 
         Text text = new Text(errorMessage);
