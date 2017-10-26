@@ -45,37 +45,62 @@ public class CMDStarterTest {
     @Test(expected = IllegalArgumentException.class)
     public void testStartNoGuiWithoutMandatoryArguments() {
         String[] args = new String[]{"--noGui"};
-        Starter starter = new Starter(args);
-        starter.start();
+        Starter.main(args);
     }
     
     @Test
     public void testStartNoGuiAndSourceFolderNotExists() throws FileNotFoundException {
         String[] args = new String[]{"--noGui", "--sourceFolder", "/SomeFolderName/", 
             "--destinationFolder", destinationFolder.getAbsolutePath(), "--pattern", "*.json"};
-        Starter starter = new Starter(args);
-        starter.start();
+        Starter.main(args);
     }
     
     @Test
     public void testStartNoGuiConvertFewXmls() throws FileNotFoundException {
         File sourceFolder = new File("src/test/resources/xml");
-        //File sourceFolder = new File(CMDStarterTest.class.getClassLoader().getResource("xml").getFile());
         
         System.out.println("SourceFolder: " + sourceFolder.getAbsolutePath());
         Assert.assertTrue(sourceFolder.exists());
         
         String[] args = new String[]{"--noGui", "--sourceFolder", sourceFolder.getAbsolutePath(), 
             "--destinationFolder", destinationFolder.getAbsolutePath(), "--pattern", "*.xml"};
-        Starter starter = new Starter(args);
-        starter.start();
+        Starter.main(args);
         
         Assert.assertTrue(destinationFolder.exists());
         Assert.assertEquals(2, destinationFolder.listFiles().length);
         Stream.of(destinationFolder.listFiles()).forEach(file -> Assert.assertTrue(file.length() > 0));
     }
     
+    @Test
+    public void testStartNoGuiConvertFewXmlsAndIncorrectPattern() throws FileNotFoundException {
+        File sourceFolder = new File("src/test/resources/xml");
+        
+        System.out.println("SourceFolder: " + sourceFolder.getAbsolutePath());
+        Assert.assertTrue(sourceFolder.exists());
+        
+        String[] args = new String[]{"--noGui", "--sourceFolder", sourceFolder.getAbsolutePath(), 
+            "--destinationFolder", destinationFolder.getAbsolutePath(), "--pattern", "*.json"};
+        Starter.main(args);
+        
+        Assert.assertTrue(destinationFolder.exists());
+        Assert.assertEquals(0, destinationFolder.listFiles().length);
+    }
     
+    
+    @Test
+    public void testStartNoGuiConvertFilesFromEmptyFolder() throws FileNotFoundException {
+        File sourceFolder = new File("src/test/resources/emptyFolder");
+        
+        System.out.println("SourceFolder: " + sourceFolder.getAbsolutePath());
+        Assert.assertTrue(sourceFolder.exists());
+        
+        String[] args = new String[]{"--noGui", "--sourceFolder", sourceFolder.getAbsolutePath(), 
+            "--destinationFolder", destinationFolder.getAbsolutePath(), "--pattern", "*.xml"};
+        Starter.main(args);
+        
+        Assert.assertTrue(destinationFolder.exists());
+        Assert.assertEquals(0, destinationFolder.listFiles().length);
+    }
     
     
     
