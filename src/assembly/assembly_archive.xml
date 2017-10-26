@@ -8,11 +8,12 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>${project.build.directory}/os/distribution/xml2json/</directory>
-            <outputDirectory>/</outputDirectory>
+            <directory>${project.build.directory}\os\distribution\xml2json\</directory>
+            <outputDirectory>\</outputDirectory>
             <includes>
                 <include>**</include>
             </includes>
         </fileSet>
+
     </fileSets>
 </assembly>

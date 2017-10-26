@@ -107,14 +107,12 @@
     <build>
         <resources>
             <resource>
-                <filtering>true</filtering>
                 <directory>src/main/resources</directory>
                 <excludes>
                     <exclude>log4j2.xml</exclude>
                 </excludes>
             </resource>
             <resource>
-                <filtering>true</filtering>
                 <directory>distribution/${platform}</directory>
                 <includes>
                     <include>log4j2.xml</include>
@@ -184,6 +182,22 @@
                         <goals>
                             <goal>build-jar</goal>
                         </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <excludes>
+                                        <exclude>log4j2.xml</exclude>
+                                    </excludes>
+                                </resource>
+                                <resource>
+                                    <directory>distribution/${platform}</directory>
+                                    <includes>
+                                        <include>log4j2.xml</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>create-native</id>
@@ -221,6 +235,7 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>all</id>
@@ -238,22 +253,6 @@
                                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                                         </manifest>
                                     </archive>
-                                    <resources>
-                                        <resource>
-                                            <filtering>true</filtering>
-                                            <directory>src/main/resources</directory>
-                                            <excludes>
-                                                <exclude>log4j2.xml</exclude>
-                                            </excludes>
-                                        </resource>
-                                        <resource>
-                                            <filtering>true</filtering>
-                                            <directory>distribution/default</directory>
-                                            <includes>
-                                                <include>log4j2.xml</include>
-                                            </includes>
-                                        </resource>
-                                    </resources>
                                 </configuration>
                             </execution>
                             <execution>
