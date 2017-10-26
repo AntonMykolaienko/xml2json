@@ -59,7 +59,8 @@ public class CMDStarterTest {
     
     @Test
     public void testStartNoGuiConvertFewXmls() throws FileNotFoundException {
-        File sourceFolder = new File(CMDStarterTest.class.getClassLoader().getResource("xml").getFile());
+        File sourceFolder = new File("src/test/resources/xml");
+        //File sourceFolder = new File(CMDStarterTest.class.getClassLoader().getResource("xml").getFile());
         
         String[] args = new String[]{"--noGui", "--sourceFolder", sourceFolder.getAbsolutePath(), 
             "--destinationFolder", destinationFolder.getAbsolutePath(), "--pattern", "*.xml"};
