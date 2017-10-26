@@ -62,6 +62,9 @@ public class CMDStarterTest {
         File sourceFolder = new File("src/test/resources/xml");
         //File sourceFolder = new File(CMDStarterTest.class.getClassLoader().getResource("xml").getFile());
         
+        System.out.println("SourceFolder: " + sourceFolder.getAbsolutePath());
+        Assert.assertTrue(sourceFolder.exists());
+        
         String[] args = new String[]{"--noGui", "--sourceFolder", sourceFolder.getAbsolutePath(), 
             "--destinationFolder", destinationFolder.getAbsolutePath(), "--pattern", "*.xml"};
         Starter starter = new Starter(args);
