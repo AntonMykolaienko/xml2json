@@ -2,6 +2,8 @@ package com.fs.xml2json;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Assert;
@@ -18,6 +20,7 @@ public class CMDStarterTest {
     
     private static final String DESTINATION_FOLDER = "destination";
     private File destinationFolder;
+    private List<File> filesToDelete = new ArrayList<>();
     
     @Before
     public void setUp() {
@@ -29,6 +32,7 @@ public class CMDStarterTest {
         if (null != destinationFolder && destinationFolder.exists()) {
             deleteFilesAndDirs(destinationFolder);
         }
+        filesToDelete.forEach(file -> deleteFilesAndDirs(file));
     }
     
     void deleteFilesAndDirs(File file) {
@@ -89,7 +93,9 @@ public class CMDStarterTest {
     
     @Test
     public void testStartNoGuiConvertFilesFromEmptyFolder() throws FileNotFoundException {
-        File sourceFolder = new File("src/test/resources/emptyFolder");
+        File sourceFolder = new File(getTempDirectory(), "emptyFolder");
+        sourceFolder.mkdirs();
+        filesToDelete.add(sourceFolder);
         
         System.out.println("SourceFolder: " + sourceFolder.getAbsolutePath());
         Assert.assertTrue(sourceFolder.exists());
