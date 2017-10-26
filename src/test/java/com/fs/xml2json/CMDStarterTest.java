@@ -2,8 +2,13 @@ package com.fs.xml2json;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Assert;
@@ -20,7 +25,7 @@ public class CMDStarterTest {
     
     private static final String DESTINATION_FOLDER = "destination";
     private File destinationFolder;
-    private List<File> filesToDelete = new ArrayList<>();
+    private final List<File> filesToDelete = new ArrayList<>();
     
     @Before
     public void setUp() {
@@ -106,6 +111,24 @@ public class CMDStarterTest {
         
         Assert.assertTrue(destinationFolder.exists());
         Assert.assertEquals(0, destinationFolder.listFiles().length);
+    }
+    
+    @Test
+    public void testStartNoGuiConvertCorruptedFile() throws FileNotFoundException {
+        File sourceFolder = new File("src/test/resources/");
+        
+        System.out.println("SourceFolder: " + sourceFolder.getAbsolutePath());
+        Assert.assertTrue(sourceFolder.exists());
+        
+        String[] args = new String[]{"--noGui", "--sourceFolder", sourceFolder.getAbsolutePath(), 
+            "--destinationFolder", destinationFolder.getAbsolutePath(), "--pattern", "corruptedxml.xml"};
+        Starter.main(args);
+        
+        Assert.assertTrue(destinationFolder.exists());
+        Assert.assertEquals(1, destinationFolder.listFiles().length); // file will be created but it will be corrupted
+        File file = destinationFolder.listFiles()[0];
+        Assert.assertEquals(0, file.length()); 
+        Assert.assertTrue("corruptedxml.json".equalsIgnoreCase(file.getName()));
     }
     
     
