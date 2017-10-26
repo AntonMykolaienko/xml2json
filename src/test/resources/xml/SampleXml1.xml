@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <channel>
+        <channelId>10</channelId>
+        <channelName>SomeName1</channelName>
+        <formats>
+            <format>SD</format>
+            <format>HD</format>
+            <format>1080p</format>
+            <format>4K</format>
+        </formats>
+    </channel>
+    <channel>
+        <channelId>20</channelId>
+        <channelName>SomeBigName</channelName>
+    </channel>
+</root>
