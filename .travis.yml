@@ -23,6 +23,7 @@ addons:
     packages:
       - oracle-java8-installer
       - alien
+      - rpm
       
 addons:
   sonarcloud:
@@ -32,10 +33,6 @@ addons:
 
 jdk:
  - oraclejdk8
- 
-install:
- - sudo apt-get update 
- - sudo apt-get install rpm
 
 script: 
  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar
