@@ -4,6 +4,7 @@ package com.fs.xml2json.cli;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.ParseException;
+import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,13 +31,13 @@ public class ApplicationCommandLineTest {
     }
     
     private void deleteFiles(File rootFolder) {
-        for (File file : rootFolder.listFiles()) {
+        Stream.of(rootFolder.listFiles()).forEach(file -> {
             if (file.isDirectory()) {
                 deleteFiles(file);
             } else {
                 file.delete();
             }
-        }
+        });
     }
 
     @Test
