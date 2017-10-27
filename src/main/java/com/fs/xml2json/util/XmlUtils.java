@@ -83,14 +83,16 @@ public class XmlUtils {
                         parentNode = node;
                     } else {
                         node.parentNode = parentNode;
-                        XmlNode elementNode = parentNode.nestedNode.get(node.getFullPath());
+                        String nodeFullPath = node.getFullPath();
+                        XmlNode elementNode = parentNode.nestedNode.get(nodeFullPath);
                         if (null == elementNode) {
-                            parentNode.nestedNode.put(node.getFullPath(), node);
+                            parentNode.nestedNode.put(nodeFullPath, node);
                         } else {
                             elementNode.occurrence++;
+                            String elementNodeFullPath = elementNode.getFullPath();
                             if (elementNode.occurrence > 1 && null != arrayKeys 
-                                    && !arrayKeys.contains(elementNode.getFullPath())) {
-                                arrayKeys.add(elementNode.getFullPath());
+                                    && !arrayKeys.contains(elementNodeFullPath)) {
+                                arrayKeys.add(elementNodeFullPath);
                             }
                         }
                     }
