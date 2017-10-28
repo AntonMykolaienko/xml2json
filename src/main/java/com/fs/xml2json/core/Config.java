@@ -8,6 +8,9 @@ package com.fs.xml2json.core;
  * @since 1.0.0
  */
 public final class Config {
+    
+    private Config() {
+    }
 
     /**
      * Name for Start button to start convert process.
