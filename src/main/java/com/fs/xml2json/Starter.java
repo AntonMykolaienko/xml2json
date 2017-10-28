@@ -4,7 +4,6 @@ package com.fs.xml2json;
 import com.fs.xml2json.cli.ApplicationCommandLine;
 import com.fs.xml2json.filter.CustomPatternFileFilter;
 import com.fs.xml2json.listener.CmdFileReadListener;
-import com.fs.xml2json.listener.IFileReadListener;
 import com.fs.xml2json.service.ConverterService;
 import com.fs.xml2json.util.ApplicationUtils;
 import com.fs.xml2json.util.ConverterUtils;
@@ -101,15 +100,7 @@ public class Starter {
                         break;
                     }
                     if (filter.accept(file)) {
-                        logger.debug("Start processing '{}'", file.getAbsolutePath());
-                        File convertedFile = ConverterUtils.getConvertedFile(file, cmd.getDestinationFolder());
-                        boolean isOverwrite = true;
-                        if (convertedFile.exists() && !cmd.isForceOverwrite()) {    // overwrite?
-                            isOverwrite = overwriteFile(br, convertedFile);
-                        }
-                        if (isOverwrite) {
-                            converFile(file, convertedFile, new CmdFileReadListener(file));
-                        }
+                        processFile(file, br, cmd);
                         logger.info("Processed {} of {}", ++numberOfProcessed, numberOfFiles);
                     } else {
                         logger.debug("File '{}' will be skipped", file.getAbsolutePath());
@@ -117,6 +108,31 @@ public class Starter {
                 }
             } else {
                 logger.info("No one file found for '{}' pattern", cmd.getPattern());
+            }
+        }
+    }
+    
+    /**
+     * Converts file <code>file</code> and stores converted content in <code>destinationFolder</code> 
+     * with same name as source file.
+     * 
+     * @param file file which must be converted
+     * @param br buffered reader
+     * @param cmd application arguments
+     */
+    private void processFile(File file, BufferedReader br, ApplicationCommandLine cmd) 
+            throws IOException {
+        logger.debug("Start processing '{}'", file.getAbsolutePath());
+        File convertedFile = ConverterUtils.getConvertedFile(file, cmd.getDestinationFolder());
+        boolean isOverwrite = true;
+        if (convertedFile.exists() && !cmd.isForceOverwrite()) {    // overwrite?
+            isOverwrite = overwriteFile(br, convertedFile);
+        }
+        if (isOverwrite) {
+            try {
+                service.convert(file, convertedFile, new CmdFileReadListener(file), isCanceled);
+            } catch (Exception ex) {
+                logger.error(ex.toString());
             }
         }
     }
@@ -142,21 +158,6 @@ public class Starter {
         }
         
         return isOverwrite;
-    }
-
-    /**
-     * Converts file <code>fileToConvert</code> and stores converted content in <code>convertedFile</code>
-     * 
-     * @param fileToConvert file which must be converted
-     * @param convertedFile destination file
-     * @param listener progress listener
-     */
-    private void converFile(File fileToConvert, File convertedFile, IFileReadListener listener) {
-        try {
-            service.convert(fileToConvert, convertedFile, listener, isCanceled);
-        } catch (Exception ex) {
-            logger.error(ex.toString());
-        }
     }
 
     public void stop() {
