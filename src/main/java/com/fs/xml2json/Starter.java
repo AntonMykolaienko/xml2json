@@ -137,6 +137,14 @@ public class Starter {
         }
     }
     
+    /**
+     * Parses input text (expected "Y" or "n") and returns <code>true</code> if file needs to be overwritten
+     * 
+     * @param br buffered reader
+     * @param destinationFile destination file
+     * @return <code>true</code> if need to overwrite file, otherwise return <code>false</code>
+     * @throws IOException if some errors occurs in buffered reader
+     */
     private boolean overwriteFile(BufferedReader br, File destinationFile) throws IOException {
         boolean isOverwrite = false;
         System.out.print(String.format("%nFile '%s' already exists, overwrite? [y/n]: ", 

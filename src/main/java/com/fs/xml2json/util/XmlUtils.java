@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -48,7 +48,7 @@ public class XmlUtils {
             XMLInputFactory f = XMLInputFactory.newFactory();
             sr = f.createXMLStreamReader(in);
             
-            XmlUtils.getObjectElements(null, sr, new AtomicInteger(0), isCanceled, arrayKeys);
+            XmlUtils.getObjectElements(null, sr, new LongAdder(), isCanceled, arrayKeys);
             
             if (logger.isDebugEnabled()) {
                 StringBuilder sb = new StringBuilder();
@@ -65,34 +65,31 @@ public class XmlUtils {
         return new ArrayList<>(arrayKeys);
     }
     
-    private static void getObjectElements(XmlNode parentNode, XMLStreamReader sr, AtomicInteger level, 
+    private static void getObjectElements(XmlNode parentNode, XMLStreamReader sr, LongAdder level, 
             AtomicBoolean isCanceled, Set<String> arrayKeys) throws XMLStreamException {
         
         String currentElement;
-        AtomicInteger elementLevel = level;
+        LongAdder elementLevel = level;
         XmlNode node;
         boolean levelFinished = false;
-        while (sr.hasNext() && !isCanceled.get() && !levelFinished) {
+        while (sr.hasNext() && /*!isCanceled.get() &&*/ !levelFinished) {
             int code = sr.next();
             switch (code) {
                 case XMLStreamConstants.START_ELEMENT:
                     currentElement = sr.getLocalName();
-                    elementLevel.incrementAndGet();
+                    elementLevel.increment();
                     node = new XmlNode(currentElement);
                     if (null == parentNode) {
                         parentNode = node;
                     } else {
                         node.parentNode = parentNode;
-                        String nodeFullPath = node.getFullPath();
-                        XmlNode elementNode = parentNode.nestedNode.get(nodeFullPath);
+                        XmlNode elementNode = parentNode.nestedNode.get(node.getFullPath());
                         if (null == elementNode) {
-                            parentNode.nestedNode.put(nodeFullPath, node);
+                            parentNode.nestedNode.put(node.getFullPath(), node);
                         } else {
                             elementNode.occurrence++;
-                            String elementNodeFullPath = elementNode.getFullPath();
-                            if (elementNode.occurrence > 1 && null != arrayKeys 
-                                    && !arrayKeys.contains(elementNodeFullPath.toLowerCase())) {
-                                arrayKeys.add(elementNodeFullPath.toLowerCase());
+                            if (elementNode.occurrence > 1 && !arrayKeys.contains(elementNode.getFullPath())) {
+                                arrayKeys.add(elementNode.getFullPath());
                             }
                         }
                     }
@@ -101,12 +98,12 @@ public class XmlUtils {
                     break;
                 case XMLStreamConstants.END_ELEMENT:
                     currentElement = sr.getLocalName();
-                    elementLevel.decrementAndGet();
-                    
+                    elementLevel.decrement();
+
                     if (parentNode.nodeName.equalsIgnoreCase(currentElement)) {
                         levelFinished = true;
                     }
-                    
+
                     break;
                 case XMLStreamConstants.CHARACTERS:
                     break;
@@ -121,17 +118,22 @@ public class XmlUtils {
         private String nodeName;
         private int occurrence = 1;
         private XmlNode parentNode;
+        private String fullPath;
         private Map<String, XmlNode> nestedNode = new LinkedHashMap<>();
 
         XmlNode(String nodeName) {
-            this.nodeName = nodeName;
+            this.nodeName = nodeName.toLowerCase();
         }
 
         public String getFullPath() {
-            if (null != parentNode) {
-                return parentNode.getFullPath() + "/" + nodeName;
+            if (null == fullPath) {
+                if (null != parentNode) {
+                    fullPath = parentNode.getFullPath().toLowerCase() + "/" + nodeName;
+                } else {
+                    fullPath = "/" + nodeName;
+                }
             }
-            return "/" + nodeName;
+            return fullPath;
         }
         
         @Override
