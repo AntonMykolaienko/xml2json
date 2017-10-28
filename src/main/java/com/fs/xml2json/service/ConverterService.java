@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.fs.xml2json.listener.IFileReadListener;
 import com.fs.xml2json.type.UnsupportedFileType;
 import java.io.FileNotFoundException;
+import java.util.Objects;
 
 /**
  * Service which responsible for file conversion from JSON to XML and vise versa.
@@ -57,7 +58,7 @@ public class ConverterService {
     public File convert(File sourceFile, File outputFile, IFileReadListener listener, AtomicBoolean isCanceled) {
         StopWatch sw = new StopWatch();
         
-        assert listener != null;
+        Objects.requireNonNull(listener);
 
         FileTypeEnum inputFileType = FileTypeEnum.parseByFileName(sourceFile.getName());
         
@@ -195,7 +196,7 @@ public class ConverterService {
         if (inputFileType == FileTypeEnum.XML) {
             XMLEventWriter sourceWriter = new JsonXMLOutputFactory(config).createXMLEventWriter(output);
             try (InputStream input = getWrappedInputStream(sourceFile, listener, isCanceled)) {
-                List<String> fileArrays = XmlUtils.determineArrays(input, isCanceled);
+                List<String> fileArrays = XmlUtils.determineArrays(input);
                 return new XMLMultipleEventWriter(sourceWriter, true, fileArrays.toArray(new String[]{}));
             }
         } else { // json

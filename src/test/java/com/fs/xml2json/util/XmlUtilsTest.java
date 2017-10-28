@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -26,9 +25,8 @@ public class XmlUtilsTest {
         File inputFile = new File(getClass().getResource("/SampleXml.xml").getFile());
         XMLStreamReader sr = f.createXMLStreamReader(new FileInputStream(inputFile));
 
-        AtomicBoolean isCanceled = new AtomicBoolean(false);
         InputStream in = new FileInputStream(inputFile);
-        List<String> arrays = XmlUtils.determineArrays(in, isCanceled);
+        List<String> arrays = XmlUtils.determineArrays(in);
         
         Assert.assertFalse(arrays.isEmpty());
         Assert.assertEquals(2, arrays.size());

@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -39,18 +38,17 @@ public class XmlUtils {
      * Returns a list of paths of all arrays in XML.
      * 
      * @param in input stream (will be closed at the end)
-     * @param isCanceled flag to indicate cancelation
      * @return list of paths of arrays in xml or empty list of arrays not found
      * @throws XMLStreamException 
      */
-    public static List<String> determineArrays(InputStream in, AtomicBoolean isCanceled) throws XMLStreamException {
+    public static List<String> determineArrays(InputStream in) throws XMLStreamException {
         Set<String> arrayKeys = new HashSet<>();
         XMLStreamReader sr = null;
         try {
             XMLInputFactory f = XMLInputFactory.newFactory();
             sr = f.createXMLStreamReader(in);
             
-            XmlUtils.getObjectElements(null, sr, new LongAdder(), isCanceled, arrayKeys);
+            XmlUtils.getObjectElements(null, sr, new LongAdder(), arrayKeys);
             
             if (logger.isDebugEnabled()) {
                 StringBuilder sb = new StringBuilder();
@@ -68,11 +66,10 @@ public class XmlUtils {
     }
     
     private static void getObjectElements(XmlNode parentNode, XMLStreamReader sr, LongAdder level, 
-            AtomicBoolean isCanceled, Set<String> arrayKeys) throws XMLStreamException {
-        
+            Set<String> arrayKeys) throws XMLStreamException {
         XmlNode node;
         boolean levelFinished = false;
-        while (sr.hasNext() && /*!isCanceled.get() &&*/ !levelFinished) {
+        while (sr.hasNext() && !levelFinished) {
             switch (sr.next()) {
                 case XMLStreamConstants.START_ELEMENT:
                     level.increment();
@@ -90,12 +87,11 @@ public class XmlUtils {
                             }
                         }
                     }
-                    getObjectElements(node, sr, level, isCanceled, arrayKeys);
+                    getObjectElements(node, sr, level, arrayKeys);
 
                     break;
                 case XMLStreamConstants.END_ELEMENT:
                     level.decrement();
-
                     if (parentNode.nodeName.equalsIgnoreCase(sr.getLocalName())) {
                         levelFinished = true;
                     }
