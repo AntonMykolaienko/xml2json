@@ -58,7 +58,7 @@ public class ConverterService {
     public File convert(File sourceFile, File outputFile, IFileReadListener listener, AtomicBoolean isCanceled) {
         StopWatch sw = new StopWatch();
         
-        Objects.requireNonNull(listener);
+        Objects.requireNonNull(listener, "Listener must be not null");
 
         FileTypeEnum inputFileType = FileTypeEnum.parseByFileName(sourceFile.getName());
         

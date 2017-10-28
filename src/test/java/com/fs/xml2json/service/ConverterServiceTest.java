@@ -126,7 +126,7 @@ public class ConverterServiceTest {
     }
     
     
-    @Test(expected = AssertionError.class)
+    @Test(expected = NullPointerException.class)
     public void testTryConvertWithNullListener() {
         File sourceFile = new File(this.getClass().getClassLoader().getResource("SampleJson.json").getFile());
         destinationFile = new File(getTempDirectory(), "ConvertedFile.xml");
