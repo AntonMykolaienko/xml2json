@@ -19,17 +19,11 @@ import org.slf4j.LoggerFactory;
  * @author Anton
  * @since 1.1.0
  */
-public class ConfigUtils {
+public final class ConfigUtils {
     
     private static final Logger logger = LoggerFactory.getLogger(ConfigUtils.class);
     
     private static final Properties applicationProperties = new Properties();
-
-    /**
-     * Private constructor.
-     */
-    private ConfigUtils() {
-    }
     
     /**
      * Reads stored path to file to convert and return this path or null if file with path not found.
