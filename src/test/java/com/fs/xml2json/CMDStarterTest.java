@@ -2,8 +2,10 @@ package com.fs.xml2json;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Assert;
@@ -143,6 +145,31 @@ public class CMDStarterTest {
         Stream.of(destinationFolder.listFiles()).forEach(file -> Assert.assertTrue(file.length() > 0));
         
         Starter.main(args);
+    }
+    
+    @Test
+    public void testStartNoGuiAndCancelIsTrue() throws FileNotFoundException, NoSuchFieldException, 
+            IllegalArgumentException, IllegalAccessException {
+        File sourceFolder = new File("src/test/resources/xml");
+        
+        System.out.println("SourceFolder: " + sourceFolder.getAbsolutePath());
+        Assert.assertTrue(sourceFolder.exists());
+        
+        String[] args = new String[]{"--noGui", "--sourceFolder", sourceFolder.getAbsolutePath(), 
+            "--destinationFolder", destinationFolder.getAbsolutePath(), "--pattern", "*.xml"};
+        Starter starter = new Starter(args);
+        
+        Field field = starter.getClass().getDeclaredField("isCanceled");
+        Assert.assertNotNull(field);
+        field.setAccessible(true);
+        
+        AtomicBoolean value = (AtomicBoolean)field.get(starter);
+        value.set(true);
+        
+        starter.start();
+        
+        Assert.assertTrue(destinationFolder.exists());
+        Assert.assertEquals(0, destinationFolder.listFiles().length);
     }
     
     
