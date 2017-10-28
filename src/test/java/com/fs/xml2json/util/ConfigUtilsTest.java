@@ -1,6 +1,9 @@
 
 package com.fs.xml2json.util;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
  * Test for ConfigUtils
  *
@@ -9,4 +12,9 @@ package com.fs.xml2json.util;
  */
 public class ConfigUtilsTest {
 
+    @Test
+    public void testInstanceCreation() {
+        ConfigUtils instance = new ConfigUtils();
+        Assert.assertNotNull(instance);
+    }
 }
