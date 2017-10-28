@@ -91,8 +91,8 @@ public class XmlUtils {
                             elementNode.occurrence++;
                             String elementNodeFullPath = elementNode.getFullPath();
                             if (elementNode.occurrence > 1 && null != arrayKeys 
-                                    && !arrayKeys.contains(elementNodeFullPath)) {
-                                arrayKeys.add(elementNodeFullPath);
+                                    && !arrayKeys.contains(elementNodeFullPath.toLowerCase())) {
+                                arrayKeys.add(elementNodeFullPath.toLowerCase());
                             }
                         }
                     }
@@ -103,7 +103,7 @@ public class XmlUtils {
                     currentElement = sr.getLocalName();
                     elementLevel.decrementAndGet();
                     
-                    if (parentNode.nodeName.equals(currentElement)) {
+                    if (parentNode.nodeName.equalsIgnoreCase(currentElement)) {
                         levelFinished = true;
                     }
                     

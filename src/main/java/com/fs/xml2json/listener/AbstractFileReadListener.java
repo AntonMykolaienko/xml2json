@@ -56,7 +56,7 @@ public abstract class AbstractFileReadListener implements IFileReadListener {
     @Override
     public void finished() {
         numberOfReads--;
-        if (numberOfReads == 0 && buffer >= 0) {
+        if (numberOfReads == 0 && buffer > 0) {
             readBytes += buffer;
             updateProgressInPercent((double) readBytes / (double) fileSize);
             buffer = 0;
