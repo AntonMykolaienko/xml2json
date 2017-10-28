@@ -59,6 +59,13 @@ public class ApplicationCommandLineTest {
         cmd.getSourceFolder();
     }
     
+    @Test(expected = ParseException.class)
+    public void testParseNoGuiAndSourceFolderWithoutValue() throws ParseException, FileNotFoundException {
+        String[] args = new String[]{"--noGui", "--sourceFolder",  
+            "--destinationFolder", DESTINATION_FOLDER_PATH, "--pattern", "*.json"};
+        ApplicationCommandLine.parse(args);
+    }
+    
     @Test(expected = FileNotFoundException.class)
     public void testParseNoGuiAndSourceFolderNotExists() throws ParseException, FileNotFoundException {
         String[] args = new String[]{"--noGui", "--sourceFolder", "/SomeFolderName/", 
