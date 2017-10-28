@@ -66,59 +66,11 @@ public class Starter {
 
         ApplicationCommandLine.printHelp();
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+        try {
             ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
             
             if (cmd.isNoGuiEnabled()) {
-                CustomPatternFileFilter filter = new CustomPatternFileFilter(cmd.getPattern());
-                long numberOfFiles = Stream.of(cmd.getSourceFolder().listFiles())
-                        .filter(filter::accept)
-                        .count();
-
-                if (numberOfFiles > 0) {
-                    logger.info("Found {} files", numberOfFiles);
-                    service = new ConverterService();
-                    int numberOfProcessed = 0;
-                    for (File file : cmd.getSourceFolder().listFiles()) {
-                        if (isCanceled.get()) {
-                            break;
-                        }
-                        if (filter.accept(file)) {
-                            logger.debug("Start processing '{}'", file.getAbsolutePath());
-                            File convertedFile = ConverterUtils.getConvertedFile(file, cmd.getDestinationFolder());
-                            boolean skip = false;
-                            if (convertedFile.exists() && !cmd.isForceOverwrite()) {
-                                skip = true;
-                                // overwrite ?
-                                System.out.print(String.format("%nFile '%s' already exists, overwrite? [y/n]: ", 
-                                        convertedFile.getAbsolutePath()));
-                                
-                                boolean isCorrectAnswer = false;
-                                while (!isCorrectAnswer) {
-                                    String answer = br.readLine();
-                                    if (null != answer) {
-                                        if (answer.trim().equalsIgnoreCase("Y")) {
-                                            skip = false;
-                                            isCorrectAnswer = true;
-                                        } else if (answer.trim().equalsIgnoreCase("n")) {
-                                            isCorrectAnswer = true;
-                                        } else {
-                                            System.out.print("Expected [y/n]: ");
-                                        }
-                                    }
-                                }
-                            }
-                            if (!skip) {
-                                converFile(file, convertedFile, new CmdFileReadListener(file));
-                            }
-                            logger.info("Processed {} of {}", ++numberOfProcessed, numberOfFiles);
-                        } else {
-                            logger.debug("File '{}' will be skipped", file.getAbsolutePath());
-                        }
-                    }
-                } else {
-                    logger.info("No one file found for '{}' pattern", cmd.getPattern());
-                }
+                noGuiHandler(cmd);
             } else {
                 GuiStarter.main(args);
             }
@@ -127,6 +79,69 @@ public class Starter {
         } catch (IOException ex) {
             logger.debug(ex.toString());    // unimportant exception at this point
         }
+    }
+    
+    /**
+     * Performs converting files in batch mode without GUI.
+     * 
+     * @param cmd application argumants
+     */
+    private void noGuiHandler(ApplicationCommandLine cmd) throws IOException {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+            CustomPatternFileFilter filter = new CustomPatternFileFilter(cmd.getPattern());
+            long numberOfFiles = Stream.of(cmd.getSourceFolder().listFiles())
+                    .filter(filter::accept).count();
+
+            if (numberOfFiles > 0) {
+                logger.info("Found {} files", numberOfFiles);
+                service = new ConverterService();
+                int numberOfProcessed = 0;
+                for (File file : cmd.getSourceFolder().listFiles()) {
+                    if (isCanceled.get()) {
+                        break;
+                    }
+                    if (filter.accept(file)) {
+                        logger.debug("Start processing '{}'", file.getAbsolutePath());
+                        File convertedFile = ConverterUtils.getConvertedFile(file, cmd.getDestinationFolder());
+                        boolean isOverwrite = true;
+                        if (convertedFile.exists() && !cmd.isForceOverwrite()) {    // overwrite?
+                            isOverwrite = overwriteFile(br, convertedFile);
+                        }
+                        if (isOverwrite) {
+                            converFile(file, convertedFile, new CmdFileReadListener(file));
+                        }
+                        logger.info("Processed {} of {}", ++numberOfProcessed, numberOfFiles);
+                    } else {
+                        logger.debug("File '{}' will be skipped", file.getAbsolutePath());
+                    }
+                }
+            } else {
+                logger.info("No one file found for '{}' pattern", cmd.getPattern());
+            }
+        }
+    }
+    
+    private boolean overwriteFile(BufferedReader br, File destinationFile) throws IOException {
+        boolean isOverwrite = false;
+        System.out.print(String.format("%nFile '%s' already exists, overwrite? [y/n]: ", 
+                                    destinationFile.getAbsolutePath()));
+
+        boolean isCorrectAnswer = false;
+        while (!isCorrectAnswer) {
+            String answer = br.readLine();
+            if (null != answer) {
+                if (answer.trim().equalsIgnoreCase("Y")) {
+                    isOverwrite = true;
+                    isCorrectAnswer = true;
+                } else if (answer.trim().equalsIgnoreCase("n")) {
+                    isCorrectAnswer = true;
+                } else {
+                    System.out.print("Expected [y/n]: ");
+                }
+            }
+        }
+        
+        return isOverwrite;
     }
 
     /**
