@@ -27,6 +27,8 @@ public class XmlUtils {
     
     private static final Logger logger = LoggerFactory.getLogger(XmlUtils.class);
     
+    private static final String DELIM = "/";
+    
     /**
      * Private constructor.
      */
@@ -68,17 +70,13 @@ public class XmlUtils {
     private static void getObjectElements(XmlNode parentNode, XMLStreamReader sr, LongAdder level, 
             AtomicBoolean isCanceled, Set<String> arrayKeys) throws XMLStreamException {
         
-        String currentElement;
-        LongAdder elementLevel = level;
         XmlNode node;
         boolean levelFinished = false;
         while (sr.hasNext() && /*!isCanceled.get() &&*/ !levelFinished) {
-            int code = sr.next();
-            switch (code) {
+            switch (sr.next()) {
                 case XMLStreamConstants.START_ELEMENT:
-                    currentElement = sr.getLocalName();
-                    elementLevel.increment();
-                    node = new XmlNode(currentElement);
+                    level.increment();
+                    node = new XmlNode(sr.getLocalName());
                     if (null == parentNode) {
                         parentNode = node;
                     } else {
@@ -87,20 +85,18 @@ public class XmlUtils {
                         if (null == elementNode) {
                             parentNode.nestedNode.put(node.getFullPath(), node);
                         } else {
-                            elementNode.occurrence++;
-                            if (elementNode.occurrence > 1 && !arrayKeys.contains(elementNode.getFullPath())) {
+                            if (++elementNode.occurrence > 1 && !arrayKeys.contains(elementNode.getFullPath())) {
                                 arrayKeys.add(elementNode.getFullPath());
                             }
                         }
                     }
-                    getObjectElements(node, sr, elementLevel, isCanceled, arrayKeys);
+                    getObjectElements(node, sr, level, isCanceled, arrayKeys);
 
                     break;
                 case XMLStreamConstants.END_ELEMENT:
-                    currentElement = sr.getLocalName();
-                    elementLevel.decrement();
+                    level.decrement();
 
-                    if (parentNode.nodeName.equalsIgnoreCase(currentElement)) {
+                    if (parentNode.nodeName.equalsIgnoreCase(sr.getLocalName())) {
                         levelFinished = true;
                     }
 
@@ -128,9 +124,9 @@ public class XmlUtils {
         public String getFullPath() {
             if (null == fullPath) {
                 if (null != parentNode) {
-                    fullPath = parentNode.getFullPath().toLowerCase() + "/" + nodeName;
+                    fullPath = parentNode.getFullPath().toLowerCase() + DELIM + nodeName;
                 } else {
-                    fullPath = "/" + nodeName;
+                    fullPath = DELIM + nodeName;
                 }
             }
             return fullPath;
@@ -139,7 +135,7 @@ public class XmlUtils {
         @Override
         public String toString() {
             return String.format("{node=%s, nested=%s}", 
-                    (null != parentNode ? parentNode.toString()+"/" : "/") + nodeName, 
+                    (null != parentNode ? parentNode.toString() + DELIM : DELIM) + nodeName, 
                     (null != nestedNode ? nestedNode.toString() : "null"));
         }
     }
