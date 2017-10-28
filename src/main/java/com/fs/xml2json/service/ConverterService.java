@@ -54,8 +54,11 @@ public class ConverterService {
      * @param listener read listener
      * @param isCanceled flag to stop process
      * @return converted file
+     * @throws IOException if an I/O error occurs
+     * @throws XMLStreamException if cannot create XML/JSON writer
      */
-    public File convert(File sourceFile, File outputFile, IFileReadListener listener, AtomicBoolean isCanceled) {
+    public File convert(File sourceFile, File outputFile, IFileReadListener listener, AtomicBoolean isCanceled) 
+            throws IOException, XMLStreamException {
         StopWatch sw = new StopWatch();
         
         Objects.requireNonNull(listener, "Listener must be not null");
@@ -92,9 +95,8 @@ public class ConverterService {
             writer.flush();
             writer.close();
             reader.close();
-        } catch (IOException | XMLStreamException ex) {
-            logger.error(ex.toString());
-            throw new RuntimeException(ex);
+        } catch (XMLStreamException ex) {
+            throw new XMLStreamException(ex.getMessage());
         } finally {
             logger.info("Taken time: {}", sw);
             sw.stop();

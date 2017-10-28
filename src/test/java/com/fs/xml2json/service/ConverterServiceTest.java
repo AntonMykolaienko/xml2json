@@ -11,13 +11,13 @@ import com.fs.xml2json.model.SimpleObject;
 import com.fs.xml2json.type.UnsupportedFileType;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
+import javax.xml.stream.XMLStreamException;
 import org.junit.After;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
@@ -55,7 +55,7 @@ public class ConverterServiceTest {
     }
 
     @Test
-    public void testConvertXmlToJson() {
+    public void testConvertXmlToJson() throws IOException, XMLStreamException {
         File sourceFile = new File(this.getClass().getClassLoader().getResource("SampleXml.xml").getFile());
         destinationFile = new File(getTempDirectory(), "ConvertedFile.json");
         
@@ -70,7 +70,7 @@ public class ConverterServiceTest {
     }
     
     @Test
-    public void testConvertXmlToJsonToNonExistingDirectory() {
+    public void testConvertXmlToJsonToNonExistingDirectory() throws IOException, XMLStreamException {
         File sourceFile = new File(this.getClass().getClassLoader().getResource("SampleXml.xml").getFile());
         File nonExistingDirectory = new File(getTempDirectory(), "newDirectory");
         filesToDelete.add(nonExistingDirectory);
@@ -87,7 +87,7 @@ public class ConverterServiceTest {
     }
     
     @Test
-    public void testConvertJsonToXml() {
+    public void testConvertJsonToXml() throws IOException, XMLStreamException {
         File sourceFile = new File(this.getClass().getClassLoader().getResource("SampleJson.json").getFile());
         destinationFile = new File(getTempDirectory(), "ConvertedFile.xml");
         
@@ -102,8 +102,8 @@ public class ConverterServiceTest {
     }
     
     
-    @Test(expected = RuntimeException.class)
-    public void testConvertCorruptedXmlToJson() {
+    @Test(expected = XMLStreamException.class)
+    public void testConvertCorruptedXmlToJson() throws IOException, XMLStreamException {
         File sourceFile = new File(this.getClass().getClassLoader().getResource("CorruptedXml.xml").getFile());
         destinationFile = new File(getTempDirectory(), "ConvertedFile.json");
         
@@ -115,7 +115,7 @@ public class ConverterServiceTest {
     
     
     @Test(expected = UnsupportedFileType.class)
-    public void testTryConvertUnsupportedFile() {
+    public void testTryConvertUnsupportedFile() throws IOException, XMLStreamException {
         File sourceFile = new File(this.getClass().getClassLoader().getResource("Unsupported.txt").getFile());
         destinationFile = new File(getTempDirectory(), "ConvertedFile.json");
         
@@ -127,7 +127,7 @@ public class ConverterServiceTest {
     
     
     @Test(expected = NullPointerException.class)
-    public void testTryConvertWithNullListener() {
+    public void testTryConvertWithNullListener() throws IOException, XMLStreamException {
         File sourceFile = new File(this.getClass().getClassLoader().getResource("SampleJson.json").getFile());
         destinationFile = new File(getTempDirectory(), "ConvertedFile.xml");
         
@@ -140,7 +140,7 @@ public class ConverterServiceTest {
     
     
     @Test
-    public void testConvertXmlToJsonFullProcess() throws FileNotFoundException, IOException {
+    public void testConvertXmlToJsonFullProcess() throws IOException, XMLStreamException {
         
         File tempDirectory = new File(getTempDirectory(), "xml2jsonSerialize");
         filesToDelete.add(tempDirectory);
