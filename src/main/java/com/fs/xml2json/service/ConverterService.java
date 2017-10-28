@@ -96,9 +96,7 @@ public class ConverterService {
             throw new RuntimeException(ex);
         } finally {
             logger.info("Taken time: {}", sw);
-            if (sw.isStarted()) {
-                sw.stop();
-            }
+            sw.stop();
         }
         
         return outputFile;
@@ -171,11 +169,9 @@ public class ConverterService {
             throws XMLStreamException {
         if (inputFileType == FileTypeEnum.XML) {
             return XMLInputFactory.newInstance().createXMLEventReader(input);
-        } else if (inputFileType == FileTypeEnum.JSON) {
+        } else {    // json
             return new JsonXMLInputFactory(config).createXMLEventReader(input);
         }
-
-        throw new UnsupportedFileType(String.format(UNSUPPORTED_FILE_TYPE_TEMPLATE, inputFileType.toString()));
     }
 
     /**
@@ -202,10 +198,8 @@ public class ConverterService {
                 List<String> fileArrays = XmlUtils.determineArrays(input, isCanceled);
                 return new XMLMultipleEventWriter(sourceWriter, true, fileArrays.toArray(new String[]{}));
             }
-        } else if (inputFileType == FileTypeEnum.JSON) {
+        } else { // json
             return new PrettyXMLEventWriter(XMLOutputFactory.newInstance().createXMLEventWriter(output));
         }
-
-        throw new UnsupportedFileType(String.format(UNSUPPORTED_FILE_TYPE_TEMPLATE, inputFileType));
     }
 }
