@@ -253,13 +253,14 @@ public class CMDStarterMockTest {
         PowerMockito.mockStatic(LoggerFactory.class);
         Logger logger = Mockito.mock(Logger.class);
         Mockito.when(LoggerFactory.getLogger(Mockito.any(Class.class))).thenReturn(logger);
-        
-        ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
-        
+
         Starter starter = PowerMockito.spy(new Starter(args));
         PowerMockito.mockStatic(Starter.class);
         
-        PowerMockito.doThrow(new IOException("Some IO exception")).when(starter, "noGuiHandler", cmd);
+        ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
+        
+        PowerMockito.doThrow(new IOException("Some IO exception")).when(starter, "noGuiHandler", 
+                Mockito.any(cmd.getClass()));
 
         starter.start();
     }
