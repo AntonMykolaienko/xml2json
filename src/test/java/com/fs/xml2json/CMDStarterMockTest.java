@@ -9,12 +9,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.nio.channels.FileChannel;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Assert;
@@ -242,24 +240,29 @@ public class CMDStarterMockTest {
         starter.start();
     }
     
-//    @Test
-//    @PrepareForTest({Starter.class, LoggerFactory.class, ApplicationCommandLine.class})
-//    public void testCallStartWithIOException() throws Exception {
-//        String[] args = new String[]{"--noGui"};
-//        //given
-//        PowerMockito.mockStatic(LoggerFactory.class);
-//        Logger logger = Mockito.mock(Logger.class);
-//        Mockito.when(LoggerFactory.getLogger(Mockito.any(Class.class))).thenReturn(logger);
-//        
-//        Starter starter = Mockito.spy(new Starter(args));
-//        PowerMockito.mockStatic(Starter.class);
-//        
-//        PowerMockito.mockStatic(ApplicationCommandLine.class);
-//        PowerMockito.doThrow(new IOException("Some IO exception")).when(ApplicationCommandLine.class, "parse", 
-//                Mockito.any());
-//
-//        starter.start();
-//    }
+    @Test
+    @PrepareForTest({Starter.class, LoggerFactory.class})
+    public void testCallStartWithIOException() throws Exception {
+        File sourceFolder = new File("src/test/resources/json");
+        
+        String[] args = new String[]{"--noGui", "--sourceFolder", sourceFolder.getAbsolutePath(), 
+            "--destinationFolder", destinationFolder.getAbsolutePath(), "--pattern", "*.json",
+            "--overwrite"};
+        
+        //given
+        PowerMockito.mockStatic(LoggerFactory.class);
+        Logger logger = Mockito.mock(Logger.class);
+        Mockito.when(LoggerFactory.getLogger(Mockito.any(Class.class))).thenReturn(logger);
+        
+        ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
+        
+        Starter starter = PowerMockito.spy(new Starter(args));
+        PowerMockito.mockStatic(Starter.class);
+        
+        PowerMockito.doThrow(new IOException("Some IO exception")).when(starter, "noGuiHandler", cmd);
+
+        starter.start();
+    }
     
     
     private File getDestinationDirectory() {
