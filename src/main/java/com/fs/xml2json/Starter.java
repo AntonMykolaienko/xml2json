@@ -91,7 +91,6 @@ public class Starter {
         } catch (ParseException | FileNotFoundException ex) {
             logger.error(ex.toString());
         } catch (IOException ex) {
-            ex.printStackTrace();
             logger.debug(ex.toString());    // unimportant exception at this point
         }
     }
