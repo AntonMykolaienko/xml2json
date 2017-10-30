@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
+import javax.xml.stream.XMLStreamException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +77,7 @@ public class Starter {
         } catch (ParseException | FileNotFoundException ex) {
             logger.error(ex.toString());
         } catch (IOException ex) {
+            ex.printStackTrace();
             logger.debug(ex.toString());    // unimportant exception at this point
         }
     }
@@ -86,29 +88,27 @@ public class Starter {
      * @param cmd application argumants
      */
     private void noGuiHandler(ApplicationCommandLine cmd) throws IOException {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
-            CustomPatternFileFilter filter = new CustomPatternFileFilter(cmd.getPattern());
-            long numberOfFiles = Stream.of(cmd.getSourceFolder().listFiles())
-                    .filter(filter::accept).count();
+        CustomPatternFileFilter filter = new CustomPatternFileFilter(cmd.getPattern());
+        long numberOfFiles = Stream.of(cmd.getSourceFolder().listFiles())
+                .filter(filter::accept).count();
 
-            if (numberOfFiles > 0) {
-                logger.info("Found {} files", numberOfFiles);
-                service = new ConverterService();
-                int numberOfProcessed = 0;
-                for (File file : cmd.getSourceFolder().listFiles()) {
-                    if (isCanceled.get()) {
-                        break;
-                    }
-                    if (filter.accept(file)) {
-                        processFile(file, br, cmd);
-                        logger.info("Processed {} of {}", ++numberOfProcessed, numberOfFiles);
-                    } else {
-                        logger.debug("File '{}' will be skipped", file.getAbsolutePath());
-                    }
+        if (numberOfFiles > 0) {
+            logger.info("Found {} files", numberOfFiles);
+            service = new ConverterService();
+            int numberOfProcessed = 0;
+            for (File file : cmd.getSourceFolder().listFiles()) {
+                if (isCanceled.get()) {
+                    break;
                 }
-            } else {
-                logger.info("No one file found for '{}' pattern", cmd.getPattern());
+                if (filter.accept(file)) {
+                    processFile(file, cmd);
+                    logger.info("Processed {} of {}", ++numberOfProcessed, numberOfFiles);
+                } else {
+                    logger.debug("File '{}' will be skipped", file.getAbsolutePath());
+                }
             }
+        } else {
+            logger.info("No one file found for '{}' pattern", cmd.getPattern());
         }
     }
     
@@ -117,21 +117,20 @@ public class Starter {
      * with same name as source file.
      * 
      * @param file file which must be converted
-     * @param br buffered reader
      * @param cmd application arguments
      */
-    private void processFile(File file, BufferedReader br, ApplicationCommandLine cmd) 
+    private void processFile(File file, ApplicationCommandLine cmd) 
             throws IOException {
         logger.debug("Start processing '{}'", file.getAbsolutePath());
         File convertedFile = ConverterUtils.getConvertedFile(file, cmd.getDestinationFolder());
         boolean isOverwrite = true;
         if (convertedFile.exists() && !cmd.isForceOverwrite()) {    // overwrite?
-            isOverwrite = overwriteFile(br, convertedFile);
+            isOverwrite = overwriteFile(convertedFile);
         }
         if (isOverwrite) {
             try {
                 service.convert(file, convertedFile, new CmdFileReadListener(file), isCanceled);
-            } catch (Exception ex) {
+            } catch (IOException | XMLStreamException ex) {
                 logger.error(ex.toString());
             }
         }
@@ -140,27 +139,28 @@ public class Starter {
     /**
      * Parses input text (expected "Y" or "n") and returns <code>true</code> if file needs to be overwritten
      * 
-     * @param br buffered reader
      * @param destinationFile destination file
      * @return <code>true</code> if need to overwrite file, otherwise return <code>false</code>
      * @throws IOException if some errors occurs in buffered reader
      */
-    private boolean overwriteFile(BufferedReader br, File destinationFile) throws IOException {
+    private boolean overwriteFile(File destinationFile) throws IOException {
         boolean isOverwrite = false;
         System.out.print(String.format("%nFile '%s' already exists, overwrite? [y/n]: ", 
                                     destinationFile.getAbsolutePath()));
 
-        boolean isCorrectAnswer = false;
-        while (!isCorrectAnswer) {
-            String answer = br.readLine();
-            if (null != answer) {
-                if (answer.trim().equalsIgnoreCase("Y")) {
-                    isOverwrite = true;
-                    isCorrectAnswer = true;
-                } else if (answer.trim().equalsIgnoreCase("n")) {
-                    isCorrectAnswer = true;
-                } else {
-                    System.out.print("Expected [y/n]: ");
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+            boolean isCorrectAnswer = false;
+            while (!isCorrectAnswer) {
+                String answer = br.readLine();
+                if (null != answer) {
+                    if (answer.trim().equalsIgnoreCase("Y")) {
+                        isOverwrite = true;
+                        isCorrectAnswer = true;
+                    } else if (answer.trim().equalsIgnoreCase("n")) {
+                        isCorrectAnswer = true;
+                    } else {
+                        System.out.print("Expected [y/n]: ");
+                    }
                 }
             }
         }
