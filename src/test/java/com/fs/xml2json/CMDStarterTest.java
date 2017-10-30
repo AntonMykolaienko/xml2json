@@ -1,8 +1,12 @@
 package com.fs.xml2json;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -10,7 +14,10 @@ import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 
 /**
  * Tests for Starter.
@@ -24,9 +31,15 @@ public class CMDStarterTest {
     private File destinationFolder;
     private final List<File> filesToDelete = new ArrayList<>();
     
+    //BufferedReader bufferedReader = Mockito.mock(BufferedReader.class);
+    
+    
     @Before
     public void setUp() {
         destinationFolder = getDestinationDirectory();
+        if (null != destinationFolder && destinationFolder.exists()) {
+            deleteFilesAndDirs(destinationFolder);
+        }
     }
     
     @After
@@ -137,7 +150,8 @@ public class CMDStarterTest {
         Assert.assertTrue(sourceFolder.exists());
         
         String[] args = new String[]{"--noGui", "--sourceFolder", sourceFolder.getAbsolutePath(), 
-            "--destinationFolder", destinationFolder.getAbsolutePath(), "--pattern", "*.json"};
+            "--destinationFolder", destinationFolder.getAbsolutePath(), "--pattern", "*.json",
+            "--overwrite"};
         Starter.main(args);
         
         Assert.assertTrue(destinationFolder.exists());
@@ -170,6 +184,100 @@ public class CMDStarterTest {
         
         Assert.assertTrue(destinationFolder.exists());
         Assert.assertEquals(0, destinationFolder.listFiles().length);
+    }
+    
+//    @Test
+//    @Ignore
+//    public void testStartNoGuiAndAnswerNo() throws FileNotFoundException, IOException {
+//        File sourceFolder = new File("src/test/resources/xml");
+//        
+//        BufferedReader bufferedReader = Mockito.mock(BufferedReader.class);
+//        BDDMockito.when(bufferedReader.readLine()).thenReturn("r").thenReturn("n");
+//        
+//        System.out.println("SourceFolder: " + sourceFolder.getAbsolutePath());
+//        Assert.assertTrue(sourceFolder.exists());
+//        
+//        String[] args = new String[]{"--noGui", "--sourceFolder", sourceFolder.getAbsolutePath(), 
+//            "--destinationFolder", destinationFolder.getAbsolutePath(), "--pattern", "*.xml"};
+//        Starter.main(args);
+//        
+//        Assert.assertTrue(destinationFolder.exists());
+//        Assert.assertEquals(2, destinationFolder.listFiles().length);
+//        Stream.of(destinationFolder.listFiles()).forEach(file -> Assert.assertTrue(file.length() > 0));
+//        
+//        Stream.of(destinationFolder.listFiles()).forEach(file -> {
+//            try (FileChannel outChan = new FileOutputStream(file, true).getChannel()) {
+//                outChan.truncate(0);
+//            } catch (IOException ex) {}
+//        });
+//        
+//        Starter starterClass = Mockito.mock(Starter.class);
+//        InputStream in = Mockito.mock(InputStream.class);
+//        InputStreamReader inr = Mockito.mock(InputStreamReader.class);
+//        try {
+//            PowerMockito.whenNew(Starter.class).withArguments(args).thenReturn(starterClass);
+//            PowerMockito.whenNew(InputStreamReader.class).withArguments(in).thenReturn(inr);
+//            PowerMockito.whenNew(BufferedReader.class).withArguments(inr).thenReturn(bufferedReader);
+//            PowerMockito.when(bufferedReader.readLine()).thenReturn("r").thenReturn("n");
+//            //Whitebox.invokeMethod(starterClass, "MethodName", arguement);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        Starter starter = new Starter(args);
+//        //Starter.main(args);
+//        starter.start();
+//        
+//        Assert.assertEquals(2, destinationFolder.listFiles().length);
+//        Stream.of(destinationFolder.listFiles()).forEach(file -> Assert.assertTrue(file.length() == 0));
+//    }
+    
+    
+    @Test
+    @Ignore
+    public void testStartNoGuiAndAnswerYes() throws FileNotFoundException, IOException {
+        File sourceFolder = new File("src/test/resources/xml");
+        
+        BufferedReader bufferedReader = Mockito.mock(BufferedReader.class);
+        BDDMockito.when(bufferedReader.readLine()).thenReturn("r").thenReturn("Y");
+        
+        System.out.println("SourceFolder: " + sourceFolder.getAbsolutePath());
+        Assert.assertTrue(sourceFolder.exists());
+        
+        String[] args = new String[]{"--noGui", "--sourceFolder", sourceFolder.getAbsolutePath(), 
+            "--destinationFolder", destinationFolder.getAbsolutePath(), "--pattern", "*.xml"};
+        Mockito.mock(Starter.class);
+        //Starter.main(args);
+        Starter starter = Mockito.spy(new Starter(args));
+        starter.start();
+        
+        Assert.assertTrue(destinationFolder.exists());
+        Assert.assertEquals(2, destinationFolder.listFiles().length);
+        Stream.of(destinationFolder.listFiles()).forEach(file -> Assert.assertTrue(file.length() > 0));
+        
+        Stream.of(destinationFolder.listFiles()).forEach(file -> {
+            try (FileChannel outChan = new FileOutputStream(file, true).getChannel()) {
+                outChan.truncate(0);
+            } catch (IOException ex) {}
+        });
+        
+//        Starter starterClass = Mockito.mock(Starter.class);
+//        InputStream in = Mockito.mock(InputStream.class);
+//        InputStreamReader inr = Mockito.mock(InputStreamReader.class);
+//        try {
+//            PowerMockito.whenNew(Starter.class).withArguments(args).thenReturn(starterClass);
+//            PowerMockito.whenNew(InputStreamReader.class).withArguments(in).thenReturn(inr);
+//            PowerMockito.whenNew(BufferedReader.class).withArguments(inr).thenReturn(bufferedReader);
+//            PowerMockito.when(bufferedReader.readLine()).thenReturn("r").thenReturn("Y");
+//            //Whitebox.invokeMethod(starterClass, "start");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+        Starter secondStarter = Mockito.spy(new Starter(args));
+//        //Starter.main(args);
+        secondStarter.start();
+        
+        Assert.assertEquals(2, destinationFolder.listFiles().length);
+        Stream.of(destinationFolder.listFiles()).forEach(file -> Assert.assertTrue(file.length() > 0));
     }
     
     
