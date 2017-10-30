@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,7 +28,9 @@ public class CmdFileReadListenerTest {
         Assert.assertTrue(sourceFile.exists());
         AtomicBoolean isFinishCalled = new AtomicBoolean(false);
         AtomicLong bytesRead = new AtomicLong(0);
-        IFileReadListener listener = new CustomCmdFileReadListener(isFinishCalled, bytesRead, sourceFile);
+        AtomicInteger numberOfCallFinish = new AtomicInteger(0);
+        IFileReadListener listener = new CustomCmdFileReadListener(isFinishCalled, numberOfCallFinish, 
+                bytesRead, sourceFile);
         AtomicBoolean isCanceled = new AtomicBoolean(false);
         
         byte[] buffer = new byte[128];
@@ -44,6 +47,7 @@ public class CmdFileReadListenerTest {
         }
         Assert.assertEquals(sourceFile.length() * 2, bytesRead.get());
         Assert.assertTrue(isFinishCalled.get());
+        Assert.assertEquals(1, numberOfCallFinish.get());
     }
     
     @Test
@@ -53,7 +57,9 @@ public class CmdFileReadListenerTest {
         Assert.assertTrue(sourceFile.exists());
         AtomicBoolean isFinishCalled = new AtomicBoolean(false);
         AtomicLong bytesRead = new AtomicLong(0);
-        IFileReadListener listener = new CustomCmdFileReadListener(isFinishCalled, bytesRead, sourceFile);
+        AtomicInteger numberOfCallFinish = new AtomicInteger(0);
+        IFileReadListener listener = new CustomCmdFileReadListener(isFinishCalled, numberOfCallFinish, 
+                bytesRead, sourceFile);
         AtomicBoolean isCanceled = new AtomicBoolean(false);
         
         // determine arrays
@@ -68,6 +74,7 @@ public class CmdFileReadListenerTest {
         }
         Assert.assertEquals(sourceFile.length() * 2, bytesRead.get());
         Assert.assertTrue(isFinishCalled.get());
+        Assert.assertEquals(1, numberOfCallFinish.get());
     }
     
     
@@ -79,7 +86,9 @@ public class CmdFileReadListenerTest {
         Assert.assertTrue(sourceFile.exists());
         AtomicBoolean isFinishCalled = new AtomicBoolean(false);
         AtomicLong bytesRead = new AtomicLong(0);
-        IFileReadListener listener = new CustomCmdFileReadListener(isFinishCalled, bytesRead, sourceFile);
+        AtomicInteger numberOfCallFinish = new AtomicInteger(0);
+        IFileReadListener listener = new CustomCmdFileReadListener(isFinishCalled, numberOfCallFinish, 
+                bytesRead, sourceFile);
         AtomicBoolean isCanceled = new AtomicBoolean(false);
         
         byte[] buffer = new byte[128];
@@ -89,16 +98,20 @@ public class CmdFileReadListenerTest {
         }
         Assert.assertEquals(sourceFile.length(), bytesRead.get());
         Assert.assertTrue(isFinishCalled.get());
+        Assert.assertEquals(1, numberOfCallFinish.get());
     }
     
     private class CustomCmdFileReadListener extends CmdFileReadListener {
         AtomicBoolean isFinishedCalled;
+        AtomicInteger numberOfCallFinish;
         AtomicLong bytesRead;
         int numberOfReads = 1;
 
-        public CustomCmdFileReadListener(AtomicBoolean isFinishedCalled, AtomicLong bytesRead, File sourceFile) {
+        public CustomCmdFileReadListener(AtomicBoolean isFinishedCalled, AtomicInteger numberOfCallFinish, 
+                AtomicLong bytesRead, File sourceFile) {
             super(sourceFile);
             this.isFinishedCalled = isFinishedCalled;
+            this.numberOfCallFinish = numberOfCallFinish;
             this.bytesRead = bytesRead;
             if (sourceFile.getName().toLowerCase().endsWith(".xml")) {
                 numberOfReads += 1;
@@ -118,6 +131,7 @@ public class CmdFileReadListenerTest {
             super.finished();
             if (0 == --numberOfReads) {
                 isFinishedCalled.set(true);
+                numberOfCallFinish.incrementAndGet();
             }
         }
         
