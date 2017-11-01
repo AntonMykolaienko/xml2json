@@ -9,6 +9,7 @@ import com.fs.xml2json.util.ApplicationUtils;
 import com.fs.xml2json.util.ConfigUtils;
 import com.fs.xml2json.util.ConverterUtils;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Arrays;
@@ -40,6 +41,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
+import javax.xml.stream.XMLStreamException;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -366,7 +368,7 @@ public class WindowController implements Initializable {
         outputBrowseBtn.setDisable(disable);
     }
 
-    private void convertFile() {
+    private void convertFile() throws IOException, XMLStreamException {
         logger.info("Converting started");
 
         ConverterService service = new ConverterService();
@@ -376,9 +378,9 @@ public class WindowController implements Initializable {
         
         try {
             service.convert(inputFile, outputFile, new GuiFileReadListener(processedBytes, inputFile), isCanceled);
-        } catch (Exception ex) {
+        } catch (IOException | XMLStreamException ex) {
             logger.error(ex.toString());
-            throw new RuntimeException(ex);
+            throw ex;
         } 
     }
 
