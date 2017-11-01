@@ -21,10 +21,19 @@ public class ApplicationUtils {
      * @return string with application version
      */
     public static final String getVersion() {
-        String version = ApplicationUtils.class.getPackage().getImplementationVersion();
+        String version = getVersionFromManifest();
         if (null == version || version.isEmpty()) {
             version = UNNOWN_VERSION;
         }
         return version;
+    }
+    
+    /**
+     * Returns application version from Manifest.
+     * 
+     * @return application versions
+     */
+    private static String getVersionFromManifest() {
+        return ApplicationUtils.class.getPackage().getImplementationVersion();
     }
 }
