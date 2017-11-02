@@ -181,23 +181,7 @@ public class WindowController implements Initializable {
 
     public void startConvertation(ActionEvent event) {
         if (inProgress.get()) { // handle cancel event
-            Platform.runLater(() -> {
-                isCanceled.compareAndSet(false, true);
-                startBtn.setDisable(false);
-                startBtn.setText(Config.START_BUTTON_START);
-
-                enableOrDisableButtonsAndInputs(false);
-
-                message.setText("Canceled");
-            });
-
-            // cancel converting task
-            if (null != convertTask) {
-                convertTask = null;
-            }
-
-            inProgress.set(false);
-            isCanceled.compareAndSet(true, false);
+            handleCancelEvent();
 
             return;
         }
@@ -211,7 +195,7 @@ public class WindowController implements Initializable {
         }
 
         File output = new File(outputPath.getText());
-        if (output.exists()) {            
+        if (output.exists()) {
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
             
@@ -247,7 +231,34 @@ public class WindowController implements Initializable {
         progressBar.progressProperty().bind(processedBytes);
         reset();
 
-        convertTask = new Task() {
+        convertTask = createConvertionTask();
+
+        new Thread(convertTask, "ConvertingThread").start();
+    }
+    
+    
+    private void handleCancelEvent() {
+        Platform.runLater(() -> {
+            isCanceled.compareAndSet(false, true);
+            startBtn.setDisable(false);
+            startBtn.setText(Config.START_BUTTON_START);
+
+            enableOrDisableButtonsAndInputs(false);
+
+            message.setText("Canceled");
+        });
+
+        // cancel converting task
+        if (null != convertTask) {
+            convertTask = null;
+        }
+
+        inProgress.set(false);
+        isCanceled.compareAndSet(true, false);
+    }
+    
+    private Task createConvertionTask() {
+        return new Task() {
             @Override
             protected Object call() throws Exception {
                 // start convertation
@@ -295,8 +306,6 @@ public class WindowController implements Initializable {
                 enableOrDisableButtonsAndInputs(false);
             }
         };
-
-        new Thread(convertTask, "ConvertingThread").start();
     }
 
     private boolean isXml(TextField txtField) {
