@@ -34,7 +34,7 @@ public class ApplicationProperties {
 
     private PropertiesLoader loader;
     private boolean isInitialized = false;
-    private final Properties applicationProperties = new Properties();
+    private final Properties properties = new Properties();
 
     
     /**
@@ -60,7 +60,7 @@ public class ApplicationProperties {
             loadProperties();
         }
         
-        String path = applicationProperties.getProperty(Config.LAST_DIRECTORY);
+        String path = properties.getProperty(Config.LAST_DIRECTORY);
         if (null == path || path.trim().isEmpty()) {
             return null;
         } else {
@@ -83,13 +83,12 @@ public class ApplicationProperties {
         if (!isInitialized) {
             loadProperties();
         }
-        //String formattedPath = path.getParent().replace("\\", "\\\\");
         String formattedPath = path.getParent();
-        String oldValue = (String)applicationProperties.get(Config.LAST_DIRECTORY);
+        String oldValue = (String)properties.get(Config.LAST_DIRECTORY);
         if (null == oldValue || !formattedPath.equalsIgnoreCase(oldValue)) {
-            applicationProperties.put(Config.LAST_DIRECTORY, formattedPath);
+            properties.put(Config.LAST_DIRECTORY, formattedPath);
             
-            loader.saveProperties(applicationProperties);
+            loader.saveProperties(properties);
         }
     }
     
@@ -112,7 +111,7 @@ public class ApplicationProperties {
     private void loadProperties() {
         try {
             Properties props = loader.load();
-            props.forEach((key, value) -> applicationProperties.put(key, value));
+            props.forEach(properties::put);
         } catch (IOException ex) {
             logger.error(ex.toString());
         }
