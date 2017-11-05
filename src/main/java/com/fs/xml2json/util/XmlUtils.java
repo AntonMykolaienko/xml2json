@@ -73,11 +73,10 @@ public class XmlUtils {
             switch (sr.next()) {
                 case XMLStreamConstants.START_ELEMENT:
                     level.increment();
-                    node = new XmlNode(sr.getLocalName());
+                    node = new XmlNode(sr.getLocalName(), parentNode);
                     if (null == parentNode) {
                         parentNode = node;
                     } else {
-                        node.parentNode = parentNode;
                         XmlNode elementNode = parentNode.nestedNode.get(node.getFullPath());
                         if (null == elementNode) {
                             parentNode.nestedNode.put(node.getFullPath(), node);
@@ -109,12 +108,18 @@ public class XmlUtils {
     private static class XmlNode {
         private String nodeName;
         private int occurrence = 1;
-        private XmlNode parentNode;
+        private final XmlNode parentNode;
         private String fullPath;
         private Map<String, XmlNode> nestedNode = new LinkedHashMap<>();
 
-        XmlNode(String nodeName) {
+        XmlNode(String nodeName, XmlNode parentNode) {
             this.nodeName = nodeName.toLowerCase();
+            this.parentNode = parentNode;
+            if (null != parentNode) {
+                fullPath = parentNode.getFullPath().toLowerCase() + DELIM + nodeName;
+            } else {
+                fullPath = DELIM + nodeName;
+            }
         }
 
         public String getFullPath() {

@@ -1,12 +1,13 @@
 package com.fs.xml2json.controller;
 
+import com.fs.xml2json.core.ApplicationProperties;
 import com.fs.xml2json.core.Config;
+import com.fs.xml2json.core.PropertiesLoader;
 import com.fs.xml2json.listener.GuiFileReadListener;
 import com.fs.xml2json.service.ConverterService;
 import com.fs.xml2json.type.FileTypeEnum;
 import com.fs.xml2json.type.UnsupportedFileType;
 import com.fs.xml2json.util.ApplicationUtils;
-import com.fs.xml2json.util.ConfigUtils;
 import com.fs.xml2json.util.ConverterUtils;
 import java.io.File;
 import java.io.IOException;
@@ -63,6 +64,8 @@ public class WindowController implements Initializable {
     private static final DecimalFormat df = new DecimalFormat("###");
 
     private static final Logger logger = LoggerFactory.getLogger(WindowController.class);
+    
+    private ApplicationProperties applicationProperties;
 
     
     @FXML
@@ -114,6 +117,11 @@ public class WindowController implements Initializable {
         version.setText(versionTxt);
         donate.setText("Donate");
         donate.setOnAction(e -> HostServicesProvider.INSTANCE.getHostServices().showDocument(Config.DONATE_LINK));
+        
+        String usersDir = System.getProperty("user.home");
+        File appDir = new File(usersDir, Config.APPLICATION_FOLDER_NAME);
+        File configFile = new File(appDir, Config.APPLICATION_STORAGE_FILE_NAME);
+        applicationProperties = new ApplicationProperties(new PropertiesLoader(configFile));
     }
 
     public void openBrowseDialogInput(ActionEvent event) {
@@ -122,7 +130,7 @@ public class WindowController implements Initializable {
         if (null != path) {
             fileChooser.setInitialDirectory(new File(path));
         } else {
-            path = ConfigUtils.readLastPath();
+            path = applicationProperties.getLastOpenedPath();
             if (null != path) {
                 fileChooser.setInitialDirectory(new File(path));
             }
@@ -145,7 +153,7 @@ public class WindowController implements Initializable {
             
             processedBytes.set(0);
 
-            ConfigUtils.saveLastPath(selectedFile);
+            applicationProperties.saveLastOpenedPath(selectedFile);
         }
     }
 
@@ -155,7 +163,7 @@ public class WindowController implements Initializable {
         if (null != path) {
             fileChooser.setInitialDirectory(new File(path));
         } else {
-            path = ConfigUtils.readLastPath();
+            path = applicationProperties.getLastOpenedPath();
             if (null != path) {
                 fileChooser.setInitialDirectory(new File(path));
             }
@@ -174,7 +182,7 @@ public class WindowController implements Initializable {
         File selectedFile = fileChooser.showOpenDialog(null);
         if (null != selectedFile) {
             outputPath.setText(selectedFile.getAbsolutePath());
-            ConfigUtils.saveLastPath(selectedFile);
+            applicationProperties.saveLastOpenedPath(selectedFile);
         }
     }
 
