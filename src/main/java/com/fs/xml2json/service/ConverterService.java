@@ -98,7 +98,7 @@ public class ConverterService {
         } catch (XMLStreamException ex) {
             throw new XMLStreamException(ex.getMessage());
         } finally {
-            //logger.info("Taken time: {}", sw);
+            logger.info("Taken time: {}", sw);
             sw.stop();
         }
         
