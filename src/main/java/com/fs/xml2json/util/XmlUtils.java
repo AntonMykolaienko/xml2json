@@ -109,7 +109,7 @@ public class XmlUtils {
         private String nodeName;
         private int occurrence = 1;
         private final XmlNode parentNode;
-        private String fullPath;
+        private final String fullPath;
         private Map<String, XmlNode> nestedNode = new LinkedHashMap<>();
 
         XmlNode(String nodeName, XmlNode parentNode) {
@@ -123,13 +123,6 @@ public class XmlUtils {
         }
 
         public String getFullPath() {
-            if (null == fullPath) {
-                if (null != parentNode) {
-                    fullPath = parentNode.getFullPath().toLowerCase() + DELIM + nodeName;
-                } else {
-                    fullPath = DELIM + nodeName;
-                }
-            }
             return fullPath;
         }
         
