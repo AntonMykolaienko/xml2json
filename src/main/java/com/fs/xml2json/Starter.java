@@ -40,65 +40,65 @@ import org.slf4j.LoggerFactory;
  * @since 1.0.0
  */
 public class Starter {
-    
-    private static final Logger logger = LoggerFactory.getLogger(Starter.class);
 
-    
+    private static final Logger LOGGER = LoggerFactory.getLogger(Starter.class);
+
+
     private final String[] args;
     private final AtomicBoolean isCanceled = new AtomicBoolean(false);
     private ConverterService service;
-    
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
         Starter starter = new Starter(args);
-        
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            logger.info("Shutting down application starter ...");
+            LOGGER.info("Shutting down application starter ...");
             starter.stop();
         }, "ShutdownThread"));
 
         starter.start();
-        
-        
     }
-    
+
     /**
      * Constructor.
-     * 
+     *
      * @param args command line arguments
      */
     public Starter(String[] args) {
         this.args = args;
     }
 
-
-    public void start() {
-        logger.info("Starting Xml2Json converter (v." + ApplicationUtils.getVersion() + ")");
+    /**
+     * Starts application.
+     */
+    public final void start() {
+        LOGGER.info("Starting Xml2Json converter (v." + ApplicationUtils.getVersion() + ")");
 
         ApplicationCommandLine.printHelp();
 
         try {
             ApplicationCommandLine cmd = ApplicationCommandLine.parse(args);
-            
+
             if (cmd.isNoGuiEnabled()) {
                 noGuiHandler(cmd);
             } else {
                 GuiStarter.main(args);
             }
         } catch (ParseException | FileNotFoundException ex) {
-            logger.error(ex.toString());
+            LOGGER.error(ex.toString());
         } catch (IOException ex) {
-            logger.debug(ex.toString());    // unimportant exception at this point
+            LOGGER.debug(ex.toString());    // unimportant exception at this point
         }
     }
-    
+
     /**
      * Performs converting files in batch mode without GUI.
-     * 
+     *
      * @param cmd application argumants
+     * @throws IOException nested exception from {@link #overwriteFile(java.io.File)}
      */
     private void noGuiHandler(ApplicationCommandLine cmd) throws IOException {
         CustomPatternFileFilter filter = new CustomPatternFileFilter(cmd.getPattern());
@@ -106,7 +106,7 @@ public class Starter {
                 .filter(filter::accept).count();
 
         if (numberOfFiles > 0) {
-            logger.info("Found {} files", numberOfFiles);
+            LOGGER.info("Found {} files", numberOfFiles);
             service = new ConverterService();
             int numberOfProcessed = 0;
             for (File file : cmd.getSourceFolder().listFiles()) {
@@ -115,26 +115,27 @@ public class Starter {
                 }
                 if (filter.accept(file)) {
                     processFile(file, cmd);
-                    logger.info("Processed {} of {}", ++numberOfProcessed, numberOfFiles);
+                    LOGGER.info("Processed {} of {}", ++numberOfProcessed, numberOfFiles);
                 } else {
-                    logger.debug("File '{}' will be skipped", file.getAbsolutePath());
+                    LOGGER.debug("File '{}' will be skipped", file.getAbsolutePath());
                 }
             }
         } else {
-            logger.info("No one file found for '{}' pattern", cmd.getPattern());
+            LOGGER.info("No one file found for '{}' pattern", cmd.getPattern());
         }
     }
-    
+
     /**
-     * Converts file <code>file</code> and stores converted content in <code>destinationFolder</code> 
+     * Converts file <code>file</code> and stores converted content in <code>destinationFolder</code>
      * with same name as source file.
-     * 
+     *
      * @param file file which must be converted
      * @param cmd application arguments
+     * @throws IOException when {@link #overwriteFile(java.io.File)} throw exception
      */
-    private void processFile(File file, ApplicationCommandLine cmd) 
+    private void processFile(File file, ApplicationCommandLine cmd)
             throws IOException {
-        logger.debug("Start processing '{}'", file.getAbsolutePath());
+        LOGGER.debug("Start processing '{}'", file.getAbsolutePath());
         File convertedFile = ConverterUtils.getConvertedFile(file, cmd.getDestinationFolder());
         boolean isOverwrite = true;
         if (convertedFile.exists() && !cmd.isForceOverwrite()) {    // overwrite?
@@ -144,21 +145,21 @@ public class Starter {
             try {
                 service.convert(file, convertedFile, new CmdFileReadListener(file), isCanceled);
             } catch (IOException | XMLStreamException ex) {
-                logger.error(ex.toString());
+                LOGGER.error(ex.toString());
             }
         }
     }
-    
+
     /**
-     * Parses input text (expected "Y" or "n") and returns <code>true</code> if file needs to be overwritten
-     * 
+     * Parses input text (expected "Y" or "n") and returns <code>true</code> if file needs to be overwritten.
+     *
      * @param destinationFile destination file
      * @return <code>true</code> if need to overwrite file, otherwise return <code>false</code>
      * @throws IOException if some errors occurs in buffered reader
      */
     private boolean overwriteFile(File destinationFile) throws IOException {
         boolean isOverwrite = false;
-        System.out.print(String.format("%nFile '%s' already exists, overwrite? [y/n]: ", 
+        System.out.print(String.format("%nFile '%s' already exists, overwrite? [y/n]: ",
                                     destinationFile.getAbsolutePath()));
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
@@ -177,11 +178,14 @@ public class Starter {
                 }
             }
         }
-        
+
         return isOverwrite;
     }
 
-    public void stop() {
+    /**
+     * Stops application and release resources.
+     */
+    public final void stop() {
         isCanceled.compareAndSet(false, true);
     }
 

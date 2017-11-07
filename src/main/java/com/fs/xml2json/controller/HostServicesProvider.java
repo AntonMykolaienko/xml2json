@@ -39,7 +39,7 @@ public class HostServicesProvider {
 
     /**
      * Initialize class with value.
-     * 
+     *
      * @param hostServices instance of {@link HostServices} from {@link Application}
      */
     public void init(HostServices hostServices) {
@@ -51,7 +51,7 @@ public class HostServicesProvider {
 
     /**
      * Returns instance of {@link HostServices}.
-     * 
+     *
      * @return {@link HostServices}
      */
     public HostServices getHostServices() {

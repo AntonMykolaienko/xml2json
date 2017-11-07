@@ -43,7 +43,9 @@
 
     <!-- Checks that a package-info.java file exists for each package.     -->
     <!-- See http://checkstyle.sf.net/config_javadoc.html#JavadocPackage -->
+    <!--
     <module name="JavadocPackage"/>
+    -->
 
     <!-- Checks whether files end with a new line.                        -->
     <!-- See http://checkstyle.sf.net/config_misc.html#NewlineAtEndOfFile -->
@@ -83,7 +85,9 @@
         <!-- See http://checkstyle.sf.net/config_javadoc.html -->
         <module name="JavadocMethod"/>
         <module name="JavadocType"/>
-        <module name="JavadocVariable"/>
+        <module name="JavadocVariable">
+            <property name="scope" value="public"/>
+        </module>
         <module name="JavadocStyle"/>
 
         <!-- Checks for Naming Conventions.                  -->
@@ -110,8 +114,8 @@
         <!-- Checks for Size Violations.                    -->
         <!-- See http://checkstyle.sf.net/config_sizes.html -->
         <module name="LineLength">
-			<property name="max" value="120"/>
-		</module>
+            <property name="max" value="120"/>
+        </module>
         <module name="MethodLength"/>
         <module name="ParameterNumber"/>
 
@@ -146,7 +150,9 @@
         <module name="AvoidInlineConditionals"/>
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
-        <module name="HiddenField"/>
+        <module name="HiddenField">
+            <property name="ignoreConstructorParameter" value="true"/>
+        </module>
         <module name="IllegalInstantiation"/>
         <module name="InnerAssignment"/>
         <module name="MagicNumber"/>
@@ -165,7 +171,9 @@
         <!-- Miscellaneous other checks.                   -->
         <!-- See http://checkstyle.sf.net/config_misc.html -->
         <module name="ArrayTypeStyle"/>
+        <!--
         <module name="FinalParameters"/>
+        -->
         <module name="TodoComment"/>
         <module name="UpperEll"/>
 
