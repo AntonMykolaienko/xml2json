@@ -98,6 +98,14 @@ public class WindowController implements Initializable {
      * Allert pane offset for Y axis.
      */
     private static final int ALERT_PANE_Y_OFFSET = 50;
+    /**
+     * 100%.
+     */
+    private static final int ONE_HUNDRED_PERCENTS = 100;
+    /**
+     * Number of seconds in minute.
+     */
+    private static final int NUMBER_OF_SECONDS = 60;
 
     private static final DecimalFormat DF = new DecimalFormat("###");
 
@@ -148,7 +156,7 @@ public class WindowController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         processedBytes.addListener((observable, oldValue, newValue) ->
-            Platform.runLater(() -> progressValue.setText(DF.format((double) newValue * 100) + "%"))
+            Platform.runLater(() -> progressValue.setText(DF.format((double) newValue * ONE_HUNDRED_PERCENTS) + "%"))
         );
 
         String versionTxt = "Version: " + ApplicationUtils.getVersion() + "; ";
@@ -267,7 +275,7 @@ public class WindowController implements Initializable {
             textFlow.getChildren().addAll(text);
 
             dialog.getDialogPane().setContent(textFlow);
-            dialog.initOwner(((Node)event.getTarget()).getScene().getWindow());
+            dialog.initOwner(((Node) event.getTarget()).getScene().getWindow());
             dialog.setTitle("File already exists");
             dialog.showAndWait();
 
@@ -345,7 +353,8 @@ public class WindowController implements Initializable {
                             enableOrDisableButtonsAndInputs(false);
 
                             long seconds = sw.getTime(TimeUnit.SECONDS);
-                            message.setText("Finished in " + String.format("%02d:%02d", seconds/60, seconds%60));
+                            message.setText("Finished in " + String.format("%02d:%02d", seconds / NUMBER_OF_SECONDS,
+                                    seconds % NUMBER_OF_SECONDS));
                             inProgress.compareAndSet(true, false);
                         });
                     }
@@ -430,7 +439,7 @@ public class WindowController implements Initializable {
      */
     private void showErrors(ActionEvent event, String errorMessage) {
         Alert alert = new Alert(ERROR, errorMessage, OK);
-        alert.initOwner(((Node)event.getTarget()).getScene().getWindow());
+        alert.initOwner(((Node) event.getTarget()).getScene().getWindow());
         alert.initModality(WINDOW_MODAL);
 
         Text text = new Text(errorMessage);
@@ -448,7 +457,7 @@ public class WindowController implements Initializable {
         dialogPane.setGraphic(null);
         dialogPane.setCenterShape(true);
 
-        alert.setX(alert.getOwner().getX() + (alert.getOwner().getWidth() - alert.getDialogPane().getWidth())/2);
+        alert.setX(alert.getOwner().getX() + (alert.getOwner().getWidth() - alert.getDialogPane().getWidth()) / 2);
         alert.setY(alert.getOwner().getY() + ALERT_PANE_Y_OFFSET);
 
         alert.showAndWait();

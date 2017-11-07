@@ -1,17 +1,17 @@
 /**
  * Copyright © 2016-2017 Anton Mykolaienko. All rights reserved. Contacts: <amykolaienko@gmail.com>
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- * http://www.apache.org/licenses/LICENSE-2.0 
- *  
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.fs.xml2json.util;
@@ -37,12 +37,12 @@ import org.slf4j.LoggerFactory;
  * @author Anton
  * @since 1.1.0
  */
-public class XmlUtils {
-    
-    private static final Logger logger = LoggerFactory.getLogger(XmlUtils.class);
-    
+public final class XmlUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(XmlUtils.class);
+
     private static final String DELIM = "/";
-    
+
     /**
      * Private constructor.
      */
@@ -51,10 +51,11 @@ public class XmlUtils {
 
     /**
      * Returns a list of paths of all arrays in XML.
-     * 
+     *
      * @param in input stream (will be closed at the end)
      * @return list of paths of arrays in xml or empty list of arrays not found
-     * @throws XMLStreamException 
+     * @throws XMLStreamException if exception occurs in
+     * {@link #getObjectElements(XmlUtils.XmlNode, XMLStreamReader, LongAdder, Set)}
      */
     public static List<String> determineArrays(InputStream in) throws XMLStreamException {
         Set<String> arrayKeys = new HashSet<>();
@@ -62,15 +63,15 @@ public class XmlUtils {
         try {
             XMLInputFactory f = XMLInputFactory.newFactory();
             sr = f.createXMLStreamReader(in);
-            
-            XmlUtils.getObjectElements(null, sr, new LongAdder(), arrayKeys);
-            
-            if (logger.isDebugEnabled()) {
+
+            getObjectElements(null, sr, new LongAdder(), arrayKeys);
+
+            if (LOGGER.isDebugEnabled()) {
                 StringBuilder sb = new StringBuilder();
                 arrayKeys.forEach(key -> sb.append(sb.length() > 0 ? "\n" : "").append(key));
-                
-                logger.trace("Found arrays:\n{}", sb.toString());
-            }            
+
+                LOGGER.trace("Found arrays:\n{}", sb.toString());
+            }
         } finally {
             if (null != sr) {
                 sr.close();
@@ -79,8 +80,17 @@ public class XmlUtils {
 
         return new ArrayList<>(arrayKeys);
     }
-    
-    private static void getObjectElements(XmlNode parentNode, XMLStreamReader sr, LongAdder level, 
+
+    /**
+     * Counts arrays and populates {@code arrayKeys}.
+     *
+     * @param parentNode root or parent node
+     * @param sr stream reader
+     * @param level nesting level
+     * @param arrayKeys kays to hold counters
+     * @throws XMLStreamException if exception occurs in XMLStreamReader
+     */
+    private static void getObjectElements(XmlNode parentNode, XMLStreamReader sr, LongAdder level,
             Set<String> arrayKeys) throws XMLStreamException {
         XmlNode node;
         boolean levelFinished = false;
@@ -113,13 +123,16 @@ public class XmlUtils {
                     break;
                 case XMLStreamConstants.CHARACTERS:
                     break;
-                    
+
                 default: // nothing to do
                     break;
             }
         }
     }
-    
+
+    /**
+     * Xml node.
+     */
     private static class XmlNode {
         private String nodeName;
         private int occurrence = 1;
@@ -127,6 +140,12 @@ public class XmlUtils {
         private final String fullPath;
         private Map<String, XmlNode> nestedNode = new LinkedHashMap<>();
 
+        /**
+         * Constructor.
+         *
+         * @param nodeName name of current node
+         * @param parentNode parrent node
+         */
         XmlNode(String nodeName, XmlNode parentNode) {
             this.nodeName = nodeName.toLowerCase();
             this.parentNode = parentNode;
@@ -137,14 +156,19 @@ public class XmlUtils {
             }
         }
 
+        /**
+         * Returns full path to current node like /root/element/someAnotherElement.
+         *
+         * @return full name for current node
+         */
         public String getFullPath() {
             return fullPath;
         }
-        
+
         @Override
         public String toString() {
-            return String.format("{node=%s, nested=%s}", 
-                    (null != parentNode ? parentNode.toString() + DELIM : DELIM) + nodeName, 
+            return String.format("{node=%s, nested=%s}",
+                    (null != parentNode ? parentNode.toString() + DELIM : DELIM) + nodeName,
                     (null != nestedNode ? nestedNode.toString() : "null"));
         }
     }

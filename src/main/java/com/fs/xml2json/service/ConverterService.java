@@ -1,17 +1,17 @@
 /**
  * Copyright © 2016-2017 Anton Mykolaienko. All rights reserved. Contacts: <amykolaienko@gmail.com>
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- * http://www.apache.org/licenses/LICENSE-2.0 
- *  
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.fs.xml2json.service;
@@ -56,42 +56,42 @@ import java.util.Objects;
  * @since 1.2.0
  */
 public class ConverterService {
-    
-    private static final Logger logger = LoggerFactory.getLogger(ConverterService.class);
-    
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConverterService.class);
+
     private static final String UNSUPPORTED_FILE_TYPE_TEMPLATE = "Unsupported file type: '%s'";
-    
+
     /**
      * Converts file from XML to JSON or vise versa and returns link to converted file.
-     * 
+     *
      * @param sourceFile file to convert
-     * @param outputFile output file 
+     * @param outputFile output file
      * @param listener read listener
      * @param isCanceled flag to stop process
      * @return converted file
      * @throws IOException if an I/O error occurs
      * @throws XMLStreamException if cannot create XML/JSON writer
      */
-    public File convert(File sourceFile, File outputFile, IFileReadListener listener, AtomicBoolean isCanceled) 
+    public File convert(File sourceFile, File outputFile, IFileReadListener listener, AtomicBoolean isCanceled)
             throws IOException, XMLStreamException {
         StopWatch sw = new StopWatch();
-        
+
         Objects.requireNonNull(listener, "Listener must be not null");
 
         FileTypeEnum inputFileType = FileTypeEnum.parseByFileName(sourceFile.getName());
-        
+
         if (null == inputFileType) {
             throw new UnsupportedFileType(String.format(UNSUPPORTED_FILE_TYPE_TEMPLATE, sourceFile.getName()));
         }
-        
+
         File parentFolder = outputFile.getParentFile();
         if (!parentFolder.exists()) {
             parentFolder.mkdirs();
         }
-        
-        try (InputStream input = getWrappedInputStream(sourceFile, listener, isCanceled); 
+
+        try (InputStream input = getWrappedInputStream(sourceFile, listener, isCanceled);
                 OutputStream output = getOutputStream(outputFile)) {
-            
+
             sw.start();
 
             // converter config
@@ -101,43 +101,43 @@ public class ConverterService {
             XMLEventReader reader = createReader(config, inputFileType, input);
             // Create writer.
             XMLEventWriter writer = createWriter(config, sourceFile, output, isCanceled, listener);
-            
+
             // Copy events from reader to writer.
             writer.add(reader);
 
             listener.finished();
-                
+
             writer.flush();
             writer.close();
             reader.close();
         } catch (XMLStreamException ex) {
             throw new XMLStreamException(ex.getMessage());
         } finally {
-            logger.info("Taken time: {}", sw);
+            LOGGER.info("Taken time: {}", sw);
             sw.stop();
         }
-        
+
         return outputFile;
     }
 
     /**
      * Returns wrapped input stream.
-     * 
+     *
      * @param sourceFile file to read
      * @param listener progress listener
      * @param isCanceled variable for canceling process
-     * @return wrapped input stream 
+     * @return wrapped input stream
      * @throws FileNotFoundException if file not found
      */
-    private InputStream getWrappedInputStream(File sourceFile, IFileReadListener listener, 
+    private InputStream getWrappedInputStream(File sourceFile, IFileReadListener listener,
             AtomicBoolean isCanceled) throws FileNotFoundException {
-        return new WrappedInputStream(new BufferedInputStream(new FileInputStream(sourceFile)), 
+        return new WrappedInputStream(new BufferedInputStream(new FileInputStream(sourceFile)),
                 listener, isCanceled);
     }
-    
+
     /**
      * Returns output stream.
-     * 
+     *
      * @param outputFile file for output
      * @return output stream
      * @throws IOException if an I/O error occurs
@@ -146,7 +146,13 @@ public class ConverterService {
         return new BufferedOutputStream(Files.newOutputStream(outputFile.toPath(),
                     StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE));
     }
-    
+
+    /**
+     * Creates {@link JsonXMLConfig} based on input file type.
+     *
+     * @param inputFileType type of input file
+     * @return {@link JsonXMLConfig}
+     */
     private JsonXMLConfig createConfig(FileTypeEnum inputFileType) {
         switch (inputFileType) {
             case JSON:
@@ -181,9 +187,17 @@ public class ConverterService {
                 throw new UnsupportedFileType(String.format(UNSUPPORTED_FILE_TYPE_TEMPLATE, inputFileType.toString()));
         }
     }
-    
-    
-    private XMLEventReader createReader(JsonXMLConfig config, FileTypeEnum inputFileType, InputStream input) 
+
+    /**
+     * Creates specific reader based on input type.
+     *
+     * @param config config
+     * @param inputFileType input file type
+     * @param input input stream
+     * @return implementation of {@link XMLEventReader}
+     * @throws XMLStreamException if cannot create reader
+     */
+    private XMLEventReader createReader(JsonXMLConfig config, FileTypeEnum inputFileType, InputStream input)
             throws XMLStreamException {
         if (inputFileType == FileTypeEnum.XML) {
             return XMLInputFactory.newInstance().createXMLEventReader(input);
@@ -195,7 +209,7 @@ public class ConverterService {
     /**
      * Creates writer based on source file.
      * <p>Is source file is XML, then arrays will be determined first.
-     * 
+     *
      * @param config converter config
      * @param sourceFile file to convert
      * @param output output stream
@@ -206,9 +220,9 @@ public class ConverterService {
      * @throws IOException if an I/O error occurs or if source file not found
      */
     private XMLEventWriter createWriter(JsonXMLConfig config, File sourceFile, OutputStream output,
-            AtomicBoolean isCanceled, IFileReadListener listener) 
+            AtomicBoolean isCanceled, IFileReadListener listener)
             throws XMLStreamException, IOException {
-        
+
         FileTypeEnum inputFileType = FileTypeEnum.parseByFileName(sourceFile.getName());
         if (inputFileType == FileTypeEnum.XML) {
             XMLEventWriter sourceWriter = new JsonXMLOutputFactory(config).createXMLEventWriter(output);
