@@ -211,6 +211,28 @@ public class ApplicationPropertiesTest {
         Assert.assertEquals(propsFile.getParentFile().getAbsolutePath(), path);
     }
     
+    @Test
+    public void testGetLastPathWithTabCharacter() throws IOException {
+        File propsFile = new File(getDestinationDirectory(), TEST_FILE);
+        
+        PropertiesLoader loader = new PropertiesLoader(propsFile);
+        ApplicationProperties appProps = new ApplicationProperties(loader);
+        
+        File lastOpenedFile = new File(propsFile.getParentFile(), File.separator + "newFolder" 
+                + File.separator + "testfile.txt");
+        
+        if (!lastOpenedFile.getParentFile().exists()) {
+            lastOpenedFile.getParentFile().mkdirs();
+            filesToDelete.add(lastOpenedFile.getParentFile());
+        }
+        
+        appProps.saveLastOpenedPath(lastOpenedFile.getAbsoluteFile());
+        
+        String path = appProps.getLastOpenedPath();
+        Assert.assertNotNull(path);
+        Assert.assertEquals(lastOpenedFile.getParentFile().getAbsolutePath(), path);
+    }
+    
     
     @Test
     public void testLoadWithException() throws IOException {

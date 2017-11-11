@@ -16,7 +16,6 @@
 
 package com.fs.xml2json.core;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

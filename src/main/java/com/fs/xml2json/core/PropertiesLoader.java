@@ -91,7 +91,7 @@ public class PropertiesLoader {
                 if (!entry.getKey().toString().trim().isEmpty()) {
                     sb.append(entry.getKey().toString());
                     sb.append("=");
-                    sb.append(entry.getValue().toString());
+                    sb.append(entry.getValue().toString().replace("\\", "\\\\"));
                     sb.append("\n");
                 }
             });
