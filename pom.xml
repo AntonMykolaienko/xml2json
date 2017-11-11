@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <name>xml2json</name>
     <description>Simple tool for converting large XML-files to JSON or JSON to XML</description>
-    
+
     <groupId>com.fs</groupId>
     <artifactId>xml2json</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0</version>
     <packaging>jar</packaging>
-    
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        
+
         <!-- will be updated by profile -->
         <platform>default</platform>
         <fxBundle>windows.app</fxBundle>
     </properties>
-    
+
     <developers>
         <developer>
             <name>Anton Mykolaienko</name>
@@ -29,7 +29,7 @@
             </roles>
         </developer>
     </developers>
-    
+
     <dependencies>
         <dependency>
             <groupId>de.odysseus.staxon</groupId>
@@ -57,7 +57,7 @@
             <artifactId>jackson-dataformat-xml</artifactId>
             <version>2.9.2</version>
         </dependency>
-        
+
         <!-- command line supoport -->
         <dependency>
             <groupId>commons-cli</groupId>
@@ -65,7 +65,7 @@
             <version>1.4</version>
         </dependency>
 
-        
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -93,7 +93,7 @@
             <artifactId>log4j-core</artifactId>
             <version>2.9.1</version>
         </dependency>
-        
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -187,7 +187,7 @@
                     </execution>
                 </executions>
             </plugin>
-                        
+
             <plugin>
                 <groupId>com.zenjava</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -258,8 +258,8 @@
             </plugin>
         </plugins>
     </build>
-    
-    
+
+
     <profiles>
         <profile>
             <id>default</id>
@@ -267,7 +267,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
         </profile>
-        
+
         <profile>
             <id>windows</id>
             <activation>
@@ -278,7 +278,7 @@
             <properties>
                 <platform>windows</platform>
             </properties>
-            
+
             <build>
                 <plugins>
                     <plugin>
@@ -390,8 +390,8 @@
             </properties>
         </profile>
     </profiles>
-    
-    
+
+
     <reporting>
         <plugins>
             <plugin>
@@ -404,5 +404,5 @@
             </plugin>
         </plugins>
     </reporting>
-    
+
 </project>

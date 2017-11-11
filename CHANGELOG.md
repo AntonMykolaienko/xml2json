@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [1.2.0] - [Unreleased]
+## [1.2.0] - 11/12/2017
 - Added support for batch converting via command line by pattern
 - Fixed issue when input file not exists
 - Fixed issue when output file must be placed into folder which haven't been created yet
