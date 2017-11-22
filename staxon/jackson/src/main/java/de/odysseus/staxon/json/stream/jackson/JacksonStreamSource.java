@@ -27,145 +27,146 @@ import de.odysseus.staxon.json.stream.JsonStreamSource;
 import de.odysseus.staxon.json.stream.JsonStreamToken;
 
 class JacksonStreamSource implements JsonStreamSource {
-	private final JsonParser parser;
 
-	private JsonStreamToken peek = null;
-	private JsonLocation location = JsonLocation.NA;
-	
-	JacksonStreamSource(JsonParser parser) {
-		this.parser = parser;
-	}
+    private final JsonParser parser;
 
-	private JsonStreamToken read() throws IOException {
-		JsonToken token = parser.nextToken();
-		location = parser.getCurrentLocation();
-		if (token == null) {
-			return JsonStreamToken.NONE;
-		}
-		switch (token) {
-		case FIELD_NAME:
-			return JsonStreamToken.NAME;
-		case VALUE_FALSE:
-		case VALUE_TRUE:
-		case VALUE_NULL:
-		case VALUE_STRING:
-		case VALUE_NUMBER_FLOAT:
-		case VALUE_NUMBER_INT:
-			return JsonStreamToken.VALUE;
-		case START_OBJECT:
-			return JsonStreamToken.START_OBJECT;
-		case END_OBJECT:
-			return JsonStreamToken.END_OBJECT;
-		case START_ARRAY:
-			return JsonStreamToken.START_ARRAY;
-		case END_ARRAY:
-			return JsonStreamToken.END_ARRAY;
-		case NOT_AVAILABLE:
-			return JsonStreamToken.NONE;
-		default:
-			throw new IllegalStateException("Unexpected GSON token: " + parser.getCurrentToken());
-		}
-	}
-	
-	private JacksonStreamSource expect(JsonStreamToken token) throws IOException {
-		if (peek() != token) {
-			throw new IllegalStateException("Expected token: " + token + ", but was: " + peek());
-		}
-		return this;
-	}
+    private JsonStreamToken peek = null;
+    private JsonLocation location = JsonLocation.NA;
 
-	private void consume() {
-		peek = null;
-	}
+    JacksonStreamSource(JsonParser parser) {
+        this.parser = parser;
+    }
 
-	private String consume(String result) {
-		peek = null;
-		return result;
-	}
+    private JsonStreamToken read() throws IOException {
+        JsonToken token = parser.nextToken();
+        location = parser.getCurrentLocation();
+        if (token == null) {
+            return JsonStreamToken.NONE;
+        }
+        switch (token) {
+            case FIELD_NAME:
+                return JsonStreamToken.NAME;
+            case VALUE_FALSE:
+            case VALUE_TRUE:
+            case VALUE_NULL:
+            case VALUE_STRING:
+            case VALUE_NUMBER_FLOAT:
+            case VALUE_NUMBER_INT:
+                return JsonStreamToken.VALUE;
+            case START_OBJECT:
+                return JsonStreamToken.START_OBJECT;
+            case END_OBJECT:
+                return JsonStreamToken.END_OBJECT;
+            case START_ARRAY:
+                return JsonStreamToken.START_ARRAY;
+            case END_ARRAY:
+                return JsonStreamToken.END_ARRAY;
+            case NOT_AVAILABLE:
+                return JsonStreamToken.NONE;
+            default:
+                throw new IllegalStateException("Unexpected GSON token: " + parser.getCurrentToken());
+        }
+    }
 
-	@Override
-	public void endArray() throws IOException {
-		expect(JsonStreamToken.END_ARRAY).consume();
-	}
+    private JacksonStreamSource expect(JsonStreamToken token) throws IOException {
+        if (peek() != token) {
+            throw new IllegalStateException("Expected token: " + token + ", but was: " + peek());
+        }
+        return this;
+    }
 
-	@Override
-	public void endObject() throws IOException {
-		expect(JsonStreamToken.END_OBJECT).consume();
-	}
+    private void consume() {
+        peek = null;
+    }
 
-	@Override
-	public String name() throws IOException {
-		return expect(JsonStreamToken.NAME).consume(parser.getCurrentName());
-	}
+    private String consume(String result) {
+        peek = null;
+        return result;
+    }
 
-	@Override
-	public JsonStreamToken peek() throws IOException {
-		return peek == null ? peek = read() : peek;
-	}
+    @Override
+    public void endArray() throws IOException {
+        expect(JsonStreamToken.END_ARRAY).consume();
+    }
 
-	@Override
-	public void startArray() throws IOException {
-		expect(JsonStreamToken.START_ARRAY).consume();
-	}
+    @Override
+    public void endObject() throws IOException {
+        expect(JsonStreamToken.END_OBJECT).consume();
+    }
 
-	@Override
-	public void startObject() throws IOException {
-		expect(JsonStreamToken.START_OBJECT).consume();
-	}
+    @Override
+    public String name() throws IOException {
+        return expect(JsonStreamToken.NAME).consume(parser.getCurrentName());
+    }
 
-	@Override
- 	public Value value() throws IOException {
-		expect(JsonStreamToken.VALUE).consume();
-		switch (parser.getCurrentToken()) {
-		case VALUE_STRING:
-			return new Value(parser.getText());
-		case VALUE_TRUE:
-		case VALUE_FALSE:
-			return parser.getBooleanValue() ? TRUE : FALSE;
-		case VALUE_NUMBER_FLOAT:
-			return new Value(parser.getText(), parser.getDecimalValue());
-		case VALUE_NUMBER_INT:
-			return new Value(parser.getText(), Long.valueOf(parser.getLongValue()));
-		case VALUE_NULL:
-			return NULL;
-		default:
-			throw new IOException("Not a value token: " + parser.getCurrentToken());
-		}
-	}
+    @Override
+    public JsonStreamToken peek() throws IOException {
+        return peek == null ? peek = read() : peek;
+    }
 
-	@Override
-	public void close() throws IOException {
-		parser.close();
-	}
+    @Override
+    public void startArray() throws IOException {
+        expect(JsonStreamToken.START_ARRAY).consume();
+    }
 
-	@Override
-	public int getLineNumber() {
-		return location.getLineNr();
-	}
+    @Override
+    public void startObject() throws IOException {
+        expect(JsonStreamToken.START_OBJECT).consume();
+    }
 
-	@Override
-	public int getColumnNumber() {
-		return location.getColumnNr();
-	}
+    @Override
+    public Value value() throws IOException {
+        expect(JsonStreamToken.VALUE).consume();
+        switch (parser.getCurrentToken()) {
+            case VALUE_STRING:
+                return new Value(parser.getText());
+            case VALUE_TRUE:
+            case VALUE_FALSE:
+                return parser.getBooleanValue() ? TRUE : FALSE;
+            case VALUE_NUMBER_FLOAT:
+                return new Value(parser.getText(), parser.getDecimalValue());
+            case VALUE_NUMBER_INT:
+                return new Value(parser.getText(), parser.getLongValue());
+            case VALUE_NULL:
+                return NULL;
+            default:
+                throw new IOException("Not a value token: " + parser.getCurrentToken());
+        }
+    }
 
-	@Override
-	public int getCharacterOffset() {
-		return (int)location.getCharOffset();
-	}
-	
-	@Override
-	public String getPublicId() {
-		return null;
-	}
+    @Override
+    public void close() throws IOException {
+        parser.close();
+    }
 
-	@Override
-	public String getSystemId() {
-		if (location.getSourceRef() instanceof File) {
-			return ((File)location.getSourceRef()).toURI().toASCIIString();
-		}
-		if (location.getSourceRef() instanceof URL) {
-			return ((URL)location.getSourceRef()).toExternalForm();
-		}
-		return null;
-	}
+    @Override
+    public int getLineNumber() {
+        return location.getLineNr();
+    }
+
+    @Override
+    public int getColumnNumber() {
+        return location.getColumnNr();
+    }
+
+    @Override
+    public int getCharacterOffset() {
+        return (int) location.getCharOffset();
+    }
+
+    @Override
+    public String getPublicId() {
+        return null;
+    }
+
+    @Override
+    public String getSystemId() {
+        if (location.getSourceRef() instanceof File) {
+            return ((File) location.getSourceRef()).toURI().toASCIIString();
+        }
+        if (location.getSourceRef() instanceof URL) {
+            return ((URL) location.getSourceRef()).toExternalForm();
+        }
+        return null;
+    }
 }

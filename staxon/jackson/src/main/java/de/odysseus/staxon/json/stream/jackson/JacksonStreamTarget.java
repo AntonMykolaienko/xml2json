@@ -24,73 +24,74 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import de.odysseus.staxon.json.stream.JsonStreamTarget;
 
 class JacksonStreamTarget implements JsonStreamTarget {
-	private final JsonGenerator generator;
-	
-	JacksonStreamTarget(JsonGenerator generator) {
-		this.generator = generator;
-	}
 
-	@Override
-	public void endArray() throws IOException {
-		generator.writeEndArray();
-	}
+    private final JsonGenerator generator;
 
-	@Override
-	public void endObject() throws IOException {
-		generator.writeEndObject();
-	}
+    JacksonStreamTarget(JsonGenerator generator) {
+        this.generator = generator;
+    }
 
-	@Override
-	public void name(String name) throws IOException {
-		generator.writeFieldName(name);
-	}
+    @Override
+    public void endArray() throws IOException {
+        generator.writeEndArray();
+    }
 
-	@Override
-	public void startArray() throws IOException {
-		generator.writeStartArray();
-	}
+    @Override
+    public void endObject() throws IOException {
+        generator.writeEndObject();
+    }
 
-	@Override
-	public void startObject() throws IOException {
-		generator.writeStartObject();
-	}
+    @Override
+    public void name(String name) throws IOException {
+        generator.writeFieldName(name);
+    }
 
-	@Override
-	public void value(Object value) throws IOException {
-		if (value == null) {
-			generator.writeNull();
-		} else if (value instanceof String) {
-			generator.writeString((String) value);
-		} else if (value instanceof Number) {
-			if (value instanceof BigDecimal) {
-				generator.writeNumber((BigDecimal) value);
-			} else if (value instanceof BigInteger) {
-				generator.writeNumber((BigInteger) value);
-			} else if (value instanceof Long) {
-				generator.writeNumber((Long) value);
-			} else if (value instanceof Integer) {
-				generator.writeNumber((Integer) value);
-			} else if (value instanceof Double) {
-				generator.writeNumber((Double) value);
-			} else if (value instanceof Float) {
-				generator.writeNumber((Float) value);
-			} else {
-				generator.writeNumber(value.toString());
-			}
-		} else if (value instanceof Boolean) {
-			generator.writeBoolean((Boolean) value);
-		} else {
-			throw new IOException("Cannot write value: " + value);
-		}
-	}
+    @Override
+    public void startArray() throws IOException {
+        generator.writeStartArray();
+    }
 
-	@Override
-	public void flush() throws IOException {
-		generator.flush();
-	}
+    @Override
+    public void startObject() throws IOException {
+        generator.writeStartObject();
+    }
 
-	@Override
-	public void close() throws IOException {
-		generator.close();
-	}
+    @Override
+    public void value(Object value) throws IOException {
+        if (value == null) {
+            generator.writeNull();
+        } else if (value instanceof String) {
+            generator.writeString((String) value);
+        } else if (value instanceof Number) {
+            if (value instanceof BigDecimal) {
+                generator.writeNumber((BigDecimal) value);
+            } else if (value instanceof BigInteger) {
+                generator.writeNumber((BigInteger) value);
+            } else if (value instanceof Long) {
+                generator.writeNumber((Long) value);
+            } else if (value instanceof Integer) {
+                generator.writeNumber((Integer) value);
+            } else if (value instanceof Double) {
+                generator.writeNumber((Double) value);
+            } else if (value instanceof Float) {
+                generator.writeNumber((Float) value);
+            } else {
+                generator.writeNumber(value.toString());
+            }
+        } else if (value instanceof Boolean) {
+            generator.writeBoolean((Boolean) value);
+        } else {
+            throw new IOException("Cannot write value: " + value);
+        }
+    }
+
+    @Override
+    public void flush() throws IOException {
+        generator.flush();
+    }
+
+    @Override
+    public void close() throws IOException {
+        generator.close();
+    }
 }

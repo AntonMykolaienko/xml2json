@@ -31,45 +31,46 @@ import de.odysseus.staxon.json.stream.JsonStreamSource;
 import de.odysseus.staxon.json.stream.JsonStreamTarget;
 
 public class JacksonStreamFactory extends JsonStreamFactory {
-	private final JsonFactory jsonFactory;
 
-	public JacksonStreamFactory() {
-		this(new JsonFactory());
-	}
-	
-	public JacksonStreamFactory(JsonFactory jsonFactory) {
-		this.jsonFactory = jsonFactory;
-	}
-	
-	protected JsonParser configure(JsonParser parser) {
-		return parser.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
-	}
-	
-	protected JsonGenerator configure(JsonGenerator generator, boolean pretty) {
-		generator.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
-		if (pretty) {
-			generator.useDefaultPrettyPrinter();
-		}
-		return generator;
-	}
+    private final JsonFactory jsonFactory;
 
-	@Override
-	public JsonStreamSource createJsonStreamSource(InputStream input) throws IOException {
-		return new JacksonStreamSource(configure(jsonFactory.createParser(input)));
-	}
-	
-	@Override
-	public JsonStreamSource createJsonStreamSource(Reader reader) throws IOException {
-		return new JacksonStreamSource(configure(jsonFactory.createParser(reader)));
-	}
+    public JacksonStreamFactory() {
+        this(new JsonFactory());
+    }
 
-	@Override
-	public JsonStreamTarget createJsonStreamTarget(OutputStream output, boolean pretty) throws IOException {
-		return new JacksonStreamTarget(configure(jsonFactory.createGenerator(output, JsonEncoding.UTF8), pretty));
-	}
-	
-	@Override
-	public JsonStreamTarget createJsonStreamTarget(Writer writer, boolean pretty) throws IOException {
-		return new JacksonStreamTarget(configure(jsonFactory.createGenerator(writer), pretty));
-	}
+    public JacksonStreamFactory(JsonFactory jsonFactory) {
+        this.jsonFactory = jsonFactory;
+    }
+
+    protected JsonParser configure(JsonParser parser) {
+        return parser.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
+    }
+
+    protected JsonGenerator configure(JsonGenerator generator, boolean pretty) {
+        generator.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
+        if (pretty) {
+            generator.useDefaultPrettyPrinter();
+        }
+        return generator;
+    }
+
+    @Override
+    public JsonStreamSource createJsonStreamSource(InputStream input) throws IOException {
+        return new JacksonStreamSource(configure(jsonFactory.createParser(input)));
+    }
+
+    @Override
+    public JsonStreamSource createJsonStreamSource(Reader reader) throws IOException {
+        return new JacksonStreamSource(configure(jsonFactory.createParser(reader)));
+    }
+
+    @Override
+    public JsonStreamTarget createJsonStreamTarget(OutputStream output, boolean pretty) throws IOException {
+        return new JacksonStreamTarget(configure(jsonFactory.createGenerator(output, JsonEncoding.UTF8), pretty));
+    }
+
+    @Override
+    public JsonStreamTarget createJsonStreamTarget(Writer writer, boolean pretty) throws IOException {
+        return new JacksonStreamTarget(configure(jsonFactory.createGenerator(writer), pretty));
+    }
 }
