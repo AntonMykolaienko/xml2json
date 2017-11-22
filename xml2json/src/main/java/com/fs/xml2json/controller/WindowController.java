@@ -376,7 +376,7 @@ public class WindowController implements Initializable {
                 super.failed();
 
                 if (!isCanceled.get()) {
-                    message.setText("Finished with errors");
+                    message.setText("Finished with errors. Please check logs.");
                 }
                 isFailed.compareAndSet(false, true);
                 inProgress.compareAndSet(true, false);

@@ -147,6 +147,10 @@ public class ApplicationCommandLine {
                         Config.PAR_SOURCE_FILE_PATTERN));
             }
             File sourceFolder = new File(sourceFolderTxt);
+            if (sourceFolder.exists() && sourceFolder.isFile()) {
+                throw new IllegalArgumentException(String.format("Parameter '%s' should point "
+                        + "to Directory not to File", Config.PAR_SOURCE_FILE_PATTERN));
+            }
             if (!sourceFolder.exists()) {
                 throw new FileNotFoundException("Directory '" + sourceFolderTxt + "' not found, nothing to convert...");
             } else if (sourceFolder.list().length == 0) {

@@ -28,7 +28,6 @@ import de.odysseus.staxon.xml.util.PrettyXMLEventWriter;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,7 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fs.xml2json.listener.IFileReadListener;
 import com.fs.xml2json.type.UnsupportedFileType;
-import java.io.FileNotFoundException;
 import java.util.Objects;
 
 /**
@@ -127,11 +125,13 @@ public class ConverterService {
      * @param listener progress listener
      * @param isCanceled variable for canceling process
      * @return wrapped input stream
-     * @throws FileNotFoundException if file not found
+     * @throws IOException if file not found or cannot create input stream
      */
     private InputStream getWrappedInputStream(File sourceFile, IFileReadListener listener,
-            AtomicBoolean isCanceled) throws FileNotFoundException {
-        return new WrappedInputStream(new BufferedInputStream(new FileInputStream(sourceFile)),
+            AtomicBoolean isCanceled) throws IOException {
+        
+        return new WrappedInputStream(new BufferedInputStream(
+                Files.newInputStream(sourceFile.toPath(), StandardOpenOption.READ)),
                 listener, isCanceled);
     }
 

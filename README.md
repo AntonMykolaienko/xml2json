@@ -46,12 +46,5 @@ java -Xmx=512M -jar xml2json-1.2.0-all.jar --noGui --sourceFolder=C:\Temp\Input 
 - Oracle JRE 1.8 update 40 or higher
 
 
-### Releases
-Date | Version | Description
------|---------|------------
-2017-11-12|1.2.0|Added ability to convert files by pattern in batch mode via command line
-2017-06-06|1.1.0|Fix for huge memory consumption (XML to JSON)
-2016-08-10|1.0.0|Initial release
-
 ### Donation
 You can make donation via [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=33R3LMBMX3R96)
