@@ -36,66 +36,67 @@ import de.odysseus.staxon.json.stream.JsonStreamTarget;
  * JSON-P (<code>javax.json</code>) <code>JsonStreamFactory</code> implementation.
  */
 public class JsonProcessingStreamFactory extends JsonStreamFactory {
-	private final JsonProvider provider;
-	
-	/**
-	 * Create factory using the default provider to create parsers/generators
-	 */
-	public JsonProcessingStreamFactory() {
-		this(JsonProvider.provider());
-	}
-	
-	/**
-	 * Create factory using the specified provider to create parsers/generators
-	 */
-	public JsonProcessingStreamFactory(JsonProvider provider) {
-		this.provider = provider;
-	}
-	
-	/**
-	 * @return configuration used to create <code>javax.json.stream.JsonParser</code>
-	 */
-	protected Map<String, ?> getParserConfig() {
-		return null;
-	}
-	
-	/**
-	 * @return configuration used to create <code>javax.json.stream.JsonGenerator</code>
-	 */
-	protected Map<String, ?> getGeneratorConfig(boolean pretty) {
-		Map<String, Object> config = null;
-		if (pretty) {
-			config = new HashMap<String, Object>();
-			config.put(JsonGenerator.PRETTY_PRINTING, Boolean.TRUE);
-		}
-		return config;
-	}
-	
-	private JsonParserFactory createJsonParserFactory() {
-		return provider.createParserFactory(getParserConfig());
-	}
-	
-	private JsonGeneratorFactory createJsonGeneratorFactory(boolean pretty) {
-		return provider.createGeneratorFactory(getGeneratorConfig(pretty));
-	}
-	
-	@Override
-	public JsonStreamSource createJsonStreamSource(InputStream input) throws IOException {
-		return new JsonProcessingStreamSource(createJsonParserFactory().createParser(input));
-	}
-	
-	@Override
-	public JsonStreamSource createJsonStreamSource(Reader reader) {
-		return new JsonProcessingStreamSource(createJsonParserFactory().createParser(reader));
-	}
 
-	@Override
-	public JsonStreamTarget createJsonStreamTarget(OutputStream output, boolean pretty) throws IOException {
-		return new JsonProcessingStreamTarget(createJsonGeneratorFactory(pretty).createGenerator(output));
-	}
-	
-	@Override
-	public JsonStreamTarget createJsonStreamTarget(Writer writer, boolean pretty) {
-		return new JsonProcessingStreamTarget(createJsonGeneratorFactory(pretty).createGenerator(writer));
-	}
+    private final JsonProvider provider;
+
+    /**
+     * Create factory using the default provider to create parsers/generators
+     */
+    public JsonProcessingStreamFactory() {
+        this(JsonProvider.provider());
+    }
+
+    /**
+     * Create factory using the specified provider to create parsers/generators
+     */
+    public JsonProcessingStreamFactory(JsonProvider provider) {
+        this.provider = provider;
+    }
+
+    /**
+     * @return configuration used to create <code>javax.json.stream.JsonParser</code>
+     */
+    protected Map<String, ?> getParserConfig() {
+        return null;
+    }
+
+    /**
+     * @return configuration used to create <code>javax.json.stream.JsonGenerator</code>
+     */
+    protected Map<String, ?> getGeneratorConfig(boolean pretty) {
+        Map<String, Object> config = null;
+        if (pretty) {
+            config = new HashMap<String, Object>();
+            config.put(JsonGenerator.PRETTY_PRINTING, Boolean.TRUE);
+        }
+        return config;
+    }
+
+    private JsonParserFactory createJsonParserFactory() {
+        return provider.createParserFactory(getParserConfig());
+    }
+
+    private JsonGeneratorFactory createJsonGeneratorFactory(boolean pretty) {
+        return provider.createGeneratorFactory(getGeneratorConfig(pretty));
+    }
+
+    @Override
+    public JsonStreamSource createJsonStreamSource(InputStream input) throws IOException {
+        return new JsonProcessingStreamSource(createJsonParserFactory().createParser(input));
+    }
+
+    @Override
+    public JsonStreamSource createJsonStreamSource(Reader reader) {
+        return new JsonProcessingStreamSource(createJsonParserFactory().createParser(reader));
+    }
+
+    @Override
+    public JsonStreamTarget createJsonStreamTarget(OutputStream output, boolean pretty) throws IOException {
+        return new JsonProcessingStreamTarget(createJsonGeneratorFactory(pretty).createGenerator(output));
+    }
+
+    @Override
+    public JsonStreamTarget createJsonStreamTarget(Writer writer, boolean pretty) {
+        return new JsonProcessingStreamTarget(createJsonGeneratorFactory(pretty).createGenerator(writer));
+    }
 }

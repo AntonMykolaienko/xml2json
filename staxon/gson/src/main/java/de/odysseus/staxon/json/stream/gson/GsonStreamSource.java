@@ -23,129 +23,130 @@ import de.odysseus.staxon.json.stream.JsonStreamSource;
 import de.odysseus.staxon.json.stream.JsonStreamToken;
 
 class GsonStreamSource implements JsonStreamSource {
-	private final JsonReader reader;
-	private JsonStreamToken peek;
 
-	GsonStreamSource(JsonReader reader) {
-		this.reader = reader;
-	}
+    private final JsonReader reader;
+    private JsonStreamToken peek;
 
-	private void consume(JsonStreamToken token) throws IOException {
-		if (peek() != token) {
-			throw new IllegalStateException("Expected token: " + token + ", but was: " + peek());
-		}
-		peek = null;
-	}
+    GsonStreamSource(JsonReader reader) {
+        this.reader = reader;
+    }
 
-	private JsonStreamToken read() throws IOException {
-		switch (reader.peek()) {
-		case NAME:
-			return JsonStreamToken.NAME;
-		case BOOLEAN:
-		case NULL:
-		case NUMBER:
-		case STRING:
-			return JsonStreamToken.VALUE;
-		case BEGIN_OBJECT:
-			return JsonStreamToken.START_OBJECT;
-		case END_OBJECT:
-			return JsonStreamToken.END_OBJECT;
-		case BEGIN_ARRAY:
-			return JsonStreamToken.START_ARRAY;
-		case END_ARRAY:
-			return JsonStreamToken.END_ARRAY;
-		case END_DOCUMENT:
-			return JsonStreamToken.NONE;
-		default:
-			throw new IllegalStateException("Unexpected GSON token: " + reader.peek());
-		}
-	}
+    private void consume(JsonStreamToken token) throws IOException {
+        if (peek() != token) {
+            throw new IllegalStateException("Expected token: " + token + ", but was: " + peek());
+        }
+        peek = null;
+    }
 
-	@Override
-	public void endArray() throws IOException {
-		consume(JsonStreamToken.END_ARRAY);
-		reader.endArray();
-	}
+    private JsonStreamToken read() throws IOException {
+        switch (reader.peek()) {
+            case NAME:
+                return JsonStreamToken.NAME;
+            case BOOLEAN:
+            case NULL:
+            case NUMBER:
+            case STRING:
+                return JsonStreamToken.VALUE;
+            case BEGIN_OBJECT:
+                return JsonStreamToken.START_OBJECT;
+            case END_OBJECT:
+                return JsonStreamToken.END_OBJECT;
+            case BEGIN_ARRAY:
+                return JsonStreamToken.START_ARRAY;
+            case END_ARRAY:
+                return JsonStreamToken.END_ARRAY;
+            case END_DOCUMENT:
+                return JsonStreamToken.NONE;
+            default:
+                throw new IllegalStateException("Unexpected GSON token: " + reader.peek());
+        }
+    }
 
-	@Override
-	public void endObject() throws IOException {
-		consume(JsonStreamToken.END_OBJECT);
-		reader.endObject();
-	}
+    @Override
+    public void endArray() throws IOException {
+        consume(JsonStreamToken.END_ARRAY);
+        reader.endArray();
+    }
 
-	@Override
-	public String name() throws IOException {
-		consume(JsonStreamToken.NAME);
-		return reader.nextName();
-	}
+    @Override
+    public void endObject() throws IOException {
+        consume(JsonStreamToken.END_OBJECT);
+        reader.endObject();
+    }
 
-	@Override
-	public JsonStreamToken peek() throws IOException {
-		return peek == null ? peek = read() : peek;
-	}
+    @Override
+    public String name() throws IOException {
+        consume(JsonStreamToken.NAME);
+        return reader.nextName();
+    }
 
-	@Override
-	public void startArray() throws IOException {
-		consume(JsonStreamToken.START_ARRAY);
-		reader.beginArray();
-	}
+    @Override
+    public JsonStreamToken peek() throws IOException {
+        return peek == null ? peek = read() : peek;
+    }
 
-	@Override
-	public void startObject() throws IOException {
-		consume(JsonStreamToken.START_OBJECT);
-		reader.beginObject();
-	}
+    @Override
+    public void startArray() throws IOException {
+        consume(JsonStreamToken.START_ARRAY);
+        reader.beginArray();
+    }
 
-	@Override
-	public Value value() throws IOException {
-		consume(JsonStreamToken.VALUE);
-		switch (reader.peek()) {
-		case BOOLEAN:
-			return reader.nextBoolean() ? TRUE : FALSE;
-		case NULL:
-			reader.nextNull();
-			return NULL;
-		case NUMBER:
-			String s = reader.nextString();
-			try {
-				return new Value(s, Long.valueOf(s));
-			} catch (NumberFormatException e) {
-				return new Value(s, Double.valueOf(s));
-			}
-		case STRING:
-			return new Value(reader.nextString());
-		default:
-			throw new IOException("Not a value token: " + peek());
-		}
-	}
+    @Override
+    public void startObject() throws IOException {
+        consume(JsonStreamToken.START_OBJECT);
+        reader.beginObject();
+    }
 
-	@Override
-	public void close() throws IOException {
-		reader.close();
-	}
+    @Override
+    public Value value() throws IOException {
+        consume(JsonStreamToken.VALUE);
+        switch (reader.peek()) {
+            case BOOLEAN:
+                return reader.nextBoolean() ? TRUE : FALSE;
+            case NULL:
+                reader.nextNull();
+                return NULL;
+            case NUMBER:
+                String s = reader.nextString();
+                try {
+                    return new Value(s, Long.valueOf(s));
+                } catch (NumberFormatException e) {
+                    return new Value(s, Double.valueOf(s));
+                }
+            case STRING:
+                return new Value(reader.nextString());
+            default:
+                throw new IOException("Not a value token: " + peek());
+        }
+    }
 
-	@Override
-	public int getLineNumber() {
-		return -1;
-	}
+    @Override
+    public void close() throws IOException {
+        reader.close();
+    }
 
-	@Override
-	public int getColumnNumber() {
-		return -1;
-	}
+    @Override
+    public int getLineNumber() {
+        return -1;
+    }
 
-	@Override
-	public int getCharacterOffset() {
-		return -1;
-	}
-	
-	@Override
-	public String getPublicId() {
-		return null;
-	}
+    @Override
+    public int getColumnNumber() {
+        return -1;
+    }
 
-	@Override
-	public String getSystemId() {
-		return null;
-	}
+    @Override
+    public int getCharacterOffset() {
+        return -1;
+    }
+
+    @Override
+    public String getPublicId() {
+        return null;
+    }
+
+    @Override
+    public String getSystemId() {
+        return null;
+    }
 }

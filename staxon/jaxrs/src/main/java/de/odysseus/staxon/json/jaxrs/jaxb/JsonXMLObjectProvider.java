@@ -39,49 +39,46 @@ import de.odysseus.staxon.json.jaxb.JsonXML;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class JsonXMLObjectProvider extends AbstractJsonXMLProvider {
-	public JsonXMLObjectProvider(@Context Providers providers) {
-		super(providers);
-	}
 
-	@Override
-	protected boolean isReadWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-		return isSupported(mediaType) && getJsonXML(type, annotations) != null && isBindable(type);
-	}
+    public JsonXMLObjectProvider(@Context Providers providers) {
+        super(providers);
+    }
 
-	@Override
-	public Object read(
-			Class<?> type,
-			Type genericType,
-			Annotation[] annotations,
-			MediaType mediaType,
-			MultivaluedMap<String, String> httpHeaders,
-			Reader stream) throws IOException, WebApplicationException {
-		JsonXML config = getJsonXML(type, annotations);
-		try {
-			return readObject(type, config, getContext(type, mediaType), stream);
-		} catch (XMLStreamException e) {
-			throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
-		} catch (JAXBException e) {
-			throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
-		}
-	}
+    @Override
+    protected boolean isReadWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+        return isSupported(mediaType) && getJsonXML(type, annotations) != null && isBindable(type);
+    }
 
-	@Override
-	public void write(
-			Class<?> type,
-			Type genericType,
-			Annotation[] annotations,
-			MediaType mediaType,
-			MultivaluedMap<String, Object> httpHeaders,
-			Writer stream,
-			Object value) throws IOException, WebApplicationException {
-		JsonXML config = getJsonXML(type, annotations);
-		try {
-			writeObject(type, config, getContext(type, mediaType), stream, value);
-		} catch (XMLStreamException e) {
-			throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
-		} catch (JAXBException e) {
-			throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
-		}
-	}
+    @Override
+    public Object read(
+            Class<?> type,
+            Type genericType,
+            Annotation[] annotations,
+            MediaType mediaType,
+            MultivaluedMap<String, String> httpHeaders,
+            Reader stream) throws IOException, WebApplicationException {
+        JsonXML config = getJsonXML(type, annotations);
+        try {
+            return readObject(type, config, getContext(type, mediaType), stream);
+        } catch (XMLStreamException | JAXBException e) {
+            throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public void write(
+            Class<?> type,
+            Type genericType,
+            Annotation[] annotations,
+            MediaType mediaType,
+            MultivaluedMap<String, Object> httpHeaders,
+            Writer stream,
+            Object value) throws IOException, WebApplicationException {
+        JsonXML config = getJsonXML(type, annotations);
+        try {
+            writeObject(type, config, getContext(type, mediaType), stream, value);
+        } catch (XMLStreamException | JAXBException e) {
+            throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

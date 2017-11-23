@@ -9,12 +9,6 @@
     <name>Xml2JsonParent</name>
     <description>Xml2Json Converter - Parent</description>
 
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>9</version>
-    </parent>
-
     <url>https://github.com/AntonMykolaienko/xml2json/</url>
     <inceptionYear>2016</inceptionYear>
 
@@ -58,5 +52,17 @@
         <module>xml2json</module>
         <module>staxon</module>
     </modules>
-	
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.17</version>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

@@ -72,7 +72,8 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENS
 
 
 ### Screenshots
-![Start Window](etc/img/1.StartWindow.jpg) &nbsp; ![Convert in Progress](etc/img/2.ConvertInProgress)
+![Start Window](etc/img/1.StartWindow.jpg) 
+![Convert in Progress](etc/img/2.ConvertInProgress.jpg)
 
 ### Donation
 You can make donation via [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=33R3LMBMX3R96)

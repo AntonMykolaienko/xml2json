@@ -1,38 +1,38 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>de.odysseus.staxon</groupId>
-	<artifactId>staxon-jaxrs</artifactId>
-	<version>1.4-SNAPSHOT</version>
-	<packaging>jar</packaging>
+    <groupId>de.odysseus.staxon</groupId>
+    <artifactId>staxon-jaxrs</artifactId>
+    <version>1.4</version>
+    <packaging>jar</packaging>
 
-	<name>StAXON JAX-RS</name>
-	<description>JSON via StAX - JAX-RS</description>
+    <name>StAXON JAX-RS</name>
+    <description>JSON via StAX - JAX-RS</description>
 
-	<parent>
-		<groupId>de.odysseus.staxon</groupId>
-		<artifactId>staxon-parent</artifactId>
-		<version>1.4-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>de.odysseus.staxon</groupId>
+        <artifactId>staxon-parent</artifactId>
+        <version>1.4</version>
+    </parent>
 
-	<dependencies>
-		<dependency>
-			<groupId>de.odysseus.staxon</groupId>
-			<artifactId>staxon</artifactId>
-			<version>1.4-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>jsr311-api</artifactId>
-			<version>1.1.1</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-server</artifactId>
-			<version>1.10</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>de.odysseus.staxon</groupId>
+            <artifactId>staxon</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>jsr311-api</artifactId>
+            <version>1.1.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>1.10</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 </project>

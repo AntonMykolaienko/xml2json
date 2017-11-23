@@ -25,44 +25,45 @@ import de.odysseus.staxon.json.stream.JsonStreamTarget;
  * Target-filter to auto-convert string values to primitive (boolean, number, null) values.
  */
 public class AutoPrimitiveTarget extends StreamTargetDelegate {
-	private final Pattern number = Pattern.compile("^-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]{1,10})?$");
-	private final boolean convertAttributes;
-	private final String attributePrefix;
-	
-	private String lastName;
 
-	public AutoPrimitiveTarget(JsonStreamTarget delegate, boolean convertAttributes, String attributePrefix) {
-		super(delegate);
-		this.convertAttributes = convertAttributes;
-		this.attributePrefix = attributePrefix;
-	}
+    private final Pattern number = Pattern.compile("^-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]{1,10})?$");
+    private final boolean convertAttributes;
+    private final String attributePrefix;
 
-	@Override
-	public void name(String name) throws IOException {
-		lastName = name;
-		super.name(name);
-	}
-	
-	@Override
-	public void value(Object value) throws IOException {
-		if (value instanceof String && (convertAttributes || !lastName.startsWith(attributePrefix))) {
-			if ("true".equals(value)) {
-				super.value(Boolean.TRUE);
-			} else if ("false".equals(value)) {
-				super.value(Boolean.FALSE);
-			} else if ("null".equals(value)) {
-				super.value(null);
-			} else if (number.matcher(value.toString()).matches()) {
-				try {
-					super.value(new BigDecimal(value.toString()));
-				} catch (NumberFormatException e) {
-					super.value(value); // fall back to string
-				}
-			} else {
-				super.value(value);
-			}
-		} else {
-			super.value(value);
-		}
-	}
+    private String lastName;
+
+    public AutoPrimitiveTarget(JsonStreamTarget delegate, boolean convertAttributes, String attributePrefix) {
+        super(delegate);
+        this.convertAttributes = convertAttributes;
+        this.attributePrefix = attributePrefix;
+    }
+
+    @Override
+    public void name(String name) throws IOException {
+        lastName = name;
+        super.name(name);
+    }
+
+    @Override
+    public void value(Object value) throws IOException {
+        if (value instanceof String && (convertAttributes || !lastName.startsWith(attributePrefix))) {
+            if ("true".equals(value)) {
+                super.value(Boolean.TRUE);
+            } else if ("false".equals(value)) {
+                super.value(Boolean.FALSE);
+            } else if ("null".equals(value)) {
+                super.value(null);
+            } else if (number.matcher(value.toString()).matches()) {
+                try {
+                    super.value(new BigDecimal(value.toString()));
+                } catch (NumberFormatException e) {
+                    super.value(value); // fall back to string
+                }
+            } else {
+                super.value(value);
+            }
+        } else {
+            super.value(value);
+        }
+    }
 }

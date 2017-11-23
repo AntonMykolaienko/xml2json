@@ -22,59 +22,60 @@ import com.google.gson.stream.JsonWriter;
 import de.odysseus.staxon.json.stream.JsonStreamTarget;
 
 class GsonStreamTarget implements JsonStreamTarget {
-	private final JsonWriter writer;
-	
-	GsonStreamTarget(JsonWriter writer) {
-		this.writer = writer;
-	}
 
-	@Override
-	public void endArray() throws IOException {
-		writer.endArray();
-	}
+    private final JsonWriter writer;
 
-	@Override
-	public void endObject() throws IOException {
-		writer.endObject();
-	}
+    GsonStreamTarget(JsonWriter writer) {
+        this.writer = writer;
+    }
 
-	@Override
-	public void name(String name) throws IOException {
-		writer.name(name);
-	}
+    @Override
+    public void endArray() throws IOException {
+        writer.endArray();
+    }
 
-	@Override
-	public void startArray() throws IOException {
-		writer.beginArray();
-	}
+    @Override
+    public void endObject() throws IOException {
+        writer.endObject();
+    }
 
-	@Override
-	public void startObject() throws IOException {
-		writer.beginObject();
-	}
+    @Override
+    public void name(String name) throws IOException {
+        writer.name(name);
+    }
 
-	@Override
-	public void value(Object value) throws IOException {
-		if (value == null) {
-			writer.nullValue();
-		} else if (value instanceof String) {
-			writer.value((String) value);
-		} else if (value instanceof Number) {
-			writer.value((Number) value);
-		} else if (value instanceof Boolean) {
-			writer.value((Boolean) value);
-		} else {
-			throw new IOException("Cannot write value: " + value);
-		}
-	}
+    @Override
+    public void startArray() throws IOException {
+        writer.beginArray();
+    }
 
-	@Override
-	public void flush() throws IOException {
-		writer.flush();
-	}
-	
-	@Override
-	public void close() throws IOException {
-		writer.close();
-	}
+    @Override
+    public void startObject() throws IOException {
+        writer.beginObject();
+    }
+
+    @Override
+    public void value(Object value) throws IOException {
+        if (value == null) {
+            writer.nullValue();
+        } else if (value instanceof String) {
+            writer.value((String) value);
+        } else if (value instanceof Number) {
+            writer.value((Number) value);
+        } else if (value instanceof Boolean) {
+            writer.value((Boolean) value);
+        } else {
+            throw new IOException("Cannot write value: " + value);
+        }
+    }
+
+    @Override
+    public void flush() throws IOException {
+        writer.flush();
+    }
+
+    @Override
+    public void close() throws IOException {
+        writer.close();
+    }
 }

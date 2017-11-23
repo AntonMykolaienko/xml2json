@@ -33,38 +33,39 @@ import de.odysseus.staxon.json.stream.JsonStreamSource;
 import de.odysseus.staxon.json.stream.JsonStreamTarget;
 
 public class GsonStreamFactory extends JsonStreamFactory {
-	@Override
-	public JsonStreamSource createJsonStreamSource(InputStream input) throws IOException {
-		return createJsonStreamSource(new InputStreamReader(input));
-	}
-	
-	@Override
-	public JsonStreamSource createJsonStreamSource(Reader reader) {
-		JsonReader jsonReader = new JsonReader(new FilterReader(reader) {
-			@Override
-			public void close() throws IOException {
-				// avoid closing underlying stream
-			}
-		});
-		jsonReader.setLenient(false);
-		return new GsonStreamSource(jsonReader);
-	}
 
-	@Override
-	public JsonStreamTarget createJsonStreamTarget(OutputStream output, boolean pretty) throws IOException {
-		return createJsonStreamTarget(new OutputStreamWriter(output), pretty);
-	}
-	
-	@Override
-	public JsonStreamTarget createJsonStreamTarget(Writer writer, boolean pretty) {
-		JsonWriter jsonWriter = new JsonWriter(new FilterWriter(writer) {
-			@Override
-			public void close() throws IOException {
-				flush(); // avoid closing underlying stream
-			}
-		});
-		jsonWriter.setLenient(false);
-		jsonWriter.setIndent(pretty ? "\t" : "");
-		return new GsonStreamTarget(jsonWriter);
-	}
+    @Override
+    public JsonStreamSource createJsonStreamSource(InputStream input) throws IOException {
+        return createJsonStreamSource(new InputStreamReader(input));
+    }
+
+    @Override
+    public JsonStreamSource createJsonStreamSource(Reader reader) {
+        JsonReader jsonReader = new JsonReader(new FilterReader(reader) {
+            @Override
+            public void close() throws IOException {
+                // avoid closing underlying stream
+            }
+        });
+        jsonReader.setLenient(false);
+        return new GsonStreamSource(jsonReader);
+    }
+
+    @Override
+    public JsonStreamTarget createJsonStreamTarget(OutputStream output, boolean pretty) throws IOException {
+        return createJsonStreamTarget(new OutputStreamWriter(output), pretty);
+    }
+
+    @Override
+    public JsonStreamTarget createJsonStreamTarget(Writer writer, boolean pretty) {
+        JsonWriter jsonWriter = new JsonWriter(new FilterWriter(writer) {
+            @Override
+            public void close() throws IOException {
+                flush(); // avoid closing underlying stream
+            }
+        });
+        jsonWriter.setLenient(false);
+        jsonWriter.setIndent(pretty ? "\t" : "");
+        return new GsonStreamTarget(jsonWriter);
+    }
 }

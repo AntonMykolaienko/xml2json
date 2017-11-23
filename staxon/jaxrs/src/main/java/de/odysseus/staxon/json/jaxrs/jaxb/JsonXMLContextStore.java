@@ -25,70 +25,72 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 public class JsonXMLContextStore {
-	static class CacheKey {
-		private final int hashCode;
-		private final Class<?>[] classes;
 
-		CacheKey(Class<?>... classes) {
-			int classesHashCode = 0;
-			for (Class<?> clazz : classes) {
-				classesHashCode ^= clazz.hashCode();
-			}
-			this.hashCode = classesHashCode;
-			this.classes = classes;
-		}
+    static class CacheKey {
 
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null || getClass() != obj.getClass() || hashCode() != obj.hashCode()) {
-				return false;
-			}
-			CacheKey other = (CacheKey) obj;
-			if (!Arrays.equals(classes, other.classes)) {
-				return false;
-			}
-			return true;
-		}
+        private final int hashCode;
+        private final Class<?>[] classes;
 
-		@Override
-		public int hashCode() {
-			return hashCode;
-		}
-	}
+        CacheKey(Class<?>... classes) {
+            int classesHashCode = 0;
+            for (Class<?> clazz : classes) {
+                classesHashCode ^= clazz.hashCode();
+            }
+            this.hashCode = classesHashCode;
+            this.classes = classes;
+        }
 
-	private final ConcurrentHashMap<CacheKey, JAXBContext> cache = new ConcurrentHashMap<CacheKey, JAXBContext>();
-	private final Providers providers;
-	
-	public JsonXMLContextStore(Providers providers) {
-		this.providers = providers;
-	}
-	
-	protected JAXBContext createContext(Class<?>... types) throws JAXBException {
-		return JAXBContext.newInstance(types);
-	}
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass() || hashCode() != obj.hashCode()) {
+                return false;
+            }
+            CacheKey other = (CacheKey) obj;
+            if (!Arrays.equals(classes, other.classes)) {
+                return false;
+            }
+            return true;
+        }
 
-	public JAXBContext getContext(Class<?> type, MediaType mediaType) throws JAXBException {
-		CacheKey key = new CacheKey(type);
-		JAXBContext result = cache.get(key);
-		if (result != null) {
-			return result;
-		}
-		if (providers != null) {
-			ContextResolver<JAXBContext> resolver = providers.getContextResolver(JAXBContext.class, mediaType);
-			if (resolver != null) {
-				result = resolver.getContext(type);
-				if (result != null) {
-					return cache.putIfAbsent(key, result) == null ? result : cache.get(key);
-				}
-			}
-		}
-		result = createContext(type);
-		if (result != null) {
-			return cache.putIfAbsent(key, result) == null ? result : cache.get(key);
-		}
-		return null;
-	}
+        @Override
+        public int hashCode() {
+            return hashCode;
+        }
+    }
+
+    private final ConcurrentHashMap<CacheKey, JAXBContext> cache = new ConcurrentHashMap<CacheKey, JAXBContext>();
+    private final Providers providers;
+
+    public JsonXMLContextStore(Providers providers) {
+        this.providers = providers;
+    }
+
+    protected JAXBContext createContext(Class<?>... types) throws JAXBException {
+        return JAXBContext.newInstance(types);
+    }
+
+    public JAXBContext getContext(Class<?> type, MediaType mediaType) throws JAXBException {
+        CacheKey key = new CacheKey(type);
+        JAXBContext result = cache.get(key);
+        if (result != null) {
+            return result;
+        }
+        if (providers != null) {
+            ContextResolver<JAXBContext> resolver = providers.getContextResolver(JAXBContext.class, mediaType);
+            if (resolver != null) {
+                result = resolver.getContext(type);
+                if (result != null) {
+                    return cache.putIfAbsent(key, result) == null ? result : cache.get(key);
+                }
+            }
+        }
+        result = createContext(type);
+        if (result != null) {
+            return cache.putIfAbsent(key, result) == null ? result : cache.get(key);
+        }
+        return null;
+    }
 }

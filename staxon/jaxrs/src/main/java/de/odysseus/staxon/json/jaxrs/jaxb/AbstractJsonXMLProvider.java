@@ -39,99 +39,100 @@ import de.odysseus.staxon.json.jaxb.JsonXML;
 import de.odysseus.staxon.json.jaxb.JsonXMLBinder;
 
 abstract class AbstractJsonXMLProvider extends JsonXMLBinder implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
-	protected static <A extends Annotation> A getAnnotation(Annotation[] annotations, Class<A> annotationType) {
-		for (Annotation annotation : annotations) {
-			if (annotation.annotationType() == annotationType) {
-				return annotationType.cast(annotation);
-			}
-		}
-		return null;
-	}
-	
-	private final JsonXMLContextStore store;
-	
-	public AbstractJsonXMLProvider(Providers providers) {
-		super(true);
-		this.store = new JsonXMLContextStore(providers);
-	}
 
-	protected JsonXML getJsonXML(Class<?> type, Annotation[] resourceAnnotations) {
-		JsonXML result = getAnnotation(resourceAnnotations, JsonXML.class);
-		if (result == null) {
-			result = type.getAnnotation(JsonXML.class);
-		}
-		return result;
-	}
-	
-	protected boolean isSupported(MediaType mediaType) {
-		return "json".equalsIgnoreCase(mediaType.getSubtype()) || mediaType.getSubtype().endsWith("+json");
-	}
-	
-	protected String getCharset(MediaType mediaType) {	
-		Map<String, String> parameters = mediaType.getParameters();
-		return parameters.containsKey("charset") ? parameters.get("charset") : "UTF-8";
-	}
+    protected static <A extends Annotation> A getAnnotation(Annotation[] annotations, Class<A> annotationType) {
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType() == annotationType) {
+                return annotationType.cast(annotation);
+            }
+        }
+        return null;
+    }
 
-	protected JAXBContext getContext(Class<?> type, MediaType mediaType) throws JAXBException {
-		return store.getContext(type, mediaType);
-	}
-	
-	protected abstract boolean isReadWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType);
+    private final JsonXMLContextStore store;
 
-	@Override
-	public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-		return isReadWriteable(type, genericType, annotations, mediaType);
-	}
+    public AbstractJsonXMLProvider(Providers providers) {
+        super(true);
+        this.store = new JsonXMLContextStore(providers);
+    }
 
-	@Override
-	public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-		return isReadWriteable(type, genericType, annotations, mediaType);
-	}
+    protected JsonXML getJsonXML(Class<?> type, Annotation[] resourceAnnotations) {
+        JsonXML result = getAnnotation(resourceAnnotations, JsonXML.class);
+        if (result == null) {
+            result = type.getAnnotation(JsonXML.class);
+        }
+        return result;
+    }
 
-	@Override
-	public long getSize(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-		return -1;
-	}
+    protected boolean isSupported(MediaType mediaType) {
+        return "json".equalsIgnoreCase(mediaType.getSubtype()) || mediaType.getSubtype().endsWith("+json");
+    }
 
-	public abstract Object read(
-			Class<?> type,
-			Type genericType,
-			Annotation[] annotations,
-			MediaType mediaType,
-			MultivaluedMap<String, String> httpHeaders,
-			Reader entityStream) throws IOException, WebApplicationException;
+    protected String getCharset(MediaType mediaType) {
+        Map<String, String> parameters = mediaType.getParameters();
+        return parameters.containsKey("charset") ? parameters.get("charset") : "UTF-8";
+    }
 
-	@Override
-	public final Object readFrom(
-			Class<Object> type, // <-- how sad...
-			Type genericType,
-			Annotation[] annotations,
-			MediaType mediaType,
-			MultivaluedMap<String, String> httpHeaders,
-			InputStream entityStream) throws IOException, WebApplicationException {
-		Reader reader = new InputStreamReader(entityStream, getCharset(mediaType));
-		return read(type, genericType, annotations, mediaType, httpHeaders, reader);
-	}
-	
-	public abstract void write(
-			Class<?> type,
-			Type genericType,
-			Annotation[] annotations,
-			MediaType mediaType,
-			MultivaluedMap<String, Object> httpHeaders,
-			Writer entityStream,
-			Object entry) throws IOException, WebApplicationException;
+    protected JAXBContext getContext(Class<?> type, MediaType mediaType) throws JAXBException {
+        return store.getContext(type, mediaType);
+    }
 
-	@Override
-	public final void writeTo(
-			Object entry,
-			Class<?> type,
-			Type genericType,
-			Annotation[] annotations,
-			MediaType mediaType,
-			MultivaluedMap<String, Object> httpHeaders,
-			OutputStream entityStream) throws IOException, WebApplicationException {
-		Writer writer = new OutputStreamWriter(entityStream, getCharset(mediaType));
-		write(type, genericType, annotations, mediaType, httpHeaders, writer, entry);
-	}
+    protected abstract boolean isReadWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType);
+
+    @Override
+    public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+        return isReadWriteable(type, genericType, annotations, mediaType);
+    }
+
+    @Override
+    public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+        return isReadWriteable(type, genericType, annotations, mediaType);
+    }
+
+    @Override
+    public long getSize(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+        return -1;
+    }
+
+    public abstract Object read(
+            Class<?> type,
+            Type genericType,
+            Annotation[] annotations,
+            MediaType mediaType,
+            MultivaluedMap<String, String> httpHeaders,
+            Reader entityStream) throws IOException, WebApplicationException;
+
+    @Override
+    public final Object readFrom(
+            Class<Object> type, // <-- how sad...
+            Type genericType,
+            Annotation[] annotations,
+            MediaType mediaType,
+            MultivaluedMap<String, String> httpHeaders,
+            InputStream entityStream) throws IOException, WebApplicationException {
+        Reader reader = new InputStreamReader(entityStream, getCharset(mediaType));
+        return read(type, genericType, annotations, mediaType, httpHeaders, reader);
+    }
+
+    public abstract void write(
+            Class<?> type,
+            Type genericType,
+            Annotation[] annotations,
+            MediaType mediaType,
+            MultivaluedMap<String, Object> httpHeaders,
+            Writer entityStream,
+            Object entry) throws IOException, WebApplicationException;
+
+    @Override
+    public final void writeTo(
+            Object entry,
+            Class<?> type,
+            Type genericType,
+            Annotation[] annotations,
+            MediaType mediaType,
+            MultivaluedMap<String, Object> httpHeaders,
+            OutputStream entityStream) throws IOException, WebApplicationException {
+        Writer writer = new OutputStreamWriter(entityStream, getCharset(mediaType));
+        write(type, genericType, annotations, mediaType, httpHeaders, writer, entry);
+    }
 }
