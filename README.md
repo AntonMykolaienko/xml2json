@@ -13,7 +13,7 @@ To build application from sources you will need following parts:
 - Oracle JDK 1.8u40 (or just JRE to run binary application) or newer ([Download](http://www.oracle.com/technetwork/java/javase/downloads/index.html))
 - Git ([Download](https://git-scm.com/downloads))
 - Maven 3.x ([Download](https://maven.apache.org/download.cgi))
-or you can download binaries for your platform at SourceForge([Download](https://sourceforge.net/projects/xml2json-converter/))
+or you can download binaries for your platform at SourceForge ([Download](https://sourceforge.net/projects/xml2json-converter/))
 
 ### Build from sources
 - Clone the repo: `git clone https://github.com/AntonMykolaienko/xml2json.git`
