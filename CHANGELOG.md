@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.3.0] - Not released yet
 - Integrated StAXON library for better(simpler) issue fixing
-- Imroved convertion performance for XML to JSON convertion
+- Improved convertion performance for XML to JSON convertion
 
 ## [1.2.0] - 11/12/2017
 - Added support for batch converting via command line by pattern
