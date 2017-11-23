@@ -31,28 +31,28 @@ Tool supports following command line parameters:
 Examples:
 1. Convert list of JSON-files:
 	```
-	java -jar xml2json-1.2.0-all.jar --noGui --sourceFolder=C:\Temp\Input \
+	java -jar xml2json-1.3.0-all.jar --noGui --sourceFolder=C:\Temp\Input \
 	--destinationFolder=C:\Temp\Output --pattern=*.json
 	```
 2. Convert list of XML-files:
 	```
-	java -jar xml2json-1.2.0-all.jar --noGui --sourceFolder=C:\Temp\Input \
+	java -jar xml2json-1.3.0-all.jar --noGui --sourceFolder=C:\Temp\Input \
 	--destinationFolder=C:\Temp\Output --pattern=*.xml
 	```
 3. Convert only one file :
 	```
-	java -jar xml2json-1.2.0-all.jar --noGui --sourceFolder=C:\Temp\Input \
+	java -jar xml2json-1.3.0-all.jar --noGui --sourceFolder=C:\Temp\Input \
 	--destinationFolder=C:\Temp\Output --pattern=someFile.xml
 	```
 	
 To start Tool with GUI just run following command: 
 ```
-java -jar xml2json-1.2.0-all.jar
+java -jar xml2json-1.3.0-all.jar
 ```
 
 <br>Note: When you are starting tool in command line mode it will use all free memory which you have in your system, but if you need limit memory usage then you will need to add `-Xmx=512M` to your start command right after 'java':
 ```
-java -Xmx=512M -jar xml2json-1.2.0-all.jar --noGui --sourceFolder=C:\Temp\Input \
+java -Xmx=512M -jar xml2json-1.3.0-all.jar --noGui --sourceFolder=C:\Temp\Input \
 --destinationFolder=C:\Temp\Output --pattern=someFile.xml
 ```
 
