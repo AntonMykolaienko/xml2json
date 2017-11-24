@@ -1,3 +1,6 @@
+# Mac
+.DS_Store
+
 /.svn
 /files
 /target
@@ -22,6 +25,9 @@
 *.zip
 *.tar.gz
 *.rar
+
+# Idea files
+**/*.iml
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
