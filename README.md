@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/AntonMykolaienko/xml2json.svg?branch=master)](https://travis-ci.org/AntonMykolaienko/xml2json) [![Download Xml2Json Converter](https://img.shields.io/sourceforge/dm/xml2json-converter.svg)](https://sourceforge.net/projects/xml2json-converter/files/latest/download)
-[![Quality Gate](https://sonarcloud.io/api/badges/gate?key=com.fs:xml2json)](https://sonarcloud.io/dashboard?id=com.fs%3Axml2json)
+[![Quality Gate](https://sonarcloud.io/api/badges/gate?key=com.fs:xml2json-parent)](https://sonarcloud.io/dashboard?id=com.fs%3Axml2json-parent)
 [![Dependency Status](https://www.versioneye.com/user/projects/59eb28472de28c156fca6707/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/59eb28472de28c156fca6707)
 [![](http://img.shields.io/gratipay/user/AntonMykolaienko.svg)](https://gratipay.com/~AntonMykolaienko/)
 # Xml2Json Converter &nbsp; [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Lighweight%20XML%20to%20JSON%20converter%20written%20on%20JavaFX&url=https://sourceforge.net/projects/xml2json-converter/&via=xml2json&hashtags=xml2json,xml,json,convert,javafx)
