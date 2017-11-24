@@ -13,12 +13,15 @@ To build application from sources you will need following parts:
 - Oracle JDK 1.8u40 (or just JRE to run binary application) or newer ([Download](http://www.oracle.com/technetwork/java/javase/downloads/index.html))
 - Git ([Download](https://git-scm.com/downloads))
 - Maven 3.x ([Download](https://maven.apache.org/download.cgi))
-or you can download binaries for your platform at SourceForge ([Download](https://sourceforge.net/projects/xml2json-converter/))
+
 
 ### Build from sources
 - Clone the repo: `git clone https://github.com/AntonMykolaienko/xml2json.git`
 - Build: `mvn clean install`
 - Binary application (dmg, rpm or exe) can be found at `xml2json\target\os\distribution\xml2json`
+
+### Binary packages
+You can download binaries for desired platform at SourceForge ([Download](https://sourceforge.net/projects/xml2json-converter/))
 
 ### Startup options
 Application have UI written on JavaFX. Starting from 1.2.0 version Xml2Json converter supports conversion via command line in batch. 
