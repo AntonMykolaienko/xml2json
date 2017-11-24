@@ -12,7 +12,6 @@
         <groupId>com.fs</groupId>
         <artifactId>xml2json-parent</artifactId>
         <version>1.3.0-SNAPSHOT</version>
-        <relativePath/>
     </parent>
 
     <url>http://beckchr.github.com/staxon/</url>
