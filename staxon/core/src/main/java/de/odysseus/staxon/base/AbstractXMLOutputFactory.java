@@ -29,75 +29,72 @@ import javax.xml.transform.stream.StreamResult;
  * Abstract XML output factory.
  */
 public abstract class AbstractXMLOutputFactory extends XMLOutputFactory {
-	private boolean repairingNamespaces;
-	
-	@Override
-	public XMLStreamWriter createXMLStreamWriter(Result result) throws XMLStreamException {
-		if (result instanceof StreamResult) {
-			StreamResult streamResult = (StreamResult) result;
-			OutputStream output = streamResult.getOutputStream();
-			if (output != null) {
-				return createXMLStreamWriter(output);
-			}
-			Writer writer = streamResult.getWriter();
-			if (writer != null) {
-				return createXMLStreamWriter(writer);
-			}
-			if (result.getSystemId() != null) {
-				throw new XMLStreamException("Cannot open system id as URL for writing: " + result.getSystemId());
-			} else {
-				throw new XMLStreamException("Invalid stream result: none of output, writer, systemId set");
-			}
-		}
-		throw new XMLStreamException("Unsupported result type: " + result.getClass());
-	}
 
-	@Override
-	public XMLEventWriter createXMLEventWriter(Result result) throws XMLStreamException {
-		return createXMLEventWriter(createXMLStreamWriter(result));
-	}
+    private boolean repairingNamespaces;
 
-	@Override
-	public XMLEventWriter createXMLEventWriter(OutputStream stream) throws XMLStreamException {
-		return createXMLEventWriter(createXMLStreamWriter(stream));
-	}
+    @Override
+    public XMLStreamWriter createXMLStreamWriter(Result result) throws XMLStreamException {
+        if (result instanceof StreamResult) {
+            StreamResult streamResult = (StreamResult) result;
+            OutputStream output = streamResult.getOutputStream();
+            if (output != null) {
+                return createXMLStreamWriter(output);
+            }
+            Writer writer = streamResult.getWriter();
+            if (writer != null) {
+                return createXMLStreamWriter(writer);
+            }
+            if (result.getSystemId() != null) {
+                throw new XMLStreamException("Cannot open system id as URL for writing: " + result.getSystemId());
+            } else {
+                throw new XMLStreamException("Invalid stream result: none of output, writer, systemId set");
+            }
+        }
+        throw new XMLStreamException("Unsupported result type: " + result.getClass());
+    }
 
-	@Override
-	public XMLEventWriter createXMLEventWriter(OutputStream stream, String encoding) throws XMLStreamException {
-		return createXMLEventWriter(createXMLStreamWriter(stream, encoding));
-	}
+    @Override
+    public XMLEventWriter createXMLEventWriter(Result result) throws XMLStreamException {
+        return createXMLEventWriter(createXMLStreamWriter(result));
+    }
 
-	@Override
-	public XMLEventWriter createXMLEventWriter(Writer stream) throws XMLStreamException {
-		return createXMLEventWriter(createXMLStreamWriter(stream));
-	}
+    @Override
+    public XMLEventWriter createXMLEventWriter(OutputStream stream) throws XMLStreamException {
+        return createXMLEventWriter(createXMLStreamWriter(stream));
+    }
 
-	public abstract XMLEventWriter createXMLEventWriter(XMLStreamWriter writer) throws XMLStreamException;
-	
-	@Override
-	public boolean isPropertySupported(String name) {
-		if (XMLOutputFactory.IS_REPAIRING_NAMESPACES.equals(name)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    @Override
+    public XMLEventWriter createXMLEventWriter(OutputStream stream, String encoding) throws XMLStreamException {
+        return createXMLEventWriter(createXMLStreamWriter(stream, encoding));
+    }
 
-	@Override
-	public Object getProperty(String name) throws IllegalArgumentException {
-		if (IS_REPAIRING_NAMESPACES.equals(name)) {
-			return Boolean.valueOf(repairingNamespaces);
-		} else {
-			throw new IllegalArgumentException("Unsupported property: " + name);
-		}
-	}
-	
-	@Override
-	public void setProperty(String name, Object value) throws IllegalArgumentException {
-		if (IS_REPAIRING_NAMESPACES.equals(name)) {
-			repairingNamespaces = ((Boolean)value).booleanValue();
-		} else {
-			throw new IllegalArgumentException("Unsupported property: " + name);
-		}
-	}
+    @Override
+    public XMLEventWriter createXMLEventWriter(Writer stream) throws XMLStreamException {
+        return createXMLEventWriter(createXMLStreamWriter(stream));
+    }
+
+    public abstract XMLEventWriter createXMLEventWriter(XMLStreamWriter writer) throws XMLStreamException;
+
+    @Override
+    public boolean isPropertySupported(String name) {
+        return XMLOutputFactory.IS_REPAIRING_NAMESPACES.equals(name);
+    }
+
+    @Override
+    public Object getProperty(String name) throws IllegalArgumentException {
+        if (IS_REPAIRING_NAMESPACES.equals(name)) {
+            return repairingNamespaces;
+        } else {
+            throw new IllegalArgumentException("Unsupported property: " + name);
+        }
+    }
+
+    @Override
+    public void setProperty(String name, Object value) throws IllegalArgumentException {
+        if (IS_REPAIRING_NAMESPACES.equals(name)) {
+            repairingNamespaces = ((Boolean) value);
+        } else {
+            throw new IllegalArgumentException("Unsupported property: " + name);
+        }
+    }
 }

@@ -129,7 +129,7 @@ public class ConverterService {
      */
     private InputStream getWrappedInputStream(File sourceFile, IFileReadListener listener,
             AtomicBoolean isCanceled) throws IOException {
-        
+
         return new WrappedInputStream(new BufferedInputStream(
                 Files.newInputStream(sourceFile.toPath(), StandardOpenOption.READ)),
                 listener, isCanceled);
